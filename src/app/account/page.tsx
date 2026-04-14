@@ -29,12 +29,19 @@ export default function AccountPage() {
     newPassword: "",
     confirmPassword: "",
   });
-
+  const [isMobile, setIsMobile] = useState(false);
   const [stats, setStats] = useState({
     totalOrders: 0,
     totalSpent: 0,
     pendingOrders: 0,
   });
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     async function loadUserAndData() {
@@ -144,6 +151,282 @@ export default function AccountPage() {
     { id: "security", label: "Security", icon: "🔒" },
   ];
 
+  // Shared content
+  const renderContent = () => (
+    <>
+      {message.text && (
+        <div
+          className={`alert alert-${message.type}`}
+          style={{ marginBottom: "1rem" }}
+        >
+          {message.text}
+        </div>
+      )}
+
+      {activeTab === "overview" && (
+        <>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+              gap: "1rem",
+              marginBottom: "2rem",
+            }}
+          >
+            <div
+              className="card"
+              style={{
+                padding: "1rem",
+                textAlign: "center",
+                border: "1px solid var(--clr-cream-dark)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: isMobile ? "2rem" : "2.5rem",
+                  fontWeight: 700,
+                  color: "var(--clr-saffron-dark)",
+                }}
+              >
+                {stats.totalOrders}
+              </div>
+              <div style={{ color: "var(--clr-muted)" }}>Total Orders</div>
+            </div>
+            <div
+              className="card"
+              style={{
+                padding: "1rem",
+                textAlign: "center",
+                border: "1px solid var(--clr-cream-dark)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: isMobile ? "1.75rem" : "2rem",
+                  fontWeight: 700,
+                  color: "var(--clr-saffron-dark)",
+                }}
+              >
+                {formatNaira(stats.totalSpent)}
+              </div>
+              <div style={{ color: "var(--clr-muted)" }}>Total Spent</div>
+            </div>
+            <div
+              className="card"
+              style={{
+                padding: "1rem",
+                textAlign: "center",
+                border: "1px solid var(--clr-cream-dark)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: isMobile ? "1.75rem" : "2rem",
+                  fontWeight: 700,
+                  color: "var(--clr-chili)",
+                }}
+              >
+                {stats.pendingOrders}
+              </div>
+              <div style={{ color: "var(--clr-muted)" }}>Pending Orders</div>
+            </div>
+          </div>
+          <div
+            className="card"
+            style={{
+              padding: "1.5rem",
+              border: "1px solid var(--clr-cream-dark)",
+            }}
+          >
+            <h3 style={{ marginBottom: "1rem" }}>Quick Actions</h3>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
+              <Link href="/" className="btn btn-primary">
+                Shop Now
+              </Link>
+              <Link
+                href="#"
+                className="btn btn-outline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveTab("profile");
+                }}
+              >
+                Update Profile
+              </Link>
+            </div>
+          </div>
+        </>
+      )}
+
+      {activeTab === "orders" && (
+        <>
+          {orders.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "3rem" }}>
+              <p>You haven't placed any orders yet.</p>
+              <Link
+                href="/"
+                className="btn btn-primary"
+                style={{ marginTop: "1rem" }}
+              >
+                Start Shopping
+              </Link>
+            </div>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  minWidth: "480px",
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{ borderBottom: "2px solid var(--clr-cream-dark)" }}
+                  >
+                    <th style={{ textAlign: "left", padding: "0.75rem" }}>
+                      Order #
+                    </th>
+                    <th style={{ textAlign: "left", padding: "0.75rem" }}>
+                      Date
+                    </th>
+                    <th style={{ textAlign: "left", padding: "0.75rem" }}>
+                      Total
+                    </th>
+                    <th style={{ textAlign: "left", padding: "0.75rem" }}>
+                      Status
+                    </th>
+                    <th style={{ textAlign: "left", padding: "0.75rem" }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((order) => (
+                    <tr
+                      key={order.id}
+                      style={{
+                        borderBottom: "1px solid var(--clr-cream-dark)",
+                      }}
+                    >
+                      <td style={{ padding: "0.75rem" }}>
+                        #{order.id.slice(0, 8).toUpperCase()}
+                      </td>
+                      <td style={{ padding: "0.75rem" }}>
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </td>
+                      <td style={{ padding: "0.75rem" }}>
+                        {formatNaira(order.total_amount)}
+                      </td>
+                      <td style={{ padding: "0.75rem" }}>
+                        <span className={`badge badge-${order.status}`}>
+                          {order.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: "0.75rem" }}>
+                        <Link
+                          href={`/account/orders/${order.id}`}
+                          className="btn btn-ghost btn-sm"
+                        >
+                          View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {activeTab === "profile" && (
+        <form
+          onSubmit={updateProfile}
+          style={{ maxWidth: "500px", width: "100%" }}
+        >
+          <div className="form-group" style={{ marginBottom: "1rem" }}>
+            <label className="form-label">Full Name</label>
+            <input
+              className="form-input"
+              type="text"
+              value={profile.full_name}
+              onChange={(e) =>
+                setProfile({ ...profile, full_name: e.target.value })
+              }
+              required
+            />
+          </div>
+          <div className="form-group" style={{ marginBottom: "1rem" }}>
+            <label className="form-label">Phone Number</label>
+            <input
+              className="form-input"
+              type="tel"
+              value={profile.phone}
+              onChange={(e) =>
+                setProfile({ ...profile, phone: e.target.value })
+              }
+            />
+          </div>
+          <div className="form-group" style={{ marginBottom: "1.5rem" }}>
+            <label className="form-label">Delivery Address</label>
+            <textarea
+              className="form-input"
+              rows={3}
+              value={profile.address}
+              onChange={(e) =>
+                setProfile({ ...profile, address: e.target.value })
+              }
+            />
+          </div>
+          <button type="submit" className="btn btn-primary" disabled={saving}>
+            {saving ? "Saving..." : "Save Changes"}
+          </button>
+        </form>
+      )}
+
+      {activeTab === "security" && (
+        <form
+          onSubmit={changePassword}
+          style={{ maxWidth: "400px", width: "100%" }}
+        >
+          <div className="form-group" style={{ marginBottom: "1rem" }}>
+            <label className="form-label">New Password</label>
+            <input
+              className="form-input"
+              type="password"
+              required
+              value={passwordForm.newPassword}
+              onChange={(e) =>
+                setPasswordForm({
+                  ...passwordForm,
+                  newPassword: e.target.value,
+                })
+              }
+              minLength={6}
+            />
+          </div>
+          <div className="form-group" style={{ marginBottom: "1rem" }}>
+            <label className="form-label">Confirm New Password</label>
+            <input
+              className="form-input"
+              type="password"
+              required
+              value={passwordForm.confirmPassword}
+              onChange={(e) =>
+                setPasswordForm({
+                  ...passwordForm,
+                  confirmPassword: e.target.value,
+                })
+              }
+            />
+          </div>
+          <button type="submit" className="btn btn-primary" disabled={saving}>
+            {saving ? "Updating..." : "Change Password"}
+          </button>
+        </form>
+      )}
+    </>
+  );
+
   return (
     <>
       <Navbar />
@@ -151,376 +434,133 @@ export default function AccountPage() {
         <div className="container" style={{ padding: "2rem var(--space-md)" }}>
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "280px 1fr",
-              gap: "2rem",
               background: "white",
               borderRadius: "var(--radius-lg)",
               boxShadow: "var(--shadow-md)",
               overflow: "hidden",
             }}
           >
-            {/* Sidebar */}
-            <aside
-              style={{
-                background: "var(--clr-bark)",
-                color: "var(--clr-cream)",
-                padding: "2rem 0",
-              }}
-            >
+            {isMobile ? (
+              // Mobile layout: horizontal scrollable tabs
               <div
                 style={{
-                  padding: "0 1.5rem 1.5rem 1.5rem",
-                  borderBottom: "1px solid rgba(253,246,236,0.1)",
+                  overflowX: "auto",
+                  whiteSpace: "nowrap",
+                  borderBottom: "1px solid var(--clr-cream-dark)",
                 }}
               >
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.25rem",
-                    marginBottom: "0.25rem",
-                  }}
-                >
-                  {profile.full_name || user.email}
-                </h2>
-                <p style={{ fontSize: "0.8rem", color: "var(--clr-saffron)" }}>
-                  Customer since {new Date(user.created_at).getFullYear()}
-                </p>
-              </div>
-              <nav style={{ marginTop: "1rem" }}>
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as Tab)}
                     style={{
-                      display: "flex",
+                      display: "inline-flex",
                       alignItems: "center",
-                      gap: "0.75rem",
-                      width: "100%",
-                      padding: "0.875rem 1.5rem",
-                      background:
-                        activeTab === tab.id
-                          ? "rgba(232,160,32,0.15)"
-                          : "transparent",
+                      gap: "0.5rem",
+                      padding: "1rem 1.25rem",
+                      background: "none",
                       border: "none",
-                      borderLeft:
+                      borderBottom:
                         activeTab === tab.id
-                          ? "4px solid var(--clr-saffron)"
-                          : "4px solid transparent",
+                          ? "3px solid var(--clr-saffron)"
+                          : "3px solid transparent",
                       color:
                         activeTab === tab.id
-                          ? "var(--clr-saffron)"
-                          : "rgba(253,246,236,0.8)",
-                      textAlign: "left",
-                      cursor: "pointer",
-                      fontSize: "0.9375rem",
+                          ? "var(--clr-saffron-dark)"
+                          : "var(--clr-muted)",
+                      fontSize: "0.9rem",
                       fontWeight: activeTab === tab.id ? 600 : 400,
-                      transition: "all var(--transition-fast)",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    <span style={{ fontSize: "1.25rem" }}>{tab.icon}</span>
-                    {tab.label}
+                    <span>{tab.icon}</span> {tab.label}
                   </button>
                 ))}
-              </nav>
-            </aside>
-
-            {/* Main content */}
-            <main style={{ padding: "2rem" }}>
-              {message.text && (
-                <div
-                  className={`alert alert-${message.type}`}
-                  style={{ marginBottom: "1rem" }}
+              </div>
+            ) : (
+              // Desktop layout: sidebar + content
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "280px 1fr",
+                  gap: "0",
+                }}
+              >
+                <aside
+                  style={{
+                    background: "var(--clr-bark)",
+                    color: "var(--clr-cream)",
+                    padding: "2rem 0",
+                  }}
                 >
-                  {message.text}
-                </div>
-              )}
-
-              {/* Overview Tab */}
-              {activeTab === "overview" && (
-                <>
                   <div
                     style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(auto-fit, minmax(200px, 1fr))",
-                      gap: "1rem",
-                      marginBottom: "2rem",
+                      padding: "0 1.5rem 1.5rem 1.5rem",
+                      borderBottom: "1px solid rgba(253,246,236,0.1)",
                     }}
                   >
-                    <div
-                      className="card"
+                    <h2
                       style={{
-                        padding: "1.5rem",
-                        textAlign: "center",
-                        border: "1px solid var(--clr-cream-dark)",
+                        fontFamily: "var(--font-display)",
+                        fontSize: "1.25rem",
+                        marginBottom: "0.25rem",
                       }}
                     >
-                      <div
-                        style={{
-                          fontSize: "2.5rem",
-                          fontWeight: 700,
-                          color: "var(--clr-saffron-dark)",
-                        }}
-                      >
-                        {stats.totalOrders}
-                      </div>
-                      <div style={{ color: "var(--clr-muted)" }}>
-                        Total Orders
-                      </div>
-                    </div>
-                    <div
-                      className="card"
+                      {profile.full_name || user.email}
+                    </h2>
+                    <p
                       style={{
-                        padding: "1.5rem",
-                        textAlign: "center",
-                        border: "1px solid var(--clr-cream-dark)",
+                        fontSize: "0.8rem",
+                        color: "var(--clr-saffron)",
                       }}
                     >
-                      <div
+                      Customer since {new Date(user.created_at).getFullYear()}
+                    </p>
+                  </div>
+                  <nav style={{ marginTop: "1rem" }}>
+                    {tabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as Tab)}
                         style={{
-                          fontSize: "2rem",
-                          fontWeight: 700,
-                          color: "var(--clr-saffron-dark)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.75rem",
+                          width: "100%",
+                          padding: "0.875rem 1.5rem",
+                          background:
+                            activeTab === tab.id
+                              ? "rgba(232,160,32,0.15)"
+                              : "transparent",
+                          border: "none",
+                          borderLeft:
+                            activeTab === tab.id
+                              ? "4px solid var(--clr-saffron)"
+                              : "4px solid transparent",
+                          color:
+                            activeTab === tab.id
+                              ? "var(--clr-saffron)"
+                              : "rgba(253,246,236,0.8)",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          fontSize: "0.9375rem",
+                          fontWeight: activeTab === tab.id ? 600 : 400,
+                          transition: "all var(--transition-fast)",
                         }}
                       >
-                        {formatNaira(stats.totalSpent)}
-                      </div>
-                      <div style={{ color: "var(--clr-muted)" }}>
-                        Total Spent
-                      </div>
-                    </div>
-                    <div
-                      className="card"
-                      style={{
-                        padding: "1.5rem",
-                        textAlign: "center",
-                        border: "1px solid var(--clr-cream-dark)",
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: "2rem",
-                          fontWeight: 700,
-                          color: "var(--clr-chili)",
-                        }}
-                      >
-                        {stats.pendingOrders}
-                      </div>
-                      <div style={{ color: "var(--clr-muted)" }}>
-                        Pending Orders
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className="card"
-                    style={{
-                      padding: "1.5rem",
-                      border: "1px solid var(--clr-cream-dark)",
-                    }}
-                  >
-                    <h3 style={{ marginBottom: "1rem" }}>Quick Actions</h3>
-                    <div style={{ display: "flex", gap: "1rem" }}>
-                      <Link href="/" className="btn btn-primary">
-                        Shop Now
-                      </Link>
-                      <Link
-                        href="/account?tab=profile"
-                        className="btn btn-outline"
-                        onClick={() => setActiveTab("profile")}
-                      >
-                        Update Profile
-                      </Link>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Orders Tab */}
-              {activeTab === "orders" && (
-                <>
-                  {orders.length === 0 ? (
-                    <div style={{ textAlign: "center", padding: "3rem" }}>
-                      <p>You haven't placed any orders yet.</p>
-                      <Link
-                        href="/"
-                        className="btn btn-primary"
-                        style={{ marginTop: "1rem" }}
-                      >
-                        Start Shopping
-                      </Link>
-                    </div>
-                  ) : (
-                    <div style={{ overflowX: "auto" }}>
-                      <table
-                        style={{ width: "100%", borderCollapse: "collapse" }}
-                      >
-                        <thead>
-                          <tr
-                            style={{
-                              borderBottom: "2px solid var(--clr-cream-dark)",
-                            }}
-                          >
-                            <th
-                              style={{ textAlign: "left", padding: "0.75rem" }}
-                            >
-                              Order #
-                            </th>
-                            <th
-                              style={{ textAlign: "left", padding: "0.75rem" }}
-                            >
-                              Date
-                            </th>
-                            <th
-                              style={{ textAlign: "left", padding: "0.75rem" }}
-                            >
-                              Total
-                            </th>
-                            <th
-                              style={{ textAlign: "left", padding: "0.75rem" }}
-                            >
-                              Status
-                            </th>
-                            <th
-                              style={{ textAlign: "left", padding: "0.75rem" }}
-                            ></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {orders.map((order) => (
-                            <tr
-                              key={order.id}
-                              style={{
-                                borderBottom: "1px solid var(--clr-cream-dark)",
-                              }}
-                            >
-                              <td style={{ padding: "0.75rem" }}>
-                                #{order.id.slice(0, 8).toUpperCase()}
-                              </td>
-                              <td style={{ padding: "0.75rem" }}>
-                                {new Date(
-                                  order.created_at,
-                                ).toLocaleDateString()}
-                              </td>
-                              <td style={{ padding: "0.75rem" }}>
-                                {formatNaira(order.total_amount)}
-                              </td>
-                              <td style={{ padding: "0.75rem" }}>
-                                <span className={`badge badge-${order.status}`}>
-                                  {order.status}
-                                </span>
-                              </td>
-                              <td style={{ padding: "0.75rem" }}>
-                                <Link
-                                  href={`/account/orders/${order.id}`}
-                                  className="btn btn-ghost btn-sm"
-                                >
-                                  View
-                                </Link>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Profile Tab */}
-              {activeTab === "profile" && (
-                <form onSubmit={updateProfile} style={{ maxWidth: "500px" }}>
-                  <div className="form-group" style={{ marginBottom: "1rem" }}>
-                    <label className="form-label">Full Name</label>
-                    <input
-                      className="form-input"
-                      type="text"
-                      value={profile.full_name}
-                      onChange={(e) =>
-                        setProfile({ ...profile, full_name: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "1rem" }}>
-                    <label className="form-label">Phone Number</label>
-                    <input
-                      className="form-input"
-                      type="tel"
-                      value={profile.phone}
-                      onChange={(e) =>
-                        setProfile({ ...profile, phone: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div
-                    className="form-group"
-                    style={{ marginBottom: "1.5rem" }}
-                  >
-                    <label className="form-label">Delivery Address</label>
-                    <textarea
-                      className="form-input"
-                      rows={3}
-                      value={profile.address}
-                      onChange={(e) =>
-                        setProfile({ ...profile, address: e.target.value })
-                      }
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={saving}
-                  >
-                    {saving ? "Saving..." : "Save Changes"}
-                  </button>
-                </form>
-              )}
-
-              {/* Security Tab */}
-              {activeTab === "security" && (
-                <form onSubmit={changePassword} style={{ maxWidth: "400px" }}>
-                  <div className="form-group" style={{ marginBottom: "1rem" }}>
-                    <label className="form-label">New Password</label>
-                    <input
-                      className="form-input"
-                      type="password"
-                      required
-                      value={passwordForm.newPassword}
-                      onChange={(e) =>
-                        setPasswordForm({
-                          ...passwordForm,
-                          newPassword: e.target.value,
-                        })
-                      }
-                      minLength={6}
-                    />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: "1rem" }}>
-                    <label className="form-label">Confirm New Password</label>
-                    <input
-                      className="form-input"
-                      type="password"
-                      required
-                      value={passwordForm.confirmPassword}
-                      onChange={(e) =>
-                        setPasswordForm({
-                          ...passwordForm,
-                          confirmPassword: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={saving}
-                  >
-                    {saving ? "Updating..." : "Change Password"}
-                  </button>
-                </form>
-              )}
-            </main>
+                        <span style={{ fontSize: "1.25rem" }}>{tab.icon}</span>
+                        {tab.label}
+                      </button>
+                    ))}
+                  </nav>
+                </aside>
+                <main style={{ padding: "2rem" }}>{renderContent()}</main>
+              </div>
+            )}
+            {isMobile && (
+              <div style={{ padding: "2rem" }}>{renderContent()}</div>
+            )}
           </div>
         </div>
       </main>
