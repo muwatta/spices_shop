@@ -26,14 +26,14 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect admin routes (except login page)
+  // Protect admin routes – redirect to /admin-login
   if (
     request.nextUrl.pathname.startsWith("/admin") &&
-    request.nextUrl.pathname !== "/admin/login"
+    request.nextUrl.pathname !== "/admin-login"
   ) {
     if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
       const url = request.nextUrl.clone();
-      url.pathname = "/admin/login";
+      url.pathname = "/admin-login";
       return NextResponse.redirect(url);
     }
   }
@@ -56,4 +56,3 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
-
