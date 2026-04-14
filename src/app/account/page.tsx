@@ -497,7 +497,7 @@ export default function AccountPage() {
                   <div
                     style={{
                       padding: "0 1.5rem 1.5rem 1.5rem",
-                      borderBottom: "1px solid rgba(253,246,236,0.1)",
+                      borderBottom: "1px solid #fff5e9",
                     }}
                   >
                     <h2
