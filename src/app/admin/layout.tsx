@@ -1,73 +1,91 @@
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import Link from "next/link";
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
-    redirect('/admin/login');
+  // Get the current pathname from headers (Next.js 14+)
+  const headersList = await import("next/headers").then((mod) => mod.headers());
+  const pathname = headersList.get("x-pathname") || "";
+
+  // Skip protection for the login page itself
+  if (pathname !== "/admin/login") {
+    if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+      redirect("/admin/login");
+    }
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#F8F5F1' }}>
-      {/* Sidebar */}
-      <aside style={{
-        width: '220px',
-        background: 'var(--clr-bark)',
-        color: 'var(--clr-cream)',
-        padding: '1.5rem 1rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-        flexShrink: 0,
-        position: 'sticky',
-        top: 0,
-        height: '100vh',
-      }}>
-        <div style={{ fontFamily: 'var(--font-display)', color: 'var(--clr-saffron)', fontSize: '1.2rem', fontWeight: 700, padding: '0.75rem', marginBottom: '1rem' }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#F8F5F1" }}>
+      {/* Sidebar – same as before */}
+      <aside
+        style={{
+          width: "220px",
+          background: "var(--clr-bark)",
+          color: "var(--clr-cream)",
+          padding: "1.5rem 1rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+          flexShrink: 0,
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "var(--font-display)",
+            color: "var(--clr-saffron)",
+            fontSize: "1.2rem",
+            fontWeight: 700,
+            padding: "0.75rem",
+            marginBottom: "1rem",
+          }}
+        >
           🌶 Admin
         </div>
 
         {[
-          { href: '/admin', label: '📊 Dashboard' },
-          { href: '/admin/orders', label: '📦 Orders' },
-          { href: '/admin/products', label: '🌶 Products' },
+          { href: "/admin", label: "📊 Dashboard" },
+          { href: "/admin/orders", label: "📦 Orders" },
+          { href: "/admin/products", label: "🌶 Products" },
         ].map((item) => (
           <Link
             key={item.href}
             href={item.href}
             style={{
-              padding: '0.625rem 0.75rem',
-              borderRadius: 'var(--radius-md)',
-              color: 'rgba(253,246,236,0.85)',
-              fontSize: '0.9rem',
+              padding: "0.625rem 0.75rem",
+              borderRadius: "var(--radius-md)",
+              color: "rgba(253,246,236,0.85)",
+              fontSize: "0.9rem",
               fontWeight: 500,
-              transition: 'all var(--transition-fast)',
-            }}
-            onMouseOver={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(232,160,32,0.2)';
-              (e.currentTarget as HTMLAnchorElement).style.color = 'var(--clr-saffron)';
-            }}
-            onMouseOut={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
-              (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(253,246,236,0.85)';
+              transition: "all var(--transition-fast)",
             }}
           >
             {item.label}
           </Link>
         ))}
 
-        <div style={{ marginTop: 'auto' }}>
-          <Link href="/" style={{ fontSize: '0.8rem', color: 'rgba(253,246,236,0.45)' }}>← View Shop</Link>
+        <div style={{ marginTop: "auto" }}>
+          <Link
+            href="/"
+            style={{ fontSize: "0.8rem", color: "rgba(253,246,236,0.45)" }}
+          >
+            ← View Shop
+          </Link>
         </div>
       </aside>
 
-      {/* Main */}
-      <main style={{ flex: 1, overflow: 'auto' }}>
-        {children}
-      </main>
+      <main style={{ flex: 1, overflow: "auto" }}>{children}</main>
     </div>
   );
 }
