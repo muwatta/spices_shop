@@ -1,9 +1,24 @@
-import { Resend } from "resend";
 import { NextResponse } from "next/server";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+  // If no API key, return a warning but don't crash the build
+  if (!RESEND_API_KEY) {
+    console.warn("RESEND_API_KEY not set – order confirmation email not sent");
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Email service not configured",
+      },
+      { status: 200 },
+    );
+  }
+
+  // Dynamically import Resend only when needed (avoids top‑level error)
+  const { Resend } = await import("resend");
+  const resend = new Resend(RESEND_API_KEY);
+
   try {
     const { email, orderId, items, total, paymentMethod } =
       await request.json();
@@ -26,16 +41,10 @@ export async function POST(request: Request) {
       <p>Thank you for your order!</p>
       <p><strong>Order ID:</strong> ${orderId.slice(0, 8).toUpperCase()}</p>
       <p><strong>Payment Method:</strong> ${paymentMethod === "bank_transfer" ? "Bank Transfer" : "Cash on Delivery"}</p>
-      <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
-        <thead>
-          <tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
-        </thead>
-        <tbody>
-          ${itemsHtml}
-        </tbody>
-        <tfoot>
-          <tr><td colspan="3"><strong>Grand Total</strong></td><td><strong>₦${total.toLocaleString()}</strong></td></tr>
-        </tfoot>
+      <table border="1" cellpadding="5" style="border-collapse: collapse;">
+        <thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
+        <tbody>${itemsHtml}</tbody>
+        <tfoot><tr><td colspan="3"><strong>Grand Total</strong></td><td><strong>₦${total.toLocaleString()}</strong></td></tr></tfoot>
       </table>
       <p>We will notify you once your order is confirmed.</p>
     `;
