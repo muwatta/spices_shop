@@ -1,53 +1,89 @@
-'use client';
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import Link from "next/link";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-
-export default function AdminLoginPage() {
-  const router = useRouter();
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const supabase = createClient();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setError('Invalid credentials');
-      setLoading(false);
-    } else {
-      router.push('/admin');
-      router.refresh();
+  const headersList = await import("next/headers").then((mod) => mod.headers());
+  const pathname = headersList.get("x-pathname") || "";
+
+  if (pathname !== "/admin/login") {
+    if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+      redirect("/admin/login");
     }
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--clr-bark)', padding: '2rem' }}>
-      <div className="card" style={{ width: '100%', maxWidth: '380px', padding: '2.5rem' }}>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', marginBottom: '0.5rem', textAlign: 'center' }}>Admin Login</h1>
-        <p style={{ color: 'var(--clr-muted)', textAlign: 'center', marginBottom: '2rem', fontSize: '0.875rem' }}>🌶 Mama Spice Dashboard</p>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#F8F5F1" }}>
+      {/* Sidebar – same as before */}
+      <aside
+        style={{
+          width: "220px",
+          background: "var(--clr-bark)",
+          color: "var(--clr-cream)",
+          padding: "1.5rem 1rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+          flexShrink: 0,
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "var(--font-display)",
+            color: "var(--clr-saffron)",
+            fontSize: "1.2rem",
+            fontWeight: 700,
+            padding: "0.75rem",
+            marginBottom: "1rem",
+          }}
+        >
+          🌶 Admin
+        </div>
 
-        {error && <div className="alert alert-error" style={{ marginBottom: '1rem', fontSize: '0.875rem' }}>{error}</div>}
+        {[
+          { href: "/admin", label: "📊 Dashboard" },
+          { href: "/admin/orders", label: "📦 Orders" },
+          { href: "/admin/products", label: "🌶 Products" },
+        ].map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            style={{
+              padding: "0.625rem 0.75rem",
+              borderRadius: "var(--radius-md)",
+              color: "rgba(253,246,236,0.85)",
+              fontSize: "0.9rem",
+              fontWeight: 500,
+              transition: "all var(--transition-fast)",
+            }}
+          >
+            {item.label}
+          </Link>
+        ))}
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div className="form-group">
-            <label className="form-label">Email</label>
-            <input className="form-input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <input className="form-input" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-          <button type="submit" className="btn btn-primary btn-lg" disabled={loading} style={{ marginTop: '0.25rem' }}>
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-      </div>
+        <div style={{ marginTop: "auto" }}>
+          <Link
+            href="/"
+            style={{ fontSize: "0.8rem", color: "rgba(253,246,236,0.45)" }}
+          >
+            ← View Shop
+          </Link>
+        </div>
+      </aside>
+
+      <main style={{ flex: 1, overflow: "auto" }}>{children}</main>
     </div>
   );
 }
