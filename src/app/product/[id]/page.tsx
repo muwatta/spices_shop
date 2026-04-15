@@ -1,14 +1,11 @@
-"use client"; // needed for useState (or keep server component but use client for error state – easier to add client)
-
-import { useState } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AddToCartButton from "@/components/product/AddToCartButton";
 import WhatsAppOrderButton from "@/components/product/WhatsAppOrderButton";
 import { formatNaira } from "@/lib/utils";
+import ClientProductImage from "./ClientProductImage"; 
 
 export const revalidate = 60;
 
@@ -33,6 +30,7 @@ export default async function ProductPage({ params }: Props) {
       <Navbar />
       <main>
         <div className="container" style={{ padding: "2rem var(--space-md)" }}>
+          {/* Breadcrumb */}
           <nav
             style={{
               marginBottom: "1.5rem",
@@ -55,7 +53,7 @@ export default async function ProductPage({ params }: Props) {
               alignItems: "start",
             }}
           >
-            {/* Image with fallback */}
+            {/* Image with client-side fallback */}
             <ClientProductImage
               imageUrl={product.image_url}
               productName={product.name}
@@ -156,52 +154,5 @@ export default async function ProductPage({ params }: Props) {
       </main>
       <Footer />
     </>
-  );
-}
-
-// Client component for image with fallback
-function ClientProductImage({
-  imageUrl,
-  productName,
-}: {
-  imageUrl: string | null;
-  productName: string;
-}) {
-  const [imgError, setImgError] = useState(false);
-
-  return (
-    <div
-      style={{
-        position: "relative",
-        aspectRatio: "1",
-        background: "var(--clr-cream-dark)",
-        borderRadius: "var(--radius-lg)",
-        overflow: "hidden",
-      }}
-    >
-      {imageUrl && !imgError ? (
-        <Image
-          src={imageUrl}
-          alt={productName}
-          fill
-          style={{ objectFit: "cover" }}
-          priority
-          onError={() => setImgError(true)}
-        />
-      ) : (
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "6rem",
-          }}
-        >
-          🌶
-        </div>
-      )}
-    </div>
   );
 }
