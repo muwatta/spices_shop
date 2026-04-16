@@ -21,6 +21,10 @@ export default function AdminProductsPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   async function loadProducts() {
     const { data } = await supabase
@@ -40,6 +44,7 @@ export default function AdminProductsPage() {
     setForm({ name: "", description: "", price: "", stock: "" });
     setImageFile(null);
     setError("");
+    setMessage(null);
     setShowForm(true);
   }
 
@@ -53,12 +58,14 @@ export default function AdminProductsPage() {
     });
     setImageFile(null);
     setError("");
+    setMessage(null);
     setShowForm(true);
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setMessage(null);
     setSaving(true);
 
     try {
@@ -85,9 +92,19 @@ export default function AdminProductsPage() {
       }
 
       setShowForm(false);
+      setMessage({
+        type: "success",
+        text: editingProduct
+          ? "Product updated successfully."
+          : "Product created successfully.",
+      });
       loadProducts();
     } catch (err: any) {
       setError(err.message ?? "Failed to save product.");
+      setMessage({
+        type: "error",
+        text: err.message ?? "Failed to save product.",
+      });
     } finally {
       setSaving(false);
     }
@@ -107,12 +124,16 @@ export default function AdminProductsPage() {
     const result = await response.json();
     if (!response.ok) {
       setError(result.error || "Failed to delete product.");
+      setMessage({
+        type: "error",
+        text: result.error || "Failed to delete product.",
+      });
       return;
     }
 
+    setMessage({ type: "success", text: "Product deleted successfully." });
     loadProducts();
   }
-
   return (
     <div style={{ padding: "2rem" }}>
       <div
@@ -130,6 +151,30 @@ export default function AdminProductsPage() {
           + Add Product
         </button>
       </div>
+
+      {message && (
+        <div
+          style={{
+            marginBottom: "1rem",
+            padding: "1rem 1.25rem",
+            borderRadius: "var(--radius-md)",
+            background:
+              message.type === "success"
+                ? "rgba(45, 122, 79, 0.12)"
+                : "rgba(192, 57, 43, 0.12)",
+            color:
+              message.type === "success"
+                ? "var(--clr-success)"
+                : "var(--clr-chili)",
+            border:
+              message.type === "success"
+                ? "1px solid rgba(45, 122, 79, 0.25)"
+                : "1px solid rgba(192, 57, 43, 0.25)",
+          }}
+        >
+          {message.text}
+        </div>
+      )}
 
       {/* Product form modal */}
       {showForm && (
