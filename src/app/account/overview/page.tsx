@@ -59,7 +59,9 @@ export default function AccountOverviewPage() {
       <PageTransition>
         <div className="card" style={{ padding: "2rem" }}>
           <div style={{ marginBottom: "1.5rem" }}>
-            <Skeleton style={{ width: "220px", height: "28px", marginBottom: "1rem" }} />
+            <Skeleton
+              style={{ width: "220px", height: "28px", marginBottom: "1rem" }}
+            />
             <Skeleton style={{ width: "160px", height: "16px" }} />
           </div>
           <div className="skeleton-grid" style={{ gap: "1rem" }}>
@@ -75,78 +77,81 @@ export default function AccountOverviewPage() {
   return (
     <PageTransition>
       <div className="card" style={{ padding: "2rem" }}>
-      <div style={{ marginBottom: "1.5rem" }}>
-        <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.75rem" }}>
-          Overview
-        </h1>
-        <p style={{ color: "var(--clr-muted)", marginTop: "0.5rem" }}>
-          Your account summary and quick actions.
-        </p>
-      </div>
+        <div style={{ marginBottom: "1.5rem" }}>
+          <h1
+            style={{ fontFamily: "var(--font-display)", fontSize: "1.75rem" }}
+          >
+            Overview
+          </h1>
+          <p style={{ color: "var(--clr-muted)", marginTop: "0.5rem" }}>
+            Your account summary and quick actions.
+          </p>
+        </div>
 
-      <div
-        style={{
-          display: "grid",
-          gap: "1rem",
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-          marginBottom: "1.5rem",
-        }}
-      >
         <div
-          className="card"
-          style={{ padding: "1.25rem", textAlign: "center" }}
+          style={{
+            display: "grid",
+            gap: "1rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            marginBottom: "1.5rem",
+          }}
         >
           <div
-            style={{
-              fontSize: "2rem",
-              fontWeight: 700,
-              color: "var(--clr-saffron-dark)",
-            }}
+            className="card"
+            style={{ padding: "1.25rem", textAlign: "center" }}
           >
-            {stats.totalOrders}
+            <div
+              style={{
+                fontSize: "2rem",
+                fontWeight: 700,
+                color: "var(--clr-saffron-dark)",
+              }}
+            >
+              {stats.totalOrders}
+            </div>
+            <div style={{ color: "var(--clr-muted)" }}>Total Orders</div>
           </div>
-          <div style={{ color: "var(--clr-muted)" }}>Total Orders</div>
-        </div>
-        <div
-          className="card"
-          style={{ padding: "1.25rem", textAlign: "center" }}
-        >
           <div
-            style={{
-              fontSize: "2rem",
-              fontWeight: 700,
-              color: "var(--clr-bark)",
-            }}
+            className="card"
+            style={{ padding: "1.25rem", textAlign: "center" }}
           >
-            {formatNaira(stats.totalSpent)}
+            <div
+              style={{
+                fontSize: "2rem",
+                fontWeight: 700,
+                color: "var(--clr-bark)",
+              }}
+            >
+              {formatNaira(stats.totalSpent)}
+            </div>
+            <div style={{ color: "var(--clr-muted)" }}>Total Spent</div>
           </div>
-          <div style={{ color: "var(--clr-muted)" }}>Total Spent</div>
-        </div>
-        <div
-          className="card"
-          style={{ padding: "1.25rem", textAlign: "center" }}
-        >
           <div
-            style={{
-              fontSize: "2rem",
-              fontWeight: 700,
-              color: "var(--clr-chili)",
-            }}
+            className="card"
+            style={{ padding: "1.25rem", textAlign: "center" }}
           >
-            {stats.pendingOrders}
+            <div
+              style={{
+                fontSize: "2rem",
+                fontWeight: 700,
+                color: "var(--clr-chili)",
+              }}
+            >
+              {stats.pendingOrders}
+            </div>
+            <div style={{ color: "var(--clr-muted)" }}>Pending Orders</div>
           </div>
-          <div style={{ color: "var(--clr-muted)" }}>Pending Orders</div>
         </div>
-      </div>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
-        <Link href="/account/orders" className="btn btn-primary">
-          View Orders
-        </Link>
-        <Link href="/account/profile" className="btn btn-outline">
-          Update Profile
-        </Link>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
+          <Link href="/account/orders" className="btn btn-primary">
+            View Orders
+          </Link>
+          <Link href="/account/profile" className="btn btn-outline">
+            Update Profile
+          </Link>
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }
