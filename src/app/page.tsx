@@ -14,7 +14,6 @@ export default async function HomePage() {
     .limit(12);
 
   const products = (productData ?? []) as Product[];
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
 
   return (
     <>
@@ -40,7 +39,7 @@ export default async function HomePage() {
                   fontSize: "0.825rem",
                 }}
               >
-                Option 2 – Simple Online Shop
+                Trusted marketplace for spices
               </span>
               <h1
                 style={{
@@ -50,8 +49,7 @@ export default async function HomePage() {
                   marginBottom: "1.2rem",
                 }}
               >
-                A clean, mobile-friendly spice shop with cart, checkout, and
-                bank transfer/USSD.
+                Buy authentic spices with a clear order flow and safe checkout.
               </h1>
               <p
                 style={{
@@ -62,80 +60,18 @@ export default async function HomePage() {
                   marginBottom: "1.75rem",
                 }}
               >
-                Full product catalog for up to 30 spices, a shopping cart
-                experience, easy checkout, proof of payment upload, and WhatsApp
-                ordering support — all designed for a starting spice business.
+                Browse fresh spice products, add them to your cart, and place a
+                real order with bank transfer or cash delivery as the payment
+                options.
               </p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
                 <Link href="#catalog" className="btn btn-primary">
-                  Browse spices
+                  Browse products
                 </Link>
-                {whatsappNumber ? (
-                  <a
-                    href={`https://wa.me/${whatsappNumber}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn whatsapp-btn"
-                  >
-                    💬 Order on WhatsApp
-                  </a>
-                ) : (
-                  <Link href="/cart" className="btn btn-outline">
-                    View cart
-                  </Link>
-                )}
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
-                gap: "1rem",
-                marginTop: "2rem",
-              }}
-            >
-              <div className="card" style={{ padding: "1.5rem" }}>
-                <h2
-                  style={{
-                    marginBottom: "0.75rem",
-                    color: "var(--clr-saffron-dark)",
-                  }}
-                >
-                  Why this price
-                </h2>
-                <p style={{ color: "var(--clr-bark-mid)", lineHeight: 1.75 }}>
-                  More features than a basic listing, while keeping costs low by
-                  focusing on bank transfer and USSD payments rather than card
-                  processing.
-                </p>
-                <p style={{ marginTop: "1rem", fontWeight: 700 }}>
-                  ₦150,000 — Practical, secure, and ready for mobile customers.
-                </p>
-              </div>
-              <div className="card" style={{ padding: "1.5rem" }}>
-                <h2
-                  style={{
-                    marginBottom: "0.75rem",
-                    color: "var(--clr-saffron-dark)",
-                  }}
-                >
-                  How it works
-                </h2>
-                <ul
-                  style={{
-                    display: "grid",
-                    gap: "0.75rem",
-                    color: "var(--clr-bark-mid)",
-                    lineHeight: 1.7,
-                  }}
-                >
-                  <li>1. Customer adds spices to cart.</li>
-                  <li>2. Chooses bank transfer or USSD.</li>
-                  <li>3. Uploads payment proof for verification.</li>
-                  <li>4. You confirm and deliver the order.</li>
-                </ul>
+                <Link href="/cart" className="btn btn-outline">
+                  View cart
+                </Link>
               </div>
             </div>
           </div>

@@ -1,120 +1,184 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import { formatNaira } from '@/lib/utils';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { formatNaira } from "@/lib/utils";
+import Link from "next/link";
 
-const STATUS_OPTIONS = ['pending', 'confirmed', 'delivered', 'cancelled'];
-
-export default function AdminOrdersPage() {
+export default function AdminDashboardPage() {
   const supabase = createClient();
-  const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    totalSales: 0,
+    pendingOrders: 0,
+    productCount: 0,
+    lowStockCount: 0,
+  });
 
-  async function loadOrders() {
-    setLoading(true);
-    let query = supabase
-      .from('orders')
-      .select('*, customers(full_name, phone), order_items(id)')
-      .order('created_at', { ascending: false });
+  useEffect(() => {
+    async function loadStats() {
+      setLoading(true);
 
-    if (filter !== 'all') query = query.eq('status', filter);
+      const [{ data: orders }, { data: products }, { data: lowStock }] =
+        await Promise.all([
+          supabase.from("orders").select("status, total_amount"),
+          supabase.from("products").select("id"),
+          supabase
+            .from("products")
+            .select("id")
+            .not("stock", "is", null)
+            .lte("stock", 5),
+        ]);
 
-    const { data } = await query;
-    setOrders(data ?? []);
-    setLoading(false);
-  }
+      const totalOrders = orders?.length || 0;
+      const totalSales =
+        orders?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
+      const pendingOrders =
+        orders?.filter((order) => order.status === "pending").length || 0;
 
-  async function updateStatus(orderId: string, status: string) {
-    await supabase.from('orders').update({ status }).eq('id', orderId);
-    loadOrders();
-  }
+      setStats({
+        totalOrders,
+        totalSales,
+        pendingOrders,
+        productCount: products?.length || 0,
+        lowStockCount: lowStock?.length || 0,
+      });
+      setLoading(false);
+    }
 
-  useEffect(() => { loadOrders(); }, [filter]);
+    loadStats();
+  }, [supabase]);
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem' }}>Orders</h1>
-
-        {/* Filter tabs */}
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          {['all', ...STATUS_OPTIONS].map((s) => (
-            <button
-              key={s}
-              onClick={() => setFilter(s)}
-              className="btn btn-sm"
-              style={{
-                background: filter === s ? 'var(--clr-bark)' : 'white',
-                color: filter === s ? 'var(--clr-cream)' : 'var(--clr-bark)',
-                border: '2px solid var(--clr-bark)',
-                textTransform: 'capitalize',
-              }}
-            >
-              {s}
-            </button>
-          ))}
+    <div style={{ padding: "2rem" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "1rem",
+          marginBottom: "2rem",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "2rem",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Admin Dashboard
+          </h1>
+          <p style={{ color: "var(--clr-muted)" }}>
+            Overview of sales, inventory, and order activity.
+          </p>
+        </div>
+        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+          <Link href="/admin/orders" className="btn btn-primary btn-sm">
+            View Orders
+          </Link>
+          <Link href="/admin/products" className="btn btn-outline btn-sm">
+            Manage Products
+          </Link>
+          <Link href="/admin/reports" className="btn btn-outline btn-sm">
+            View Reports
+          </Link>
         </div>
       </div>
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '4rem' }}><span className="spinner" style={{ margin: '0 auto', display: 'block' }} /></div>
-      ) : orders.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '4rem', background: 'white', borderRadius: 'var(--radius-lg)', color: 'var(--clr-muted)' }}>
-          No orders found.
+        <div style={{ textAlign: "center", padding: "4rem" }}>
+          <span
+            className="spinner"
+            style={{ margin: "0 auto", display: "block" }}
+          />
         </div>
       ) : (
-        <div className="card" style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '2px solid var(--clr-cream-dark)', background: 'var(--clr-cream)' }}>
-                {['Order', 'Customer', 'Items', 'Amount', 'Payment', 'Status', 'Date', 'Actions'].map((h) => (
-                  <th key={h} style={{ textAlign: 'left', padding: '0.875rem 1rem', fontWeight: 600, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--clr-muted)', whiteSpace: 'nowrap' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.id} style={{ borderBottom: '1px solid var(--clr-cream-dark)' }}>
-                  <td style={{ padding: '0.875rem 1rem' }}>
-                    <Link href={`/admin/orders/${order.id}`} style={{ color: 'var(--clr-saffron-dark)', fontWeight: 700 }}>
-                      #{order.id.slice(0, 8).toUpperCase()}
-                    </Link>
-                  </td>
-                  <td style={{ padding: '0.875rem 1rem' }}>
-                    <div style={{ fontWeight: 500 }}>{order.customers?.full_name ?? '—'}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--clr-muted)' }}>{order.customers?.phone}</div>
-                  </td>
-                  <td style={{ padding: '0.875rem 1rem' }}>{(order.order_items as any[]).length}</td>
-                  <td style={{ padding: '0.875rem 1rem', fontWeight: 700 }}>{formatNaira(order.total_amount)}</td>
-                  <td style={{ padding: '0.875rem 1rem' }}>
-                    {order.payment_method === 'bank_transfer' ? '🏦 Transfer' : '💵 COD'}
-                    {order.payment_proof_url && <span style={{ color: 'var(--clr-success)', marginLeft: '0.25rem', fontSize: '0.75rem' }}>✓</span>}
-                  </td>
-                  <td style={{ padding: '0.875rem 1rem' }}>
-                    <select
-                      value={order.status}
-                      onChange={(e) => updateStatus(order.id, e.target.value)}
-                      className="form-input"
-                      style={{ padding: '0.35rem 0.5rem', fontSize: '0.8125rem', cursor: 'pointer' }}
-                    >
-                      {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td style={{ padding: '0.875rem 1rem', color: 'var(--clr-muted)', whiteSpace: 'nowrap' }}>
-                    {new Date(order.created_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: '2-digit' })}
-                  </td>
-                  <td style={{ padding: '0.875rem 1rem' }}>
-                    <Link href={`/admin/orders/${order.id}`} className="btn btn-ghost btn-sm">View</Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "1rem",
+          }}
+        >
+          <div
+            className="card"
+            style={{ padding: "1.5rem", textAlign: "center" }}
+          >
+            <div
+              style={{
+                fontSize: "2rem",
+                fontWeight: 700,
+                color: "var(--clr-saffron-dark)",
+              }}
+            >
+              {stats.totalOrders}
+            </div>
+            <div style={{ color: "var(--clr-muted)" }}>Total Orders</div>
+          </div>
+          <div
+            className="card"
+            style={{ padding: "1.5rem", textAlign: "center" }}
+          >
+            <div
+              style={{
+                fontSize: "2rem",
+                fontWeight: 700,
+                color: "var(--clr-bark)",
+              }}
+            >
+              {formatNaira(stats.totalSales)}
+            </div>
+            <div style={{ color: "var(--clr-muted)" }}>Total Sales</div>
+          </div>
+          <div
+            className="card"
+            style={{ padding: "1.5rem", textAlign: "center" }}
+          >
+            <div
+              style={{
+                fontSize: "2rem",
+                fontWeight: 700,
+                color: "var(--clr-chili)",
+              }}
+            >
+              {stats.pendingOrders}
+            </div>
+            <div style={{ color: "var(--clr-muted)" }}>Pending Orders</div>
+          </div>
+          <div
+            className="card"
+            style={{ padding: "1.5rem", textAlign: "center" }}
+          >
+            <div
+              style={{
+                fontSize: "2rem",
+                fontWeight: 700,
+                color: "var(--clr-saffron-dark)",
+              }}
+            >
+              {stats.productCount}
+            </div>
+            <div style={{ color: "var(--clr-muted)" }}>Total Products</div>
+          </div>
+          <div
+            className="card"
+            style={{ padding: "1.5rem", textAlign: "center" }}
+          >
+            <div
+              style={{
+                fontSize: "2rem",
+                fontWeight: 700,
+                color: "var(--clr-chili)",
+              }}
+            >
+              {stats.lowStockCount}
+            </div>
+            <div style={{ color: "var(--clr-muted)" }}>Low Stock Items</div>
+          </div>
         </div>
       )}
     </div>
