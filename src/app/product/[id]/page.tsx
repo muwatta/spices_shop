@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import AddToCartButton from "@/components/product/AddToCartButton";
 import WhatsAppOrderButton from "@/components/product/WhatsAppOrderButton";
 import { formatNaira } from "@/lib/utils";
-import ClientProductImage from "./ClientProductImage"; 
+import ClientProductImage from "./ClientProductImage";
 
 export const revalidate = 60;
 
@@ -30,7 +30,6 @@ export default async function ProductPage({ params }: Props) {
       <Navbar />
       <main>
         <div className="container" style={{ padding: "2rem var(--space-md)" }}>
-          {/* Breadcrumb */}
           <nav
             style={{
               marginBottom: "1.5rem",
@@ -53,13 +52,11 @@ export default async function ProductPage({ params }: Props) {
               alignItems: "start",
             }}
           >
-            {/* Image with client-side fallback */}
             <ClientProductImage
               imageUrl={product.image_url}
               productName={product.name}
             />
 
-            {/* Details – unchanged */}
             <div
               style={{
                 display: "flex",
