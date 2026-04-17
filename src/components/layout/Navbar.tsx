@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart";
 import { useEffect, useState } from "react";
 
+const MotionNav = motion("nav");
+
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -29,7 +31,7 @@ export default function Navbar() {
   };
 
   return (
-    <motion.nav
+    <MotionNav
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
@@ -77,7 +79,7 @@ export default function Navbar() {
                 letterSpacing: "-0.01em",
               }}
             >
-              🌶 KMA Spices
+              KMA Spices
             </span>
           </div>
         </Link>
@@ -300,6 +302,6 @@ export default function Navbar() {
           .mobile-menu-btn { display: block !important; }
         }
       `}</style>
-    </nav>
+    </MotionNav>
   );
 }

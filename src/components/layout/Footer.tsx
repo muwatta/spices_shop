@@ -16,11 +16,12 @@ export default function Footer() {
         className="container"
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
           gap: "2rem",
           marginBottom: "2rem",
         }}
       >
+        {/* Brand Column */}
         <div>
           <div
             style={{
@@ -38,17 +39,16 @@ export default function Footer() {
               height={52}
               style={{ borderRadius: "1rem", objectFit: "cover" }}
             />
-            <div>
-              <h3
-                style={{
-                  fontFamily: "var(--font-display)",
-                  color: "var(--clr-saffron)",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                🌿 KMA Spices and Herbs
-              </h3>
-            </div>
+            <h3
+              style={{
+                fontFamily: "var(--font-display)",
+                color: "var(--clr-saffron)",
+                fontSize: "1.25rem",
+                margin: 0,
+              }}
+            >
+              KMA Spices and Herbs
+            </h3>
           </div>
           <p
             style={{
@@ -61,6 +61,8 @@ export default function Footer() {
             unadulterated oils delivered with premium freshness and rich flavor.
           </p>
         </div>
+
+        {/* Quick Links */}
         <div>
           <h4
             style={{
@@ -102,6 +104,8 @@ export default function Footer() {
             </Link>
           </div>
         </div>
+
+        {/* Contact & Social */}
         <div>
           <h4
             style={{
@@ -119,6 +123,7 @@ export default function Footer() {
               fontSize: "0.9rem",
               color: "rgba(253,246,236,0.8)",
               lineHeight: 1.7,
+              marginBottom: "1rem",
             }}
           >
             📍 Alhajiyal Plaza opposite Nipost office, Gombe
@@ -129,20 +134,59 @@ export default function Footer() {
             <br />
             🌐 kmagloballink.com.ng
           </p>
-          <p
+
+          <h4
             style={{
-              marginTop: "1rem",
+              marginBottom: "0.75rem",
               fontSize: "0.9rem",
-              color: "rgba(253,246,236,0.8)",
-              lineHeight: 1.7,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              color: "var(--clr-saffron)",
             }}
           >
-            TikTok: @kmaspeciesandherbs
-            <br />
-            Instagram: @kma_recipespices
-            <br />
-            Facebook: KMA Recipesspices
-          </p>
+            Follow Us
+          </h4>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+          >
+            <a
+              href="https://www.tiktok.com/@kmaspeciesandherbs"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "rgba(253,246,236,0.8)",
+                fontSize: "0.9rem",
+                textDecoration: "none",
+              }}
+            >
+              🎵 TikTok: @kmaspeciesandherbs
+            </a>
+            <a
+              href="https://www.instagram.com/kma_recipespices"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "rgba(253,246,236,0.8)",
+                fontSize: "0.9rem",
+                textDecoration: "none",
+              }}
+            >
+              📸 Instagram: @kma_recipespices
+            </a>
+            <a
+              href="https://www.facebook.com/KMA Recipesspices"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: "rgba(253,246,236,0.8)",
+                fontSize: "0.9rem",
+                textDecoration: "none",
+              }}
+            >
+              📘 Facebook: KMA Recipesspices
+            </a>
+          </div>
+
           {whatsapp && (
             <a
               href={`https://wa.me/${whatsapp}`}
@@ -158,6 +202,8 @@ export default function Footer() {
                 borderRadius: "var(--radius-full)",
                 fontSize: "0.875rem",
                 fontWeight: 600,
+                marginTop: "1rem",
+                textDecoration: "none",
               }}
             >
               💬 WhatsApp Us

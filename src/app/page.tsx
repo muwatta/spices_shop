@@ -63,7 +63,7 @@ export default async function HomePage() {
               >
                 Discover carefully sourced spices, herbs, flours, condiments,
                 foodsuff and unadulterated oils. Order securely with bank
-                transfer, cash delivery, or WhatsApp at +2347016186356.
+                transfer, cash delivery
               </p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
@@ -128,13 +128,6 @@ export default async function HomePage() {
                   transfer, and USSD customers.
                 </p>
               </div>
-              <Link
-                href="/cart"
-                className="btn btn-outline"
-                style={{ whiteSpace: "nowrap" }}
-              >
-                View cart
-              </Link>
             </div>
 
             {products.length === 0 ? (
