@@ -1,5 +1,5 @@
-export type OrderStatus = 'pending' | 'confirmed' | 'delivered' | 'cancelled';
-export type PaymentMethod = 'bank_transfer' | 'cash_on_delivery';
+export type OrderStatus = "pending" | "confirmed" | "delivered" | "cancelled";
+export type PaymentMethod = "bank_transfer" | "cash_on_delivery";
 
 export interface Product {
   id: string;
@@ -8,6 +8,16 @@ export interface Product {
   price: number;
   image_url: string | null;
   stock: number | null;
+  created_at: string;
+}
+
+export interface DoYouKnowItem {
+  id: string;
+  name: string;
+  subtitle: string | null;
+  benefits: string | null;
+  recommendation: string | null;
+  image_url: string | null;
   created_at: string;
 }
 

@@ -31,6 +31,14 @@ export default function CheckoutPage() {
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
   const [form, setForm] = useState({ full_name: "", phone: "", address: "" });
 
+  const defaultBankDetails: BankDetails = {
+    bank_name: "Moniepoint",
+    account_number: "8032423638",
+    account_name: "Hamza Rasheedah Muhammad",
+  };
+
+  const bankInfo = bankDetails ?? defaultBankDetails;
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
 
@@ -386,42 +394,40 @@ export default function CheckoutPage() {
                       gap: "1rem",
                     }}
                   >
-                    {bankDetails && (
+                    <div
+                      style={{
+                        background: "var(--clr-cream)",
+                        border: "1px solid var(--clr-cream-dark)",
+                        borderRadius: "var(--radius-md)",
+                        padding: "1rem",
+                        fontSize: "0.9rem",
+                        lineHeight: 1.8,
+                      }}
+                    >
+                      <strong
+                        style={{ display: "block", marginBottom: "0.25rem" }}
+                      >
+                        Transfer to:
+                      </strong>
+                      <div>
+                        🏦 <strong>{bankInfo.bank_name}</strong>
+                      </div>
+                      <div>
+                        Account: <strong>{bankInfo.account_number}</strong>
+                      </div>
+                      <div>
+                        Name: <strong>{bankInfo.account_name}</strong>
+                      </div>
                       <div
                         style={{
-                          background: "var(--clr-cream)",
-                          border: "1px solid var(--clr-cream-dark)",
-                          borderRadius: "var(--radius-md)",
-                          padding: "1rem",
-                          fontSize: "0.9rem",
-                          lineHeight: 1.8,
+                          marginTop: "0.5rem",
+                          fontWeight: 700,
+                          color: "var(--clr-saffron-dark)",
                         }}
                       >
-                        <strong
-                          style={{ display: "block", marginBottom: "0.25rem" }}
-                        >
-                          Transfer to:
-                        </strong>
-                        <div>
-                          🏦 <strong>{bankDetails.bank_name}</strong>
-                        </div>
-                        <div>
-                          Account: <strong>{bankDetails.account_number}</strong>
-                        </div>
-                        <div>
-                          Name: <strong>{bankDetails.account_name}</strong>
-                        </div>
-                        <div
-                          style={{
-                            marginTop: "0.5rem",
-                            fontWeight: 700,
-                            color: "var(--clr-saffron-dark)",
-                          }}
-                        >
-                          Amount: {formatNaira(totalPrice())}
-                        </div>
+                        Amount: {formatNaira(totalPrice())}
                       </div>
-                    )}
+                    </div>
 
                     <div className="form-group">
                       <label className="form-label">

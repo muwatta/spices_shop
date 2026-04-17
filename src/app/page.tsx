@@ -39,7 +39,7 @@ export default async function HomePage() {
                   fontSize: "0.825rem",
                 }}
               >
-                Trusted marketplace for spices
+                KMA Spices and Herbs
               </span>
               <h1
                 style={{
@@ -49,7 +49,8 @@ export default async function HomePage() {
                   marginBottom: "1.2rem",
                 }}
               >
-                Buy authentic spices with a clear order flow and safe checkout.
+                Pure, premium spices that bring rich flavor and natural wellness
+                to every meal.
               </h1>
               <p
                 style={{
@@ -60,14 +61,17 @@ export default async function HomePage() {
                   marginBottom: "1.75rem",
                 }}
               >
-                Browse fresh spice products, add them to your cart, and place a
-                real order with bank transfer or cash delivery as the payment
-                options.
+                Discover carefully sourced spices, herbs, flours, condiments,
+                foodsuff and unadulterated oils. Order securely with bank
+                transfer, cash delivery, or WhatsApp at +2347016186356.
               </p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
                 <Link href="#catalog" className="btn btn-primary">
                   Browse products
+                </Link>
+                <Link href="/do-you-know" className="btn btn-outline">
+                  Do you Know
                 </Link>
                 <Link href="/cart" className="btn btn-outline">
                   View cart

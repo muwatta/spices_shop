@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     `;
 
     await resend.emails.send({
-      from: "Mama Spice <onboarding@resend.dev>", // change to your verified domain
+      from: "KMA Spices and Herbs <onboarding@resend.dev>", // change to your verified domain
       to: [email],
       subject: `Order Confirmation #${orderId.slice(0, 8).toUpperCase()}`,
       html,
