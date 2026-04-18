@@ -1,24 +1,16 @@
-import { createClient } from "@/lib/supabase/server";
+import { Suspense } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import ProductCard from "@/components/product/ProductCard";
 import Link from "next/link";
-import { Product } from "@/types";
+import ProductGrid from "@/components/product/ProductGrid";
+import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 
-export default async function HomePage() {
-  const supabase = createClient();
-  const { data: productData } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(12);
-
-  const products = (productData ?? []) as Product[];
-
+export default function HomePage() {
   return (
     <>
       <Navbar />
       <main>
+        {/* Hero section – static, no suspense */}
         <section
           style={{
             padding: "4rem 0 2rem",
@@ -63,7 +55,7 @@ export default async function HomePage() {
               >
                 Discover carefully sourced spices, herbs, flours, condiments,
                 foodsuff and unadulterated oils. Order securely with bank
-                transfer, cash delivery
+                transfer, cash delivery.
               </p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
@@ -81,80 +73,46 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Catalog section with lazy loading */}
         <section id="catalog" style={{ padding: "3rem 0" }}>
-          <div
-            className="container"
-            style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-end",
-                gap: "1rem",
-                flexWrap: "wrap",
-              }}
-            >
-              <div>
-                <p
-                  style={{
-                    textTransform: "uppercase",
-                    letterSpacing: "0.12em",
-                    color: "var(--clr-saffron-dark)",
-                    fontSize: "0.85rem",
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  Catalog preview
-                </p>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "2rem",
-                    margin: 0,
-                  }}
-                >
-                  Fresh spices ready to sell.
-                </h2>
-                <p
-                  style={{
-                    color: "var(--clr-muted)",
-                    marginTop: "0.75rem",
-                    maxWidth: "38rem",
-                  }}
-                >
-                  Designed for Nigerian spice brands: fast browsing, clear
-                  product cards, and a checkout flow built for cash, bank
-                  transfer, and USSD customers.
-                </p>
-              </div>
+          <div className="container">
+            <div style={{ marginBottom: "2rem" }}>
+              <p
+                style={{
+                  textTransform: "uppercase",
+                  letterSpacing: "0.12em",
+                  color: "var(--clr-saffron-dark)",
+                  fontSize: "0.85rem",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                Catalog preview
+              </p>
+              <h2
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "2rem",
+                  margin: 0,
+                }}
+              >
+                Fresh spices ready to sell.
+              </h2>
+              <p
+                style={{
+                  color: "var(--clr-muted)",
+                  marginTop: "0.75rem",
+                  maxWidth: "38rem",
+                }}
+              >
+                Designed for Nigerian spice brands: fast browsing, clear product
+                cards, and a checkout flow built for cash, bank transfer, and
+                USSD customers.
+              </p>
             </div>
 
-            {products.length === 0 ? (
-              <div
-                className="card"
-                style={{
-                  padding: "2rem",
-                  textAlign: "center",
-                  color: "var(--clr-muted)",
-                }}
-              >
-                No products are published yet. Add your spices in the admin
-                panel to show them here.
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-                  gap: "1.5rem",
-                }}
-              >
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            )}
+            <Suspense fallback={<ProductCardSkeleton />}>
+              <ProductGrid />
+            </Suspense>
           </div>
         </section>
       </main>
