@@ -21,10 +21,12 @@ function SignupContent() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setMessage("");
     setLoading(true);
 
     const { data, error: signupError } = await supabase.auth.signUp({
@@ -43,11 +45,15 @@ function SignupContent() {
         id: data.user.id,
         full_name: form.full_name,
         phone: form.phone,
+        email: form.email, // store email
       });
     }
 
-    router.push(redirect);
-    router.refresh();
+    setMessage(
+      "Account created! Please check your email to confirm your account before logging in.",
+    );
+    setLoading(false);
+    // do NOT redirect automatically – wait for email confirmation
   }
 
   return (
@@ -93,6 +99,14 @@ function SignupContent() {
               style={{ marginBottom: "1rem", fontSize: "0.875rem" }}
             >
               {error}
+            </div>
+          )}
+          {message && (
+            <div
+              className="alert alert-success"
+              style={{ marginBottom: "1rem", fontSize: "0.875rem" }}
+            >
+              {message}
             </div>
           )}
 
@@ -146,7 +160,6 @@ function SignupContent() {
                 placeholder="Min. 6 characters"
               />
             </div>
-
             <button
               type="submit"
               className="btn btn-primary btn-lg"

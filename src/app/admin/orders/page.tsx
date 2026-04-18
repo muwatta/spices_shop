@@ -11,6 +11,7 @@ type OrderStatus = "pending" | "confirmed" | "delivered" | "cancelled";
 interface Customer {
   full_name: string;
   phone: string;
+  email: string;
 }
 
 interface OrderItem {
@@ -42,66 +43,73 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
 
-  // =========================
-  // Fetch Orders
-  // =========================
   const loadOrders = useCallback(async () => {
     setLoading(true);
-
     let query = supabase
       .from("orders")
-      .select("*, customers(full_name, phone), order_items(id)")
+      .select("*, customers(full_name, phone, email), order_items(id)")
       .order("created_at", { ascending: false });
-
-    if (filter !== "all") {
-      query = query.eq("status", filter);
-    }
-
+    if (filter !== "all") query = query.eq("status", filter);
     const { data, error } = await query;
-
     if (error) {
       toast.error("Failed to load orders");
       setLoading(false);
       return;
     }
-
     setOrders((data as Order[]) ?? []);
     setLoading(false);
   }, [filter, supabase]);
 
-  // =========================
-  // Update Status (Optimistic)
-  // =========================
   async function updateStatus(orderId: string, status: OrderStatus) {
-    // optimistic UI update
+    // optimistic UI
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status } : o)),
     );
-
     const { error } = await supabase
       .from("orders")
       .update({ status })
       .eq("id", orderId);
-
     if (error) {
       toast.error("Failed to update status");
-      loadOrders(); // rollback
+      loadOrders();
       return;
     }
-
     toast.success("Order status updated");
+
+    // Send email notification to customer
+    try {
+      const { data: orderData } = await supabase
+        .from("orders")
+        .select("customers(email, full_name)")
+        .eq("id", orderId)
+        .single();
+
+      // Type assertion: the customers field is an object with email and full_name
+      const customer = orderData?.customers as {
+        email?: string;
+        full_name?: string;
+      } | null;
+      if (customer?.email) {
+        await fetch("/api/send-order-status-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: customer.email,
+            orderId,
+            status,
+            customerName: customer.full_name,
+          }),
+        });
+      }
+    } catch (err) {
+      console.error("Failed to send status email:", err);
+    }
   }
 
-  // =========================
-  // Initial + Filter Fetch
-  // =========================
   useEffect(() => {
     loadOrders();
   }, [loadOrders]);
 
-  // =========================
-  // Realtime Subscription
-  // =========================
   useEffect(() => {
     if (
       typeof window !== "undefined" &&
@@ -109,7 +117,6 @@ export default function AdminOrdersPage() {
     ) {
       Notification.requestPermission();
     }
-
     const channel = supabase
       .channel("orders-realtime")
       .on(
@@ -117,8 +124,6 @@ export default function AdminOrdersPage() {
         { event: "INSERT", schema: "public", table: "orders" },
         (payload) => {
           const newOrder = payload.new as Order;
-
-          // browser notification
           if (Notification.permission === "granted") {
             new Notification(
               `New Order #${newOrder.id.slice(0, 8).toUpperCase()}`,
@@ -128,17 +133,13 @@ export default function AdminOrdersPage() {
               },
             );
           }
-
           toast.success(
             `New order #${newOrder.id.slice(0, 8).toUpperCase()} received!`,
           );
-
-          // prepend new order
           setOrders((prev) => [newOrder, ...prev]);
         },
       )
       .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
     };
@@ -147,9 +148,7 @@ export default function AdminOrdersPage() {
   return (
     <>
       <Toaster position="top-right" />
-
       <div style={{ padding: "2rem" }}>
-        {/* Header */}
         <div
           style={{
             display: "flex",
@@ -165,8 +164,6 @@ export default function AdminOrdersPage() {
           >
             Orders
           </h1>
-
-          {/* Filters */}
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
             {["all", ...STATUS_OPTIONS].map((s) => (
               <button
@@ -185,8 +182,6 @@ export default function AdminOrdersPage() {
             ))}
           </div>
         </div>
-
-        {/* Content */}
         {loading ? (
           <div style={{ textAlign: "center", padding: "4rem" }}>
             <span className="spinner" style={{ margin: "0 auto" }} />
@@ -212,7 +207,6 @@ export default function AdminOrdersPage() {
                 fontSize: "0.875rem",
               }}
             >
-              {/* ✅ FIXED THEAD */}
               <thead>
                 <tr
                   style={{
@@ -248,14 +242,11 @@ export default function AdminOrdersPage() {
                   ))}
                 </tr>
               </thead>
-
               <tbody>
                 {orders.map((order) => (
                   <tr
                     key={order.id}
-                    style={{
-                      borderBottom: "1px solid var(--clr-cream-dark)",
-                    }}
+                    style={{ borderBottom: "1px solid var(--clr-cream-dark)" }}
                   >
                     <td style={{ padding: "0.875rem 1rem" }}>
                       <Link
@@ -268,7 +259,6 @@ export default function AdminOrdersPage() {
                         #{order.id.slice(0, 8).toUpperCase()}
                       </Link>
                     </td>
-
                     <td style={{ padding: "0.875rem 1rem" }}>
                       <div style={{ fontWeight: 500 }}>
                         {order.customers?.full_name ?? "—"}
@@ -282,15 +272,12 @@ export default function AdminOrdersPage() {
                         {order.customers?.phone}
                       </div>
                     </td>
-
                     <td style={{ padding: "0.875rem 1rem" }}>
                       {order.order_items?.length ?? 0}
                     </td>
-
                     <td style={{ padding: "0.875rem 1rem", fontWeight: 700 }}>
                       {formatNaira(order.total_amount)}
                     </td>
-
                     <td style={{ padding: "0.875rem 1rem" }}>
                       {order.payment_method === "bank_transfer"
                         ? "🏦 Transfer"
@@ -307,7 +294,6 @@ export default function AdminOrdersPage() {
                         </span>
                       )}
                     </td>
-
                     <td style={{ padding: "0.875rem 1rem" }}>
                       <select
                         value={order.status}
@@ -328,7 +314,6 @@ export default function AdminOrdersPage() {
                         ))}
                       </select>
                     </td>
-
                     <td
                       style={{
                         padding: "0.875rem 1rem",
@@ -342,7 +327,6 @@ export default function AdminOrdersPage() {
                         year: "2-digit",
                       })}
                     </td>
-
                     <td style={{ padding: "0.875rem 1rem" }}>
                       <Link
                         href={`/admin/orders/${order.id}`}
