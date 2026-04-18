@@ -22,19 +22,19 @@ export default function AdminDoYouKnowPage() {
   });
 
   useEffect(() => {
-    setLoading(true);
-    supabase
-      .from("do_you_know_items")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .then(({ data, error: fetchError }) => {
-        if (fetchError) {
-          setError(fetchError.message);
-        } else {
-          setItems((data ?? []) as DoYouKnowItem[]);
-        }
-      })
-      .finally(() => setLoading(false));
+    const fetchItems = async () => {
+      setLoading(true);
+      try {
+        const response = await supabase.from("do_you_know").select("*");
+        if (response.error) throw response.error;
+        setItems(response.data || []);
+      } catch (err) {
+        console.error("Error fetching do-you-know items:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItems();
   }, []);
 
   const resetForm = () => {
