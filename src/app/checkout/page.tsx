@@ -37,11 +37,28 @@ export default function CheckoutPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cash_on_delivery");
+  const [paymentMethod, setPaymentMethod] =
+    useState<PaymentMethod>("cash_on_delivery");
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
-  const [form, setForm] = useState({ full_name: "", phone: "", address: "" });
-  const [touched, setTouched] = useState({ full_name: false, phone: false, address: false });
+  const [useStoredAccount, setUseStoredAccount] = useState(false);
+  const [form, setForm] = useState({
+    full_name: "",
+    phone: "",
+    address_line1: "",
+    address_line2: "",
+    city: "",
+    state: "",
+    postal_code: "",
+    account_number: "",
+  });
+  const [touched, setTouched] = useState({
+    full_name: false,
+    phone: false,
+    address_line1: false,
+    city: false,
+    state: false,
+  });
 
   const defaultBankDetails: BankDetails = {
     bank_name: "Moniepoint",
@@ -52,7 +69,13 @@ export default function CheckoutPage() {
 
   // Form validation
   const isFormValid = useMemo(() => {
-    return form.full_name.trim() !== "" && form.phone.trim() !== "" && form.address.trim() !== "";
+    return (
+      form.full_name.trim() !== "" &&
+      form.phone.trim() !== "" &&
+      form.address_line1.trim() !== "" &&
+      form.city.trim() !== "" &&
+      form.state.trim() !== ""
+    );
   }, [form]);
 
   useEffect(() => {
@@ -79,7 +102,12 @@ export default function CheckoutPage() {
               setForm({
                 full_name: customer.full_name ?? "",
                 phone: customer.phone ?? "",
-                address: customer.address ?? "",
+                address_line1: customer.address ?? "",
+                address_line2: customer.address_line2 ?? "",
+                city: customer.city ?? "",
+                state: customer.state ?? "",
+                postal_code: customer.postal_code ?? "",
+                account_number: customer.account_number ?? "",
               });
             }
           });
@@ -87,9 +115,10 @@ export default function CheckoutPage() {
     });
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    // Basic sanitization: trim and remove potential script tags
     const sanitized = value.replace(/<[^>]*>/g, "").trimStart();
     setForm((prev) => ({ ...prev, [name]: sanitized }));
   };
@@ -111,7 +140,7 @@ export default function CheckoutPage() {
       return;
     }
     if (!isFormValid) {
-      setError("Please fill in all delivery details.");
+      setError("Please fill in all required delivery details.");
       return;
     }
     if (paymentMethod === "bank_transfer" && !proofFile) {
@@ -121,12 +150,21 @@ export default function CheckoutPage() {
 
     setLoading(true);
     try {
-      // 1. Upsert customer profile
+      // Build full address string
+      const fullAddress =
+        `${form.address_line1} ${form.address_line2 ? form.address_line2 + " " : ""}${form.city}, ${form.state} ${form.postal_code || ""}`.trim();
+
+      // 1. Upsert customer profile with all fields
       await supabase.from("customers").upsert({
         id: user.id,
         full_name: form.full_name.trim(),
         phone: form.phone.trim(),
-        address: form.address.trim(),
+        address: form.address_line1.trim(),
+        address_line2: form.address_line2.trim(),
+        city: form.city.trim(),
+        state: form.state.trim(),
+        postal_code: form.postal_code.trim(),
+        account_number: form.account_number.trim(),
       });
 
       // 2. Upload payment proof if bank transfer
@@ -150,7 +188,7 @@ export default function CheckoutPage() {
           payment_method: paymentMethod,
           payment_proof_url: proofUrl,
           total_amount: totalPrice(),
-          delivery_address: form.address.trim(),
+          delivery_address: fullAddress,
         })
         .select()
         .single();
@@ -170,7 +208,8 @@ export default function CheckoutPage() {
 
         if (item.product.stock !== null) {
           const newStock = item.product.stock - item.quantity;
-          if (newStock < 0) throw new Error(`Insufficient stock for ${item.product.name}`);
+          if (newStock < 0)
+            throw new Error(`Insufficient stock for ${item.product.name}`);
           const { error: stockError } = await supabase
             .from("products")
             .update({ stock: newStock })
@@ -210,11 +249,31 @@ export default function CheckoutPage() {
       <>
         <Navbar />
         <main>
-          <div className="container" style={{ padding: "4rem var(--space-md)", textAlign: "center" }}>
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
+          <div
+            className="container"
+            style={{ padding: "4rem var(--space-md)", textAlign: "center" }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+            >
               <p style={{ fontSize: "4rem", marginBottom: "1rem" }}>🛒</p>
-              <h2 style={{ fontFamily: "var(--font-display)", marginBottom: "0.75rem" }}>Your cart is empty</h2>
-              <Link href="/" className="btn btn-primary" style={{ marginTop: "1rem" }}>Continue Shopping</Link>
+              <h2
+                style={{
+                  fontFamily: "var(--font-display)",
+                  marginBottom: "0.75rem",
+                }}
+              >
+                Your cart is empty
+              </h2>
+              <Link
+                href="/"
+                className="btn btn-primary"
+                style={{ marginTop: "1rem" }}
+              >
+                Continue Shopping
+              </Link>
             </motion.div>
           </div>
         </main>
@@ -228,16 +287,47 @@ export default function CheckoutPage() {
       <Navbar />
       <main style={{ background: "var(--clr-cream)", minHeight: "70vh" }}>
         <div className="container" style={{ padding: "2rem var(--space-md)" }}>
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2rem", marginBottom: "0.5rem" }}>Checkout</h1>
-            <p style={{ color: "var(--clr-muted)", marginBottom: "2rem" }}>Complete your order securely</p>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <h1
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "2rem",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Checkout
+            </h1>
+            <p style={{ color: "var(--clr-muted)", marginBottom: "2rem" }}>
+              Complete your order securely
+            </p>
           </motion.div>
 
           {!user && (
-            <motion.div className="alert alert-info" style={{ marginBottom: "1.5rem" }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <motion.div
+              className="alert alert-info"
+              style={{ marginBottom: "1.5rem" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
               <strong>Please log in to place your order.</strong>{" "}
-              <Link href="/login?redirect=/checkout" style={{ textDecoration: "underline" }}>Login here</Link>{" "}
-              or <Link href="/signup?redirect=/checkout" style={{ textDecoration: "underline" }}>create an account</Link>.
+              <Link
+                href="/login?redirect=/checkout"
+                style={{ textDecoration: "underline" }}
+              >
+                Login here
+              </Link>{" "}
+              or{" "}
+              <Link
+                href="/signup?redirect=/checkout"
+                style={{ textDecoration: "underline" }}
+              >
+                create an account
+              </Link>
+              .
             </motion.div>
           )}
 
@@ -254,13 +344,42 @@ export default function CheckoutPage() {
               }}
             >
               {/* Left Column: Delivery & Payment */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1.5rem",
+                }}
+              >
                 {/* Delivery Details Card */}
-                <motion.div variants={fadeInUp} className="card" style={{ padding: "1.75rem", borderRadius: "1.25rem", boxShadow: "var(--shadow-md)" }}>
-                  <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <motion.div
+                  variants={fadeInUp}
+                  className="card"
+                  style={{
+                    padding: "1.75rem",
+                    borderRadius: "1.25rem",
+                    boxShadow: "var(--shadow-md)",
+                  }}
+                >
+                  <h2
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "1.3rem",
+                      marginBottom: "1.5rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                    }}
+                  >
                     📦 Delivery Details
                   </h2>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "1rem",
+                    }}
+                  >
                     <div className="form-group">
                       <label className="form-label">Full Name *</label>
                       <input
@@ -272,9 +391,18 @@ export default function CheckoutPage() {
                         onChange={handleInputChange}
                         onBlur={() => handleBlur("full_name")}
                         placeholder="Your full name"
-                        style={{ borderRadius: "0.75rem" }}
                       />
-                      {touched.full_name && !form.full_name.trim() && <p style={{ color: "var(--clr-chili)", fontSize: "0.75rem", marginTop: "0.25rem" }}>Full name is required</p>}
+                      {touched.full_name && !form.full_name.trim() && (
+                        <p
+                          style={{
+                            color: "var(--clr-chili)",
+                            fontSize: "0.75rem",
+                            marginTop: "0.25rem",
+                          }}
+                        >
+                          Full name is required
+                        </p>
+                      )}
                     </div>
                     <div className="form-group">
                       <label className="form-label">Phone Number *</label>
@@ -287,35 +415,169 @@ export default function CheckoutPage() {
                         onChange={handleInputChange}
                         onBlur={() => handleBlur("phone")}
                         placeholder="08012345678"
-                        style={{ borderRadius: "0.75rem" }}
                       />
-                      {touched.phone && !form.phone.trim() && <p style={{ color: "var(--clr-chili)", fontSize: "0.75rem", marginTop: "0.25rem" }}>Phone number is required</p>}
+                      {touched.phone && !form.phone.trim() && (
+                        <p
+                          style={{
+                            color: "var(--clr-chili)",
+                            fontSize: "0.75rem",
+                            marginTop: "0.25rem",
+                          }}
+                        >
+                          Phone number is required
+                        </p>
+                      )}
                     </div>
                     <div className="form-group">
-                      <label className="form-label">Delivery Address *</label>
-                      <textarea
+                      <label className="form-label">Address Line 1 *</label>
+                      <input
                         className="form-input"
-                        name="address"
+                        type="text"
+                        name="address_line1"
                         required
-                        rows={3}
-                        value={form.address}
+                        value={form.address_line1}
                         onChange={handleInputChange}
-                        onBlur={() => handleBlur("address")}
-                        placeholder="Your full delivery address"
-                        style={{ resize: "vertical", borderRadius: "0.75rem" }}
+                        onBlur={() => handleBlur("address_line1")}
+                        placeholder="Street, house number"
                       />
-                      {touched.address && !form.address.trim() && <p style={{ color: "var(--clr-chili)", fontSize: "0.75rem", marginTop: "0.25rem" }}>Delivery address is required</p>}
+                      {touched.address_line1 && !form.address_line1.trim() && (
+                        <p
+                          style={{
+                            color: "var(--clr-chili)",
+                            fontSize: "0.75rem",
+                            marginTop: "0.25rem",
+                          }}
+                        >
+                          Address is required
+                        </p>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">
+                        Address Line 2 (optional)
+                      </label>
+                      <input
+                        className="form-input"
+                        type="text"
+                        name="address_line2"
+                        value={form.address_line2}
+                        onChange={handleInputChange}
+                        placeholder="Apartment, suite, etc."
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">City *</label>
+                      <input
+                        className="form-input"
+                        type="text"
+                        name="city"
+                        required
+                        value={form.city}
+                        onChange={handleInputChange}
+                        onBlur={() => handleBlur("city")}
+                        placeholder="City"
+                      />
+                      {touched.city && !form.city.trim() && (
+                        <p
+                          style={{
+                            color: "var(--clr-chili)",
+                            fontSize: "0.75rem",
+                            marginTop: "0.25rem",
+                          }}
+                        >
+                          City is required
+                        </p>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">State *</label>
+                      <input
+                        className="form-input"
+                        type="text"
+                        name="state"
+                        required
+                        value={form.state}
+                        onChange={handleInputChange}
+                        onBlur={() => handleBlur("state")}
+                        placeholder="State"
+                      />
+                      {touched.state && !form.state.trim() && (
+                        <p
+                          style={{
+                            color: "var(--clr-chili)",
+                            fontSize: "0.75rem",
+                            marginTop: "0.25rem",
+                          }}
+                        >
+                          State is required
+                        </p>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">
+                        Postal Code (optional)
+                      </label>
+                      <input
+                        className="form-input"
+                        type="text"
+                        name="postal_code"
+                        value={form.postal_code}
+                        onChange={handleInputChange}
+                        placeholder="e.g., 23401"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">
+                        Account Number (optional)
+                      </label>
+                      <input
+                        className="form-input"
+                        type="text"
+                        name="account_number"
+                        value={form.account_number}
+                        onChange={handleInputChange}
+                        placeholder="Bank account number (for faster checkout)"
+                      />
+                      <small style={{ color: "var(--clr-muted)" }}>
+                        Save your account number to auto‑fill payment details
+                        next time.
+                      </small>
                     </div>
                   </div>
                 </motion.div>
 
                 {/* Payment Method Card */}
-                <motion.div variants={fadeInUp} className="card" style={{ padding: "1.75rem", borderRadius: "1.25rem", boxShadow: "var(--shadow-md)" }}>
-                  <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <motion.div
+                  variants={fadeInUp}
+                  className="card"
+                  style={{
+                    padding: "1.75rem",
+                    borderRadius: "1.25rem",
+                    boxShadow: "var(--shadow-md)",
+                  }}
+                >
+                  <h2
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "1.3rem",
+                      marginBottom: "1.5rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                    }}
+                  >
                     💳 Payment Method
                   </h2>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    {(["cash_on_delivery", "bank_transfer"] as PaymentMethod[]).map((method) => (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "1rem",
+                    }}
+                  >
+                    {(
+                      ["cash_on_delivery", "bank_transfer"] as PaymentMethod[]
+                    ).map((method) => (
                       <motion.label
                         key={method}
                         whileTap={{ scale: 0.99 }}
@@ -327,7 +589,10 @@ export default function CheckoutPage() {
                           border: `2px solid ${paymentMethod === method ? "var(--clr-saffron)" : "var(--clr-cream-dark)"}`,
                           borderRadius: "1rem",
                           cursor: "pointer",
-                          background: paymentMethod === method ? "rgba(232,160,32,0.08)" : "white",
+                          background:
+                            paymentMethod === method
+                              ? "rgba(232,160,32,0.08)"
+                              : "white",
                           transition: "all 0.2s ease",
                         }}
                       >
@@ -337,14 +602,27 @@ export default function CheckoutPage() {
                           value={method}
                           checked={paymentMethod === method}
                           onChange={() => setPaymentMethod(method)}
-                          style={{ accentColor: "var(--clr-saffron)", width: "1.2rem", height: "1.2rem" }}
+                          style={{
+                            accentColor: "var(--clr-saffron)",
+                            width: "1.2rem",
+                            height: "1.2rem",
+                          }}
                         />
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 600, fontSize: "1rem" }}>
-                            {method === "cash_on_delivery" ? "💵 Cash on Delivery" : "🏦 Bank Transfer"}
+                            {method === "cash_on_delivery"
+                              ? "💵 Cash on Delivery"
+                              : "🏦 Bank Transfer"}
                           </div>
-                          <div style={{ fontSize: "0.8rem", color: "var(--clr-muted)" }}>
-                            {method === "cash_on_delivery" ? "Pay when your order arrives" : "Transfer to our bank account"}
+                          <div
+                            style={{
+                              fontSize: "0.8rem",
+                              color: "var(--clr-muted)",
+                            }}
+                          >
+                            {method === "cash_on_delivery"
+                              ? "Pay when your order arrives"
+                              : "Transfer to our bank account"}
                           </div>
                         </div>
                       </motion.label>
@@ -370,26 +648,81 @@ export default function CheckoutPage() {
                             lineHeight: 1.8,
                           }}
                         >
-                          <strong style={{ display: "block", marginBottom: "0.5rem" }}>Transfer to:</strong>
-                          <div>🏦 <strong>{bankInfo.bank_name}</strong></div>
-                          <div>Account: <strong>{bankInfo.account_number}</strong></div>
-                          <div>Name: <strong>{bankInfo.account_name}</strong></div>
-                          <div style={{ marginTop: "0.75rem", fontWeight: 700, color: "var(--clr-saffron-dark)" }}>
+                          <strong
+                            style={{ display: "block", marginBottom: "0.5rem" }}
+                          >
+                            Transfer to:
+                          </strong>
+                          <div>
+                            🏦 <strong>{bankInfo.bank_name}</strong>
+                          </div>
+                          <div>
+                            Account: <strong>{bankInfo.account_number}</strong>
+                          </div>
+                          <div>
+                            Name: <strong>{bankInfo.account_name}</strong>
+                          </div>
+                          <div
+                            style={{
+                              marginTop: "0.75rem",
+                              fontWeight: 700,
+                              color: "var(--clr-saffron-dark)",
+                            }}
+                          >
                             Amount: {formatNaira(totalPrice())}
                           </div>
                         </div>
 
-                        <div className="form-group" style={{ marginTop: "1rem" }}>
-                          <label className="form-label">Upload Payment Proof *</label>
+                        {form.account_number && (
+                          <div style={{ marginTop: "0.75rem" }}>
+                            <label
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                fontSize: "0.875rem",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={useStoredAccount}
+                                onChange={(e) =>
+                                  setUseStoredAccount(e.target.checked)
+                                }
+                              />
+                              Use stored account number ({form.account_number})
+                              for transfer? (faster checkout)
+                            </label>
+                          </div>
+                        )}
+
+                        <div
+                          className="form-group"
+                          style={{ marginTop: "1rem" }}
+                        >
+                          <label className="form-label">
+                            Upload Payment Proof *
+                          </label>
                           <input
                             type="file"
                             accept="image/*,.pdf"
-                            onChange={(e) => setProofFile(e.target.files?.[0] ?? null)}
+                            onChange={(e) =>
+                              setProofFile(e.target.files?.[0] ?? null)
+                            }
                             className="form-input"
-                            style={{ padding: "0.5rem", borderRadius: "0.75rem" }}
+                            style={{
+                              padding: "0.5rem",
+                              borderRadius: "0.75rem",
+                            }}
                             required
                           />
-                          <p style={{ fontSize: "0.75rem", color: "var(--clr-muted)", marginTop: "0.25rem" }}>
+                          <p
+                            style={{
+                              fontSize: "0.75rem",
+                              color: "var(--clr-muted)",
+                              marginTop: "0.25rem",
+                            }}
+                          >
                             Upload screenshot of your transfer receipt (max 5MB)
                           </p>
                         </div>
@@ -400,28 +733,85 @@ export default function CheckoutPage() {
               </div>
 
               {/* Right Column: Order Summary */}
-              <motion.div variants={fadeInUp} className="card" style={{ padding: "1.75rem", borderRadius: "1.25rem", boxShadow: "var(--shadow-lg)", position: "sticky", top: "100px" }}>
-                <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <motion.div
+                variants={fadeInUp}
+                className="card"
+                style={{
+                  padding: "1.75rem",
+                  borderRadius: "1.25rem",
+                  boxShadow: "var(--shadow-lg)",
+                  position: "sticky",
+                  top: "100px",
+                }}
+              >
+                <h2
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1.3rem",
+                    marginBottom: "1.5rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
                   🛒 Order Summary
                 </h2>
-                <div style={{ maxHeight: "300px", overflowY: "auto", marginBottom: "1rem" }}>
+                <div
+                  style={{
+                    maxHeight: "300px",
+                    overflowY: "auto",
+                    marginBottom: "1rem",
+                  }}
+                >
                   {items.map(({ product, quantity }) => (
-                    <div key={product.id} style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem", fontSize: "0.9rem", padding: "0.25rem 0" }}>
+                    <div
+                      key={product.id}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: "0.75rem",
+                        fontSize: "0.9rem",
+                        padding: "0.25rem 0",
+                      }}
+                    >
                       <span style={{ color: "var(--clr-muted)" }}>
-                        {product.name} <span style={{ fontSize: "0.75rem" }}>x{quantity}</span>
+                        {product.name}{" "}
+                        <span style={{ fontSize: "0.75rem" }}>x{quantity}</span>
                       </span>
-                      <span style={{ fontWeight: 500 }}>{formatNaira(product.price * quantity)}</span>
+                      <span style={{ fontWeight: 500 }}>
+                        {formatNaira(product.price * quantity)}
+                      </span>
                     </div>
                   ))}
                 </div>
                 <div className="divider" style={{ margin: "0.75rem 0" }} />
-                <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "1.2rem", marginBottom: "1.5rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontWeight: 700,
+                    fontSize: "1.2rem",
+                    marginBottom: "1.5rem",
+                  }}
+                >
                   <span>Total</span>
-                  <span style={{ fontFamily: "var(--font-display)", color: "var(--clr-saffron-dark)" }}>{formatNaira(totalPrice())}</span>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      color: "var(--clr-saffron-dark)",
+                    }}
+                  >
+                    {formatNaira(totalPrice())}
+                  </span>
                 </div>
 
                 {error && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="alert alert-error" style={{ marginBottom: "1rem", fontSize: "0.875rem" }}>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="alert alert-error"
+                    style={{ marginBottom: "1rem", fontSize: "0.875rem" }}
+                  >
                     {error}
                   </motion.div>
                 )}
@@ -430,11 +820,23 @@ export default function CheckoutPage() {
                   type="submit"
                   className="btn btn-primary btn-lg"
                   disabled={loading || !user || !isFormValid}
-                  style={{ width: "100%", borderRadius: "2rem", padding: "1rem", fontSize: "1rem" }}
+                  style={{
+                    width: "100%",
+                    borderRadius: "2rem",
+                    padding: "1rem",
+                    fontSize: "1rem",
+                  }}
                   whileTap={{ scale: 0.98 }}
                 >
                   {loading ? (
-                    <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", justifyContent: "center" }}>
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        justifyContent: "center",
+                      }}
+                    >
                       <span className="spinner" /> Placing Order...
                     </span>
                   ) : (
@@ -442,7 +844,14 @@ export default function CheckoutPage() {
                   )}
                 </motion.button>
 
-                <p style={{ fontSize: "0.75rem", color: "var(--clr-muted)", textAlign: "center", marginTop: "1rem" }}>
+                <p
+                  style={{
+                    fontSize: "0.75rem",
+                    color: "var(--clr-muted)",
+                    textAlign: "center",
+                    marginTop: "1rem",
+                  }}
+                >
                   By placing an order, you agree to our terms and conditions.
                 </p>
               </motion.div>

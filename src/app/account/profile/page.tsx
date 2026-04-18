@@ -15,6 +15,11 @@ export default function AccountProfilePage() {
     full_name: "",
     phone: "",
     address: "",
+    address_line2: "",
+    city: "",
+    state: "",
+    postal_code: "",
+    account_number: "",
   });
 
   useEffect(() => {
@@ -32,7 +37,7 @@ export default function AccountProfilePage() {
 
       const { data: customer } = await supabase
         .from("customers")
-        .select("full_name, phone, address")
+        .select("*")
         .eq("id", user.id)
         .single();
 
@@ -41,6 +46,11 @@ export default function AccountProfilePage() {
           full_name: customer.full_name || "",
           phone: customer.phone || "",
           address: customer.address || "",
+          address_line2: customer.address_line2 || "",
+          city: customer.city || "",
+          state: customer.state || "",
+          postal_code: customer.postal_code || "",
+          account_number: customer.account_number || "",
         });
       }
 
@@ -70,6 +80,11 @@ export default function AccountProfilePage() {
       full_name: profile.full_name,
       phone: profile.phone,
       address: profile.address,
+      address_line2: profile.address_line2,
+      city: profile.city,
+      state: profile.state,
+      postal_code: profile.postal_code,
+      account_number: profile.account_number,
     });
 
     if (error) {
@@ -85,13 +100,18 @@ export default function AccountProfilePage() {
     return (
       <PageTransition>
         <div className="card" style={{ padding: "2rem" }}>
-          <div style={{ marginBottom: "1.5rem" }}>
-            <Skeleton
-              style={{ width: "220px", height: "28px", marginBottom: "1rem" }}
-            />
-            <Skeleton style={{ width: "180px", height: "16px" }} />
-          </div>
+          <Skeleton
+            style={{ width: "220px", height: "28px", marginBottom: "1rem" }}
+          />
+          <Skeleton
+            style={{ width: "180px", height: "16px", marginBottom: "1rem" }}
+          />
           <div style={{ display: "grid", gap: "1rem", maxWidth: "560px" }}>
+            <Skeleton style={{ height: "56px" }} />
+            <Skeleton style={{ height: "56px" }} />
+            <Skeleton style={{ height: "56px" }} />
+            <Skeleton style={{ height: "56px" }} />
+            <Skeleton style={{ height: "56px" }} />
             <Skeleton style={{ height: "56px" }} />
             <Skeleton style={{ height: "56px" }} />
             <Skeleton style={{ height: "120px" }} />
@@ -132,7 +152,7 @@ export default function AccountProfilePage() {
           style={{ display: "grid", gap: "1rem", maxWidth: "560px" }}
         >
           <div className="form-group">
-            <label className="form-label">Full Name</label>
+            <label className="form-label">Full Name *</label>
             <input
               className="form-input"
               type="text"
@@ -144,10 +164,11 @@ export default function AccountProfilePage() {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Phone Number</label>
+            <label className="form-label">Phone Number *</label>
             <input
               className="form-input"
               type="tel"
+              required
               value={profile.phone}
               onChange={(e) =>
                 setProfile({ ...profile, phone: e.target.value })
@@ -155,16 +176,81 @@ export default function AccountProfilePage() {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Delivery Address</label>
-            <textarea
+            <label className="form-label">Address Line 1 *</label>
+            <input
               className="form-input"
-              rows={4}
+              type="text"
+              required
               value={profile.address}
               onChange={(e) =>
                 setProfile({ ...profile, address: e.target.value })
               }
+              placeholder="Street, house number"
             />
           </div>
+          <div className="form-group">
+            <label className="form-label">Address Line 2 (optional)</label>
+            <input
+              className="form-input"
+              type="text"
+              value={profile.address_line2}
+              onChange={(e) =>
+                setProfile({ ...profile, address_line2: e.target.value })
+              }
+              placeholder="Apartment, suite, etc."
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">City *</label>
+            <input
+              className="form-input"
+              type="text"
+              required
+              value={profile.city}
+              onChange={(e) => setProfile({ ...profile, city: e.target.value })}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">State *</label>
+            <input
+              className="form-input"
+              type="text"
+              required
+              value={profile.state}
+              onChange={(e) =>
+                setProfile({ ...profile, state: e.target.value })
+              }
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Postal Code (optional)</label>
+            <input
+              className="form-input"
+              type="text"
+              value={profile.postal_code}
+              onChange={(e) =>
+                setProfile({ ...profile, postal_code: e.target.value })
+              }
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">
+              Account Number (optional, for faster checkout)
+            </label>
+            <input
+              className="form-input"
+              type="text"
+              value={profile.account_number}
+              onChange={(e) =>
+                setProfile({ ...profile, account_number: e.target.value })
+              }
+              placeholder="Bank account number"
+            />
+            <small style={{ color: "var(--clr-muted)" }}>
+              Store your account number to auto‑fill payment details.
+            </small>
+          </div>
+
           <button type="submit" className="btn btn-primary" disabled={saving}>
             {saving ? "Saving..." : "Save Changes"}
           </button>

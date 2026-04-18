@@ -2,7 +2,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import AccountNav from "@/components/account/AccountNav";
 
 const tabs = [
   { href: "/account/overview", label: "Overview", icon: "📊" },
@@ -36,54 +36,11 @@ export default async function AccountLayout({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "280px 1fr",
+              gridTemplateColumns: "1fr",
               gap: "1.5rem",
             }}
           >
-            <aside className="card" style={{ padding: "1.5rem" }}>
-              <div style={{ marginBottom: "1.5rem" }}>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.25rem",
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  My Account
-                </h2>
-                <p
-                  style={{
-                    color: "var(--clr-muted)",
-                    fontSize: "0.95rem",
-                    lineHeight: 1.6,
-                  }}
-                >
-                  Manage orders, update profile, and secure your account.
-                </p>
-              </div>
-              <nav style={{ display: "grid", gap: "0.5rem" }}>
-                {tabs.map((tab) => (
-                  <Link
-                    key={tab.href}
-                    href={tab.href}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.75rem",
-                      padding: "0.9rem 1rem",
-                      borderRadius: "var(--radius-md)",
-                      color: "var(--clr-bark)",
-                      background: "var(--clr-cream)",
-                      fontWeight: 600,
-                      textDecoration: "none",
-                    }}
-                  >
-                    <span>{tab.icon}</span>
-                    {tab.label}
-                  </Link>
-                ))}
-              </nav>
-            </aside>
+            <AccountNav tabs={tabs} />
             <section>{children}</section>
           </div>
         </div>
