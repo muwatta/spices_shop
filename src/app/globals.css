@@ -404,3 +404,129 @@ select {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+
+/* ============================================
+   Mobile‑first responsive enhancements
+   ============================================ */
+
+/* Base mobile styles (default, no media query needed) */
+html {
+  font-size: 14px; /* smaller base on mobile */
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Make all images and embedded content responsive */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Improve touch targets on mobile */
+button, a, .btn, .card-link {
+  min-height: 44px; /* Apple’s recommended minimum tap target size */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Adjust container padding on mobile */
+.container {
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: var(--space-lg);
+    padding-right: var(--space-lg);
+  }
+}
+
+/* Responsive typography for headings */
+h1 {
+  font-size: clamp(1.8rem, 6vw, 3rem);
+}
+h2 {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+}
+h3 {
+  font-size: clamp(1.2rem, 4vw, 1.5rem);
+}
+p, li {
+  font-size: clamp(0.875rem, 4vw, 1rem);
+}
+
+/* Make all grid layouts mobile‑first */
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* single column on mobile */
+  gap: var(--space-md);
+}
+
+@media (min-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+}
+
+/* Ensure card layouts stack nicely on mobile */
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Form inputs full width on mobile */
+.form-input, .form-group {
+  width: 100%;
+}
+
+/* Tables become scrollable on small screens */
+table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+/* Button groups wrap */
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* Fix sticky headers on mobile */
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Hide desktop-only elements on mobile */
+.desktop-only {
+  display: none;
+}
+.mobile-only {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .desktop-only {
+    display: block;
+  }
+  .mobile-only {
+    display: none;
+  }
+}
