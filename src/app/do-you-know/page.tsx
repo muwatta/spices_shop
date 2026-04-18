@@ -43,7 +43,7 @@ export default async function DoYouKnowPage() {
                 }}
               >
                 <Image
-                  src="/images/logo.jpeg"
+                  src="/images/logo.jpg"
                   alt="KMA Spices logo"
                   width={92}
                   height={92}

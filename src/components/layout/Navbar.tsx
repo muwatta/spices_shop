@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart";
 import { useEffect, useState } from "react";
 
-const MotionNav = motion("nav");
+const MotionNav = motion.create(motion.nav); // ✅ fixed deprecation
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -44,6 +44,7 @@ export default function Navbar() {
         boxShadow: "0 2px 12px rgba(0,0,0,0.25)",
       }}
     >
+      {/* rest of the component unchanged */}
       <div
         className="container"
         style={{
@@ -64,7 +65,7 @@ export default function Navbar() {
             }}
           >
             <Image
-              src="/images/logo.jpeg"
+              src="/images/logo.jpg"
               alt="KMA Spices logo"
               width={40}
               height={40}

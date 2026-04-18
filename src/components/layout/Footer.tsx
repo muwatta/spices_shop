@@ -33,7 +33,7 @@ export default function Footer() {
             }}
           >
             <Image
-              src="/images/logo.png"
+              src="/images/logo.jpg"
               alt="KMA Spices logo"
               width={52}
               height={52}
