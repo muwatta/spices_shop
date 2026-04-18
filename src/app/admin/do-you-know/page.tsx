@@ -25,11 +25,15 @@ export default function AdminDoYouKnowPage() {
     const fetchItems = async () => {
       setLoading(true);
       try {
-        const response = await supabase.from("do_you_know").select("*");
-        if (response.error) throw response.error;
-        setItems(response.data || []);
+        const { data, error } = await supabase
+          .from("do_you_know_items")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        setItems(data || []);
       } catch (err) {
         console.error("Error fetching do-you-know items:", err);
+        setError("Failed to load items.");
       } finally {
         setLoading(false);
       }
@@ -83,14 +87,15 @@ export default function AdminDoYouKnowPage() {
       return;
     }
 
-    const refresh = await supabase
+    // Refresh the list
+    const { data, error } = await supabase
       .from("do_you_know_items")
       .select("*")
       .order("created_at", { ascending: false });
-    if (refresh.error) {
-      setError(refresh.error.message);
+    if (error) {
+      setError(error.message);
     } else {
-      setItems((refresh.data ?? []) as DoYouKnowItem[]);
+      setItems(data ?? []);
       setMessage(editingItem ? "Guide updated." : "Guide added.");
       resetForm();
     }
@@ -112,14 +117,14 @@ export default function AdminDoYouKnowPage() {
       setSaving(false);
       return;
     }
-    const refresh = await supabase
+    const { data, error } = await supabase
       .from("do_you_know_items")
       .select("*")
       .order("created_at", { ascending: false });
-    if (refresh.error) {
-      setError(refresh.error.message);
+    if (error) {
+      setError(error.message);
     } else {
-      setItems((refresh.data ?? []) as DoYouKnowItem[]);
+      setItems(data ?? []);
       setMessage("Guide removed.");
     }
     setSaving(false);

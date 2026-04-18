@@ -30,18 +30,19 @@ async function uploadImage(
   adminClient: ReturnType<typeof createAdminClient>,
   file: File,
 ) {
-  const ext = String(file.name).split(".").pop() ?? "jpg";
+  const ext = file.name.split(".").pop() ?? "jpg";
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 
+  // Use a dedicated bucket for Do You Know images
   const { data: uploadData, error: uploadError } = await adminClient.storage
-    .from("product-images")
+    .from("do-you-know-images")
     .upload(fileName, buffer, { upsert: true });
 
   if (uploadError) throw uploadError;
 
   const { data: urlData } = adminClient.storage
-    .from("product-images")
+    .from("do-you-know-images")
     .getPublicUrl(uploadData.path);
 
   return urlData.publicUrl;
@@ -65,7 +66,11 @@ export async function POST(request: Request) {
 
   let image_url: string | null = null;
   if (body.image && body.image instanceof File && body.image.size > 0) {
-    image_url = await uploadImage(adminClient, body.image);
+    try {
+      image_url = await uploadImage(adminClient, body.image);
+    } catch (err: any) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
   }
 
   const payload: Record<string, any> = {
@@ -74,7 +79,6 @@ export async function POST(request: Request) {
     benefits: body.benefits ? String(body.benefits).trim() : null,
     recommendation,
   };
-
   if (image_url) payload.image_url = image_url;
 
   const { error } = await adminClient.from("do_you_know_items").insert(payload);
@@ -104,7 +108,11 @@ export async function PUT(request: Request) {
 
   let image_url: string | null | undefined = undefined;
   if (body.image && body.image instanceof File && body.image.size > 0) {
-    image_url = await uploadImage(adminClient, body.image);
+    try {
+      image_url = await uploadImage(adminClient, body.image);
+    } catch (err: any) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
   }
 
   const payload: Record<string, any> = {
@@ -113,7 +121,6 @@ export async function PUT(request: Request) {
     benefits: body.benefits ? String(body.benefits).trim() : null,
     recommendation,
   };
-
   if (image_url !== undefined) payload.image_url = image_url;
 
   const { error } = await adminClient
