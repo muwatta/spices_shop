@@ -35,7 +35,13 @@ function SignupContent() {
     });
 
     if (signupError) {
-      setError(signupError.message);
+      if (signupError.message.includes("fetch failed")) {
+        setError(
+          "Network error. Please check your internet connection and refresh the page.",
+        );
+      } else {
+        setError(signupError.message);
+      }
       setLoading(false);
       return;
     }
