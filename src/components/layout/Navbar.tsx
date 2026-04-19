@@ -141,8 +141,8 @@ export default function Navbar(): JSX.Element {
           <Image
             src="/images/logo.jpg"
             alt="KMA Spices"
-            width={38}
-            height={38}
+            width={50}
+            height={50}
             className="nav__logo"
           />
           <span>KMA Spices</span>
@@ -350,7 +350,8 @@ export default function Navbar(): JSX.Element {
           text-decoration: none;
         }
         .nav__logo {
-          border-radius: 0.6rem;
+          border-radius: 50px;
+          object-fit: cover;
         }
         .nav__center {
           display: flex;
@@ -399,9 +400,10 @@ export default function Navbar(): JSX.Element {
           justify-content: center;
           background: var(--clr-saffron);
           color: var(--clr-bark);
-          width: 45px;
-          height: 45px;
-          border-radius: 50%;
+          width: 50px;
+          height: 50px;
+          border-radius: 50px;
+          object-fit: cover;
         }
         .nav__cart span {
           position: absolute;
@@ -423,8 +425,8 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 45px;
-          height: 45px;
+          width: 50px;
+          height: 50px;
           border-radius: 50%;
           background: rgba(255,255,255,0.08);
           color: var(--clr-cream);
@@ -558,7 +560,7 @@ export default function Navbar(): JSX.Element {
         }
         @media (max-width: 480px) {
           .nav__inner { padding: 0.5rem 0.8rem; }
-          .nav__cart, .nav__user-btn { width: 40px; height: 40px; }
+          .nav__cart, .nav__user-btn { width: 50px; height: 50px; }
         }
       `}</style>
     </MotionNav>
