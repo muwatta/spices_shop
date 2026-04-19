@@ -318,8 +318,8 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.75rem 1.2rem;
-          gap: 1rem;
+          padding: 0.75rem 1rem;
+          gap: 0.75rem;
         }
         .nav__brand {
           display: flex;
@@ -466,7 +466,7 @@ export default function Navbar(): JSX.Element {
           width: 280px;
           background: var(--clr-bark-mid);
           z-index: 1001;
-          padding: 1rem;
+          padding: 1.5rem;
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
@@ -476,6 +476,7 @@ export default function Navbar(): JSX.Element {
         .nav__drawer-header {
           display: flex;
           justify-content: flex-end;
+          width: 100%;
         }
         .nav__drawer-header button {
           background: none;
@@ -487,6 +488,8 @@ export default function Navbar(): JSX.Element {
           display: flex;
           flex-direction: column;
           align-items: flex-start;
+          gap: 0.75rem;
+          width: 100%;
         }
         .nav__drawer-links a, .nav__drawer-links button {
           color: white;
@@ -496,12 +499,19 @@ export default function Navbar(): JSX.Element {
           border: none;
           text-align: left;
           cursor: pointer;
-          padding: 0.25rem 0;
+          padding: 0.5rem 0;
           margin: 0;
+          width: 100%;
         }
         @media (max-width: 900px) {
           .nav__center { display: none; }
           .nav__menu { display: block; }
+          .nav__search input { width: 90px; }
+        }
+        @media (max-width: 480px) {
+          .nav__search input { width: 70px; }
+          .nav__inner { padding: 0.5rem 0.8rem; }
+          .nav__brand span { font-size: 0.9rem; }
         }
       `}</style>
     </MotionNav>
