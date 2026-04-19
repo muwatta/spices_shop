@@ -6,301 +6,459 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart";
 import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
-const MotionNav = motion.create(motion.nav); // ✅ fixed deprecation
+const MotionNav = motion.nav;
 
-export default function Navbar() {
+const Icon = {
+  menu: () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M4 6h16M4 12h16M4 18h16"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
+  close: () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M6 6l12 12M18 6L6 18"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  ),
+  cart: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M6 6h15l-2 9H8L6 4H3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="9" cy="20" r="1.5" fill="currentColor" />
+      <circle cx="18" cy="20" r="1.5" fill="currentColor" />
+    </svg>
+  ),
+  search: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+      <line
+        x1="20"
+        y1="20"
+        x2="16.5"
+        y2="16.5"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+    </svg>
+  ),
+  user: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+        fill="currentColor"
+      />
+    </svg>
+  ),
+};
+
+export default function Navbar(): JSX.Element {
   const pathname = usePathname();
   const router = useRouter();
   const totalItems = useCartStore((s) => s.totalItems);
-  const [mounted, setMounted] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const supabase = createClient();
+
+  const [mounted, setMounted] = useState<boolean>(false);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [user, setUser] = useState<any>(null);
+  const [userName, setUserName] = useState<string>("");
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   useEffect(() => setMounted(true), []);
-
   const cartCount = mounted ? totalItems() : 0;
 
-  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const query = searchTerm.trim();
-    if (!query) return;
-    router.push(`/search?q=${encodeURIComponent(query)}`);
+  // Fetch user and customer data
+  useEffect(() => {
+    async function fetchUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        const { data: customer } = await supabase
+          .from("customers")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+        if (customer?.full_name) {
+          // Show first name only
+          const firstName = customer.full_name.split(" ")[0];
+          setUserName(firstName);
+        }
+      } else {
+        setUser(null);
+        setUserName("");
+      }
+    }
+    fetchUser();
+  }, [supabase]);
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    if (!searchTerm.trim()) return;
+    router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
     setSearchTerm("");
     setMenuOpen(false);
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  };
+
   return (
     <MotionNav
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      style={{
-        background: "var(--clr-bark)",
-        color: "var(--clr-cream)",
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        boxShadow: "0 2px 12px rgba(0,0,0,0.25)",
-      }}
+      className="nav"
     >
-      {/* rest of the component unchanged */}
-      <div
-        className="container"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "1rem",
-          flexWrap: "wrap",
-          padding: "1rem var(--space-md)",
-        }}
-      >
-        <Link href="/" style={{ textDecoration: "none" }}>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.85rem",
-            }}
-          >
-            <Image
-              src="/images/logo.jpg"
-              alt="KMA Spices logo"
-              width={40}
-              height={40}
-              style={{ borderRadius: "0.85rem", objectFit: "cover" }}
-            />
-            <span
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.4rem",
-                color: "var(--clr-saffron)",
-                fontWeight: 700,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              KMA Spices
-            </span>
-          </div>
+      <div className="nav__inner">
+        {/* Brand */}
+        <Link href="/" className="nav__brand">
+          <Image
+            src="/images/logo.jpg"
+            alt="KMA Spices"
+            width={38}
+            height={38}
+            className="nav__logo"
+          />
+          <span>KMA Spices</span>
         </Link>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "1rem",
-            flex: 1,
-            minWidth: 0,
-          }}
-          className="desktop-nav"
-        >
-          <Link
-            href="/"
-            style={{
-              color:
-                pathname === "/" ? "var(--clr-saffron)" : "var(--clr-cream)",
-              fontWeight: pathname === "/" ? 600 : 400,
-              transition: "color var(--transition-fast)",
-            }}
-          >
+        {/* Desktop Nav */}
+        <div className="nav__center">
+          <Link href="/" className={pathname === "/" ? "active" : ""}>
             Shop
           </Link>
           <Link
             href="/do-you-know"
-            style={{
-              color:
-                pathname === "/do-you-know"
-                  ? "var(--clr-saffron)"
-                  : "var(--clr-cream)",
-              fontWeight: pathname === "/do-you-know" ? 600 : 400,
-            }}
+            className={pathname === "/do-you-know" ? "active" : ""}
           >
-            Do you Know
-          </Link>
-          <Link
-            href="/account"
-            style={{
-              color: pathname.startsWith("/account")
-                ? "var(--clr-saffron)"
-                : "var(--clr-cream)",
-              fontWeight: pathname.startsWith("/account") ? 600 : 400,
-            }}
-          >
-            Account
-          </Link>
-          <form
-            onSubmit={handleSearchSubmit}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              flex: 1,
-              minWidth: 0,
-            }}
-          >
-            <input
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Search products or tips"
-              aria-label="Search products or tips"
-              style={{
-                flex: 1,
-                minWidth: 0,
-                padding: "0.65rem 0.85rem",
-                borderRadius: "999px",
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: "rgba(255,255,255,0.08)",
-                color: "var(--clr-cream)",
-              }}
-            />
-            <button
-              type="submit"
-              style={{
-                background: "var(--clr-saffron)",
-                color: "var(--clr-bark)",
-                border: "none",
-                borderRadius: "999px",
-                padding: "0.65rem 1rem",
-                cursor: "pointer",
-              }}
-            >
-              Search
-            </button>
-          </form>
-          <Link
-            href="/cart"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              background: "var(--clr-saffron)",
-              color: "var(--clr-bark)",
-              padding: "0.5rem 1.25rem",
-              borderRadius: "var(--radius-full)",
-              fontWeight: 600,
-              transition: "all var(--transition-fast)",
-            }}
-          >
-            🛒 Cart
-            {cartCount > 0 && (
-              <span
-                style={{
-                  background: "var(--clr-chili)",
-                  color: "white",
-                  borderRadius: "var(--radius-full)",
-                  padding: "0 0.45rem",
-                  fontSize: "0.75rem",
-                  fontWeight: 700,
-                  lineHeight: 1.6,
-                }}
-              >
-                {cartCount}
-              </span>
-            )}
+            Tips
           </Link>
         </div>
 
-        <button
-          className="mobile-menu-btn"
-          onClick={() => setMenuOpen((v) => !v)}
-          style={{
-            background: "none",
-            border: "none",
-            color: "var(--clr-cream)",
-            fontSize: "1.5rem",
-            display: "none",
-          }}
-          aria-label="Menu"
-        >
-          {menuOpen ? "✕" : "☰"}
-        </button>
-      </div>
-
-      {menuOpen && (
-        <div
-          style={{
-            background: "var(--clr-bark-mid)",
-            padding: "1rem var(--space-md)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-          }}
-        >
-          <Link
-            href="/"
-            onClick={() => setMenuOpen(false)}
-            style={{ color: "var(--clr-cream)" }}
-          >
-            🏠 Shop
-          </Link>
-          <Link
-            href="/do-you-know"
-            onClick={() => setMenuOpen(false)}
-            style={{ color: "var(--clr-cream)" }}
-          >
-            📘 Do you Know
-          </Link>
-          <Link
-            href="/account"
-            onClick={() => setMenuOpen(false)}
-            style={{ color: "var(--clr-cream)" }}
-          >
-            👤 Account
-          </Link>
-          <form
-            onSubmit={handleSearchSubmit}
-            style={{ display: "flex", gap: "0.5rem" }}
-          >
+        {/* Actions */}
+        <div className="nav__actions">
+          {/* Search */}
+          <form onSubmit={handleSearchSubmit} className="nav__search">
             <input
               value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
+              onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search"
-              aria-label="Mobile search"
-              style={{
-                flex: 1,
-                padding: "0.65rem 0.85rem",
-                borderRadius: "999px",
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: "rgba(255,255,255,0.08)",
-                color: "var(--clr-cream)",
-              }}
+              aria-label="Search products"
             />
-            <button
-              type="submit"
-              style={{
-                background: "var(--clr-saffron)",
-                color: "var(--clr-bark)",
-                border: "none",
-                borderRadius: "999px",
-                padding: "0.65rem 1rem",
-                cursor: "pointer",
-              }}
-            >
-              Go
+            <button type="submit">
+              <Icon.search />
             </button>
           </form>
-          <Link
-            href="/cart"
-            onClick={() => setMenuOpen(false)}
-            style={{ color: "var(--clr-saffron)", fontWeight: 600 }}
-          >
-            🛒 Cart {cartCount > 0 && `(${cartCount})`}
+
+          {/* Cart */}
+          <Link href="/cart" className="nav__cart">
+            <Icon.cart />
+            {cartCount > 0 && <span>{cartCount}</span>}
           </Link>
-          <Link
-            href="/login"
-            onClick={() => setMenuOpen(false)}
-            style={{ color: "var(--clr-cream)" }}
+
+          {/* User Account */}
+          {user ? (
+            <div className="nav__user">
+              <button
+                className="nav__user-btn"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                aria-label="User menu"
+              >
+                {userName ? (
+                  <span className="nav__user-name">{userName}</span>
+                ) : (
+                  <Icon.user />
+                )}
+              </button>
+              {dropdownOpen && (
+                <div className="nav__dropdown">
+                  <Link
+                    href="/account/overview"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Overview
+                  </Link>
+                  <Link
+                    href="/account/orders"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Orders
+                  </Link>
+                  <Link
+                    href="/account/profile"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    href="/account/security"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    Security
+                  </Link>
+                  <button onClick={handleLogout}>Logout</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link href="/login" className="nav__user-btn">
+              <Icon.user />
+            </Link>
+          )}
+
+          {/* Mobile toggle */}
+          <button
+            className="nav__menu"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Toggle menu"
           >
-            🔐 Sign In
+            {menuOpen ? <Icon.close /> : <Icon.menu />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="nav__mobile">
+          <Link href="/" onClick={() => setMenuOpen(false)}>
+            Shop
+          </Link>
+          <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>
+            Tips
+          </Link>
+          {user ? (
+            <>
+              <Link href="/account/overview" onClick={() => setMenuOpen(false)}>
+                Overview
+              </Link>
+              <Link href="/account/orders" onClick={() => setMenuOpen(false)}>
+                Orders
+              </Link>
+              <Link href="/account/profile" onClick={() => setMenuOpen(false)}>
+                Profile
+              </Link>
+              <button onClick={handleLogout}>Logout</button>
+            </>
+          ) : (
+            <Link href="/login" onClick={() => setMenuOpen(false)}>
+              Login
+            </Link>
+          )}
+          <Link href="/cart" onClick={() => setMenuOpen(false)}>
+            Cart ({cartCount})
           </Link>
         </div>
       )}
 
       <style>{`
-        @media (max-width: 960px) {
-          .desktop-nav { display: none !important; }
-          .mobile-menu-btn { display: block !important; }
+        .nav {
+          background: var(--clr-bark);
+          color: var(--clr-cream);
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .nav__inner {
+          max-width: 1100px;
+          margin: 0 auto;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.75rem 1.2rem;
+          gap: 1rem;
+        }
+
+        .nav__brand {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          font-weight: 700;
+          color: var(--clr-saffron);
+          text-decoration: none;
+        }
+
+        .nav__logo {
+          border-radius: 0.6rem;
+        }
+
+        .nav__center {
+          display: flex;
+          gap: 1.2rem;
+        }
+
+        .nav__center a {
+          text-decoration: none;
+          color: inherit;
+          opacity: 0.75;
+        }
+
+        .nav__center a.active {
+          color: var(--clr-saffron);
+          opacity: 1;
+          font-weight: 600;
+        }
+
+        .nav__actions {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .nav__search {
+          display: flex;
+          align-items: center;
+          background: rgba(255,255,255,0.08);
+          border-radius: 999px;
+          padding: 0.2rem 0.4rem;
+        }
+
+        .nav__search input {
+          border: none;
+          background: transparent;
+          color: white;
+          padding: 0.4rem;
+          outline: none;
+          width: 120px;
+        }
+
+        .nav__search button {
+          background: none;
+          border: none;
+          color: var(--clr-saffron);
+          cursor: pointer;
+        }
+
+        .nav__cart {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--clr-saffron);
+          color: var(--clr-bark);
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+        }
+
+        .nav__cart span {
+          position: absolute;
+          top: -4px;
+          right: -4px;
+          background: var(--clr-chili);
+          color: white;
+          font-size: 0.65rem;
+          padding: 0 0.35rem;
+          border-radius: 999px;
+        }
+
+        .nav__user {
+          position: relative;
+        }
+
+        .nav__user-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.08);
+          color: var(--clr-cream);
+        }
+
+        .nav__user-name {
+          font-size: 0.85rem;
+          font-weight: 600;
+          text-transform: capitalize;
+        }
+
+        .nav__dropdown {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          margin-top: 0.5rem;
+          background: white;
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          min-width: 140px;
+          z-index: 10;
+          overflow: hidden;
+        }
+
+        .nav__dropdown a,
+        .nav__dropdown button {
+          display: block;
+          width: 100%;
+          padding: 0.6rem 1rem;
+          text-align: left;
+          background: none;
+          border: none;
+          color: var(--clr-bark);
+          text-decoration: none;
+          font-size: 0.85rem;
+          cursor: pointer;
+        }
+
+        .nav__dropdown a:hover,
+        .nav__dropdown button:hover {
+          background: var(--clr-cream-dark);
+        }
+
+        .nav__menu {
+          display: none;
+          background: none;
+          border: none;
+          color: white;
+        }
+
+        .nav__mobile {
+          display: none;
+          flex-direction: column;
+          padding: 1rem;
+          gap: 0.8rem;
+          background: var(--clr-bark-mid);
+        }
+
+        .nav__mobile button {
+          background: none;
+          border: none;
+          color: white;
+          text-align: left;
+          padding: 0;
+          font-size: inherit;
+          cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+          .nav__center { display: none; }
+          .nav__menu { display: block; }
+          .nav__mobile { display: flex; }
+          .nav__search input { width: 80px; }
         }
       `}</style>
     </MotionNav>
