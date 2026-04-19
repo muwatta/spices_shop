@@ -127,7 +127,7 @@ export default function Navbar(): JSX.Element {
       className="nav"
     >
       <div className="nav__inner">
-        {/* Hamburger (left on mobile) */}
+        {/* Hamburger (left) */}
         <button
           className="nav__menu"
           onClick={() => setMenuOpen(true)}
@@ -148,7 +148,7 @@ export default function Navbar(): JSX.Element {
           <span>KMA Spices</span>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation (hidden on mobile) */}
         <div className="nav__center">
           <Link href="/" className={pathname === "/" ? "active" : ""}>
             Shop
@@ -161,9 +161,12 @@ export default function Navbar(): JSX.Element {
           </Link>
         </div>
 
-        {/* Actions (right side) */}
+        {/* Actions (right side) – search hidden on mobile, cart + user visible */}
         <div className="nav__actions">
-          <form onSubmit={handleSearchSubmit} className="nav__search">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="nav__search desktop-search"
+          >
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -230,7 +233,7 @@ export default function Navbar(): JSX.Element {
         </div>
       </div>
 
-      {/* Mobile Drawer (slides from left) */}
+      {/* Mobile Drawer (slides from left) – includes search input */}
       <AnimatePresence>
         {menuOpen && (
           <>
@@ -253,6 +256,23 @@ export default function Navbar(): JSX.Element {
                   <Icon.close />
                 </button>
               </div>
+
+              {/* Search input inside drawer (visible only on mobile) */}
+              <form
+                onSubmit={handleSearchSubmit}
+                className="nav__drawer-search"
+              >
+                <input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search products..."
+                  aria-label="Search"
+                />
+                <button type="submit">
+                  <Icon.search />
+                </button>
+              </form>
+
               <div className="nav__drawer-links">
                 <Link href="/" onClick={() => setMenuOpen(false)}>
                   Shop
@@ -448,7 +468,7 @@ export default function Navbar(): JSX.Element {
           color: white;
           cursor: pointer;
         }
-        /* Mobile Drawer */
+        /* Mobile drawer */
         .nav__overlay {
           position: fixed;
           top: 0;
@@ -484,6 +504,29 @@ export default function Navbar(): JSX.Element {
           color: white;
           cursor: pointer;
         }
+        .nav__drawer-search {
+          display: flex;
+          align-items: center;
+          background: rgba(255,255,255,0.15);
+          border-radius: 999px;
+          padding: 0.2rem 0.4rem;
+          width: 100%;
+        }
+        .nav__drawer-search input {
+          flex: 1;
+          border: none;
+          background: transparent;
+          color: white;
+          padding: 0.6rem 0.5rem;
+          outline: none;
+          font-size: 0.9rem;
+        }
+        .nav__drawer-search button {
+          background: none;
+          border: none;
+          color: var(--clr-saffron);
+          cursor: pointer;
+        }
         .nav__drawer-links {
           display: flex;
           flex-direction: column;
@@ -503,15 +546,19 @@ export default function Navbar(): JSX.Element {
           margin: 0;
           width: 100%;
         }
+        /* Hide desktop search on mobile, show drawer search */
         @media (max-width: 900px) {
           .nav__center { display: none; }
           .nav__menu { display: block; }
-          .nav__search input { width: 90px; }
+          .desktop-search { display: none; }
+          .nav__brand span { font-size: 0.9rem; }
+        }
+        @media (min-width: 901px) {
+          .nav__drawer-search { display: none; }
         }
         @media (max-width: 480px) {
-          .nav__search input { width: 70px; }
           .nav__inner { padding: 0.5rem 0.8rem; }
-          .nav__brand span { font-size: 0.9rem; }
+          .nav__cart, .nav__user-btn { width: 40px; height: 40px; }
         }
       `}</style>
     </MotionNav>
