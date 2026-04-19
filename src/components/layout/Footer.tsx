@@ -179,13 +179,13 @@ export default function Footer() {
         }
 
         .footer__socials a {
-          width: 50px;
-          height: 50px;
+          width: 45px;
+          height: 45px;
           display: flex;
           align-items: center;
           justify-content: center;
           border-radius: 50%;
-          background: rgba(255,255,255,0.05);
+          background: rgba(255, 255, 255, 0.39);
           transition: transform 0.15s ease, background 0.15s ease;
         }
 
@@ -193,7 +193,7 @@ export default function Footer() {
           transform: translateY(-2px);
         }
 
-        /* 🔥 Real brand colors */
+        /* Real brand colors */
         .instagram {
           color: #e1306c;
         }

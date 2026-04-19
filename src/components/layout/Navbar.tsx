@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -83,7 +83,6 @@ export default function Navbar(): JSX.Element {
   useEffect(() => setMounted(true), []);
   const cartCount = mounted ? totalItems() : 0;
 
-  // Fetch user and customer data
   useEffect(() => {
     async function fetchUser() {
       const {
@@ -97,9 +96,7 @@ export default function Navbar(): JSX.Element {
           .eq("id", user.id)
           .single();
         if (customer?.full_name) {
-          // Show first name only
-          const firstName = customer.full_name.split(" ")[0];
-          setUserName(firstName);
+          setUserName(customer.full_name.split(" ")[0]);
         }
       } else {
         setUser(null);
@@ -130,6 +127,15 @@ export default function Navbar(): JSX.Element {
       className="nav"
     >
       <div className="nav__inner">
+        {/* Hamburger (left on mobile) */}
+        <button
+          className="nav__menu"
+          onClick={() => setMenuOpen(true)}
+          aria-label="Open menu"
+        >
+          <Icon.menu />
+        </button>
+
         {/* Brand */}
         <Link href="/" className="nav__brand">
           <Image
@@ -142,7 +148,7 @@ export default function Navbar(): JSX.Element {
           <span>KMA Spices</span>
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop Navigation */}
         <div className="nav__center">
           <Link href="/" className={pathname === "/" ? "active" : ""}>
             Shop
@@ -155,34 +161,30 @@ export default function Navbar(): JSX.Element {
           </Link>
         </div>
 
-        {/* Actions */}
+        {/* Actions (right side) */}
         <div className="nav__actions">
-          {/* Search */}
           <form onSubmit={handleSearchSubmit} className="nav__search">
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search"
-              aria-label="Search products"
+              aria-label="Search"
             />
             <button type="submit">
               <Icon.search />
             </button>
           </form>
 
-          {/* Cart */}
           <Link href="/cart" className="nav__cart">
             <Icon.cart />
             {cartCount > 0 && <span>{cartCount}</span>}
           </Link>
 
-          {/* User Account */}
           {user ? (
             <div className="nav__user">
               <button
                 className="nav__user-btn"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                aria-label="User menu"
               >
                 {userName ? (
                   <span className="nav__user-name">{userName}</span>
@@ -225,50 +227,81 @@ export default function Navbar(): JSX.Element {
               <Icon.user />
             </Link>
           )}
-
-          {/* Mobile toggle */}
-          <button
-            className="nav__menu"
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <Icon.close /> : <Icon.menu />}
-          </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="nav__mobile">
-          <Link href="/" onClick={() => setMenuOpen(false)}>
-            Shop
-          </Link>
-          <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>
-            Tips
-          </Link>
-          {user ? (
-            <>
-              <Link href="/account/overview" onClick={() => setMenuOpen(false)}>
-                Overview
-              </Link>
-              <Link href="/account/orders" onClick={() => setMenuOpen(false)}>
-                Orders
-              </Link>
-              <Link href="/account/profile" onClick={() => setMenuOpen(false)}>
-                Profile
-              </Link>
-              <button onClick={handleLogout}>Logout</button>
-            </>
-          ) : (
-            <Link href="/login" onClick={() => setMenuOpen(false)}>
-              Login
-            </Link>
-          )}
-          <Link href="/cart" onClick={() => setMenuOpen(false)}>
-            Cart ({cartCount})
-          </Link>
-        </div>
-      )}
+      {/* Mobile Drawer (slides from left) */}
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.div
+              className="nav__overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMenuOpen(false)}
+            />
+            <motion.div
+              className="nav__drawer"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "tween", duration: 0.3 }}
+            >
+              <div className="nav__drawer-header">
+                <button onClick={() => setMenuOpen(false)}>
+                  <Icon.close />
+                </button>
+              </div>
+              <div className="nav__drawer-links">
+                <Link href="/" onClick={() => setMenuOpen(false)}>
+                  Shop
+                </Link>
+                <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>
+                  Tips
+                </Link>
+                {user ? (
+                  <>
+                    <Link
+                      href="/account/overview"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Overview
+                    </Link>
+                    <Link
+                      href="/account/orders"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Orders
+                    </Link>
+                    <Link
+                      href="/account/profile"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/login" onClick={() => setMenuOpen(false)}>
+                    Login
+                  </Link>
+                )}
+                <Link href="/cart" onClick={() => setMenuOpen(false)}>
+                  Cart ({cartCount})
+                </Link>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <style>{`
         .nav {
@@ -279,7 +312,6 @@ export default function Navbar(): JSX.Element {
           z-index: 100;
           box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-
         .nav__inner {
           max-width: 1100px;
           margin: 0 auto;
@@ -289,7 +321,6 @@ export default function Navbar(): JSX.Element {
           padding: 0.75rem 1.2rem;
           gap: 1rem;
         }
-
         .nav__brand {
           display: flex;
           align-items: center;
@@ -298,34 +329,28 @@ export default function Navbar(): JSX.Element {
           color: var(--clr-saffron);
           text-decoration: none;
         }
-
         .nav__logo {
           border-radius: 0.6rem;
         }
-
         .nav__center {
           display: flex;
           gap: 1.2rem;
         }
-
         .nav__center a {
           text-decoration: none;
           color: inherit;
           opacity: 0.75;
         }
-
         .nav__center a.active {
           color: var(--clr-saffron);
           opacity: 1;
           font-weight: 600;
         }
-
         .nav__actions {
           display: flex;
           align-items: center;
           gap: 0.5rem;
         }
-
         .nav__search {
           display: flex;
           align-items: center;
@@ -333,7 +358,6 @@ export default function Navbar(): JSX.Element {
           border-radius: 999px;
           padding: 0.2rem 0.4rem;
         }
-
         .nav__search input {
           border: none;
           background: transparent;
@@ -342,14 +366,12 @@ export default function Navbar(): JSX.Element {
           outline: none;
           width: 120px;
         }
-
         .nav__search button {
           background: none;
           border: none;
           color: var(--clr-saffron);
           cursor: pointer;
         }
-
         .nav__cart {
           position: relative;
           display: flex;
@@ -357,11 +379,10 @@ export default function Navbar(): JSX.Element {
           justify-content: center;
           background: var(--clr-saffron);
           color: var(--clr-bark);
-          width: 36px;
-          height: 36px;
+          width: 45px;
+          height: 45px;
           border-radius: 50%;
         }
-
         .nav__cart span {
           position: absolute;
           top: -4px;
@@ -372,11 +393,9 @@ export default function Navbar(): JSX.Element {
           padding: 0 0.35rem;
           border-radius: 999px;
         }
-
         .nav__user {
           position: relative;
         }
-
         .nav__user-btn {
           background: none;
           border: none;
@@ -384,19 +403,17 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 36px;
-          height: 36px;
+          width: 45px;
+          height: 45px;
           border-radius: 50%;
           background: rgba(255,255,255,0.08);
           color: var(--clr-cream);
         }
-
         .nav__user-name {
           font-size: 0.85rem;
           font-weight: 600;
           text-transform: capitalize;
         }
-
         .nav__dropdown {
           position: absolute;
           top: 100%;
@@ -409,9 +426,7 @@ export default function Navbar(): JSX.Element {
           z-index: 10;
           overflow: hidden;
         }
-
-        .nav__dropdown a,
-        .nav__dropdown button {
+        .nav__dropdown a, .nav__dropdown button {
           display: block;
           width: 100%;
           padding: 0.6rem 1rem;
@@ -423,42 +438,70 @@ export default function Navbar(): JSX.Element {
           font-size: 0.85rem;
           cursor: pointer;
         }
-
-        .nav__dropdown a:hover,
-        .nav__dropdown button:hover {
+        .nav__dropdown a:hover, .nav__dropdown button:hover {
           background: var(--clr-cream-dark);
         }
-
         .nav__menu {
           display: none;
           background: none;
           border: none;
           color: white;
+          cursor: pointer;
         }
-
-        .nav__mobile {
-          display: none;
-          flex-direction: column;
-          padding: 1rem;
-          gap: 0.8rem;
+        /* Mobile Drawer */
+        .nav__overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.5);
+          z-index: 1000;
+        }
+        .nav__drawer {
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          width: 280px;
           background: var(--clr-bark-mid);
+          z-index: 1001;
+          padding: 1rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          gap: 1.5rem;
         }
-
-        .nav__mobile button {
+        .nav__drawer-header {
+          display: flex;
+          justify-content: flex-end;
+        }
+        .nav__drawer-header button {
           background: none;
           border: none;
           color: white;
-          text-align: left;
-          padding: 0;
-          font-size: inherit;
           cursor: pointer;
         }
-
+        .nav__drawer-links {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .nav__drawer-links a, .nav__drawer-links button {
+          color: white;
+          text-decoration: none;
+          font-size: 1rem;
+          background: none;
+          border: none;
+          text-align: left;
+          cursor: pointer;
+          padding: 0.25rem 0;
+          margin: 0;
+        }
         @media (max-width: 900px) {
           .nav__center { display: none; }
           .nav__menu { display: block; }
-          .nav__mobile { display: flex; }
-          .nav__search input { width: 80px; }
         }
       `}</style>
     </MotionNav>
