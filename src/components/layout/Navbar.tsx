@@ -148,7 +148,7 @@ export default function Navbar(): JSX.Element {
           <span>KMA Spices</span>
         </Link>
 
-        {/* Desktop Navigation (hidden on mobile) */}
+        {/* Desktop Navigation */}
         <div className="nav__center">
           <Link href="/" className={pathname === "/" ? "active" : ""}>
             Shop
@@ -161,7 +161,7 @@ export default function Navbar(): JSX.Element {
           </Link>
         </div>
 
-        {/* Actions (right side) – search hidden on mobile, cart + user visible */}
+        {/* Actions (right side) */}
         <div className="nav__actions">
           <form
             onSubmit={handleSearchSubmit}
@@ -233,7 +233,7 @@ export default function Navbar(): JSX.Element {
         </div>
       </div>
 
-      {/* Mobile Drawer (slides from left) – includes search input */}
+      {/* Mobile Drawer (slides from left) */}
       <AnimatePresence>
         {menuOpen && (
           <>
@@ -257,7 +257,7 @@ export default function Navbar(): JSX.Element {
                 </button>
               </div>
 
-              {/* Search input inside drawer (visible only on mobile) */}
+              {/* Search inside drawer */}
               <form
                 onSubmit={handleSearchSubmit}
                 className="nav__drawer-search"
@@ -266,19 +266,16 @@ export default function Navbar(): JSX.Element {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search products..."
-                  aria-label="Search"
                 />
-                <button type="submit">
-                  <Icon.search />
-                </button>
+                <button type="submit"></button>
               </form>
 
               <div className="nav__drawer-links">
                 <Link href="/" onClick={() => setMenuOpen(false)}>
-                  Shop
+                🏠Shop
                 </Link>
                 <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>
-                  Tips
+                💡Tips
                 </Link>
                 {user ? (
                   <>
@@ -286,19 +283,19 @@ export default function Navbar(): JSX.Element {
                       href="/account/overview"
                       onClick={() => setMenuOpen(false)}
                     >
-                      Overview
+                    📊Overview
                     </Link>
                     <Link
                       href="/account/orders"
                       onClick={() => setMenuOpen(false)}
                     >
-                      Orders
+                    📦Orders
                     </Link>
                     <Link
                       href="/account/profile"
                       onClick={() => setMenuOpen(false)}
                     >
-                      Profile
+                    👤Profile
                     </Link>
                     <button
                       onClick={() => {
@@ -306,16 +303,16 @@ export default function Navbar(): JSX.Element {
                         setMenuOpen(false);
                       }}
                     >
-                      Logout
+                    🚪Logout
                     </button>
                   </>
                 ) : (
                   <Link href="/login" onClick={() => setMenuOpen(false)}>
-                    Login
+                    🔐Login
                   </Link>
                 )}
                 <Link href="/cart" onClick={() => setMenuOpen(false)}>
-                  Cart ({cartCount})
+                  🛒Cart ({cartCount})
                 </Link>
               </div>
             </motion.div>
@@ -350,7 +347,7 @@ export default function Navbar(): JSX.Element {
           text-decoration: none;
         }
         .nav__logo {
-          border-radius: 50px;
+          border-radius: 50%;
           object-fit: cover;
         }
         .nav__center {
@@ -402,8 +399,7 @@ export default function Navbar(): JSX.Element {
           color: var(--clr-bark);
           width: 50px;
           height: 50px;
-          border-radius: 50px;
-          object-fit: cover;
+          border-radius: 50%;
         }
         .nav__cart span {
           position: absolute;
@@ -485,15 +481,14 @@ export default function Navbar(): JSX.Element {
           top: 0;
           left: 0;
           bottom: 0;
-          width: 280px;
+          width: 200px;
           background: var(--clr-bark-mid);
           z-index: 1001;
-          padding: 1.5rem;
+          padding: 1px;
           display: flex;
+          text-align: left;
           flex-direction: column;
           justify-content: flex-start;
-          align-items: flex-start;
-          gap: 1.5rem;
         }
         .nav__drawer-header {
           display: flex;
@@ -510,9 +505,9 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           background: rgba(255,255,255,0.15);
-          border-radius: 999px;
+          border-radius: 100px;
           padding: 0.2rem 0.4rem;
-          width: 100%;
+          width: 70%;
         }
         .nav__drawer-search input {
           flex: 1;
@@ -533,8 +528,8 @@ export default function Navbar(): JSX.Element {
           display: flex;
           flex-direction: column;
           align-items: flex-start;
-          gap: 0.75rem;
-          width: 100%;
+          gap: 0.5rem;
+          width: 50%;
         }
         .nav__drawer-links a, .nav__drawer-links button {
           color: white;
@@ -547,6 +542,9 @@ export default function Navbar(): JSX.Element {
           padding: 0.5rem 0;
           margin: 0;
           width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 0.1rem;
         }
         /* Hide desktop search on mobile, show drawer search */
         @media (max-width: 900px) {
@@ -560,7 +558,7 @@ export default function Navbar(): JSX.Element {
         }
         @media (max-width: 480px) {
           .nav__inner { padding: 0.5rem 0.8rem; }
-          .nav__cart, .nav__user-btn { width: 50px; height: 50px; }
+          .nav__cart, .nav__user-btn { width: 40px; height: 40px; }
         }
       `}</style>
     </MotionNav>

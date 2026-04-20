@@ -17,17 +17,21 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   if (query) {
     const term = `%${query}%`;
-    const { data: productData } = await supabase
+
+    const { data: productData, error: productError } = await supabase
       .from("products")
       .select("*")
-      .or(`name.ilike.${term},description.ilike.${term}`);
+      .or(`name.ilike."${term}",description.ilike."${term}"`);
 
-    const { data: guideData } = await supabase
+    const { data: guideData, error: guideError } = await supabase
       .from("do_you_know_items")
       .select("*")
       .or(
-        `name.ilike.${term},subtitle.ilike.${term},benefits.ilike.${term},recommendation.ilike.${term}`,
+        `name.ilike."${term}",subtitle.ilike."${term}",benefits.ilike."${term}",recommendation.ilike."${term}"`,
       );
+
+    if (productError) console.error("[search] products:", productError.message);
+    if (guideError) console.error("[search] guides:", guideError.message);
 
     if (productData) products.push(...(productData as Product[]));
     if (guideData) guides.push(...(guideData as DoYouKnowItem[]));
