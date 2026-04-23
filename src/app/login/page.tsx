@@ -1,16 +1,18 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import toast, { Toaster } from "react-hot-toast";
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/account";
+  const confirmed = searchParams.get("confirmed") === "true";
   const supabase = createClient();
 
   const [email, setEmail] = useState("");
@@ -18,21 +20,64 @@ function LoginContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Show confirmation success message
+  useEffect(() => {
+    if (confirmed) {
+      toast.success("Email confirmed! Please log in.", { duration: 5000 });
+    }
+  }, [confirmed]);
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
+
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     if (error) {
       setError(error.message);
       setLoading(false);
-    } else {
-      router.push(redirect);
-      router.refresh();
+      return;
     }
+
+    // Fetch user's profile to get full name
+    const { data: customer } = await supabase
+      .from("customers")
+      .select("full_name, phone, address")
+      .eq("id", data.user.id)
+      .single();
+
+    const firstName = customer?.full_name?.split(" ")[0] || "there";
+    toast.success(`Welcome back, ${firstName}! 🎉`);
+
+    // Check if profile is incomplete (missing phone or address)
+    if (!customer?.phone || !customer?.address) {
+      toast(
+        (t) => (
+          <div>
+            <strong>Complete your profile</strong>
+            <p>
+              Please add your phone number and delivery address for faster
+              checkout.
+            </p>
+            <Link
+              href="/account/profile"
+              onClick={() => toast.dismiss(t.id)}
+              className="btn btn-sm btn-primary"
+              style={{ marginTop: "0.5rem" }}
+            >
+              Update Profile
+            </Link>
+          </div>
+        ),
+        { duration: 10000 },
+      );
+    }
+
+    router.push(redirect);
+    router.refresh();
   }
 
   return (
@@ -107,7 +152,6 @@ function LoginContent() {
                 placeholder="••••••••"
               />
             </div>
-
             <button
               type="submit"
               className="btn btn-primary btn-lg"
@@ -150,6 +194,7 @@ function LoginContent() {
         </div>
       </main>
       <Footer />
+      <Toaster position="top-right" />
     </>
   );
 }
