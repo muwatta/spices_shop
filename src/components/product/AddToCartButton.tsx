@@ -10,7 +10,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
   const [added, setAdded] = useState(false);
 
   function handleAdd() {
-    addItem(product, qty);
+    addItem(product.id, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }

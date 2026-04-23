@@ -17,7 +17,7 @@ export default function ProductCard({ product }: Props) {
   const [imgError, setImgError] = useState(false);
 
   function handleAdd() {
-    addItem(product);
+    addItem(product.id);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }
