@@ -31,7 +31,7 @@ const staggerContainer = {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, clearCart } = useCartStore();
+  const { items, clearCart } = useCartStore(); // no totalPrice
   const supabase = createClient();
 
   const [user, setUser] = useState<any>(null);
@@ -423,9 +423,6 @@ export default function CheckoutPage() {
                       fontFamily: "var(--font-display)",
                       fontSize: "1.3rem",
                       marginBottom: "1.5rem",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
                     }}
                   >
                     📦 Delivery Details
@@ -618,9 +615,6 @@ export default function CheckoutPage() {
                       fontFamily: "var(--font-display)",
                       fontSize: "1.3rem",
                       marginBottom: "1.5rem",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
                     }}
                   >
                     💳 Payment Method
@@ -806,9 +800,6 @@ export default function CheckoutPage() {
                     fontFamily: "var(--font-display)",
                     fontSize: "1.3rem",
                     marginBottom: "1.5rem",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
                   }}
                 >
                   🛒 Order Summary
