@@ -31,7 +31,7 @@ const staggerContainer = {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, totalPrice, clearCart } = useCartStore();
+  const { items, clearCart } = useCartStore();
   const supabase = createClient();
 
   const [user, setUser] = useState<any>(null);
@@ -60,12 +60,52 @@ export default function CheckoutPage() {
     state: false,
   });
 
+  // Products fetched for cart items
+  const [cartProducts, setCartProducts] = useState<Record<string, any>>({});
+  const [cartLoading, setCartLoading] = useState(true);
+
   const defaultBankDetails: BankDetails = {
     bank_name: "Moniepoint",
     account_number: "8032423638",
     account_name: "Hamza Rasheedah Muhammad",
   };
   const bankInfo = bankDetails ?? defaultBankDetails;
+
+  // Fetch product details for all cart items
+  useEffect(() => {
+    async function fetchProducts() {
+      if (items.length === 0) {
+        setCartProducts({});
+        setCartLoading(false);
+        return;
+      }
+      const productIds = items.map((i) => i.productId);
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, name, price, image_url, stock")
+        .in("id", productIds);
+      if (!error && data) {
+        const productMap: Record<string, any> = {};
+        data.forEach((p) => (productMap[p.id] = p));
+        setCartProducts(productMap);
+      }
+      setCartLoading(false);
+    }
+    fetchProducts();
+  }, [items, supabase]);
+
+  // Build cart items with product data
+  const cartItems = items
+    .map((item) => ({
+      ...item,
+      product: cartProducts[item.productId],
+    }))
+    .filter((item) => item.product); // remove if product deleted
+
+  const totalPrice = cartItems.reduce(
+    (sum, item) => sum + (item.product?.price || 0) * item.quantity,
+    0,
+  );
 
   // Form validation
   const isFormValid = useMemo(() => {
@@ -135,7 +175,7 @@ export default function CheckoutPage() {
       router.push("/login?redirect=/checkout");
       return;
     }
-    if (items.length === 0) {
+    if (cartItems.length === 0) {
       setError("Your cart is empty.");
       return;
     }
@@ -154,7 +194,7 @@ export default function CheckoutPage() {
       const fullAddress =
         `${form.address_line1} ${form.address_line2 ? form.address_line2 + " " : ""}${form.city}, ${form.state} ${form.postal_code || ""}`.trim();
 
-      // 1. Upsert customer profile with all fields
+      // 1. Upsert customer profile
       await supabase.from("customers").upsert({
         id: user.id,
         full_name: form.full_name.trim(),
@@ -187,7 +227,7 @@ export default function CheckoutPage() {
           status: "pending",
           payment_method: paymentMethod,
           payment_proof_url: proofUrl,
-          total_amount: totalPrice(),
+          total_amount: totalPrice,
           delivery_address: fullAddress,
         })
         .select()
@@ -195,7 +235,7 @@ export default function CheckoutPage() {
       if (orderError) throw orderError;
 
       // 4. Insert order items & decrement stock
-      for (const item of items) {
+      for (const item of cartItems) {
         const { error: itemsError } = await supabase
           .from("order_items")
           .insert({
@@ -225,12 +265,12 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           email: user.email,
           orderId: order.id,
-          items: items.map((i) => ({
+          items: cartItems.map((i) => ({
             name: i.product.name,
             quantity: i.quantity,
             price: i.product.price,
           })),
-          total: totalPrice(),
+          total: totalPrice,
           paymentMethod,
         }),
       }).catch((err) => console.error("Email failed:", err));
@@ -244,7 +284,24 @@ export default function CheckoutPage() {
     }
   }
 
-  if (items.length === 0) {
+  if (cartLoading) {
+    return (
+      <>
+        <Navbar />
+        <main>
+          <div
+            className="container"
+            style={{ padding: "2rem", textAlign: "center" }}
+          >
+            Loading checkout...
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (cartItems.length === 0) {
     return (
       <>
         <Navbar />
@@ -669,7 +726,7 @@ export default function CheckoutPage() {
                               color: "var(--clr-saffron-dark)",
                             }}
                           >
-                            Amount: {formatNaira(totalPrice())}
+                            Amount: {formatNaira(totalPrice)}
                           </div>
                         </div>
 
@@ -763,7 +820,7 @@ export default function CheckoutPage() {
                     marginBottom: "1rem",
                   }}
                 >
-                  {items.map(({ product, quantity }) => (
+                  {cartItems.map(({ product, quantity }) => (
                     <div
                       key={product.id}
                       style={{
@@ -801,7 +858,7 @@ export default function CheckoutPage() {
                       color: "var(--clr-saffron-dark)",
                     }}
                   >
-                    {formatNaira(totalPrice())}
+                    {formatNaira(totalPrice)}
                   </span>
                 </div>
 

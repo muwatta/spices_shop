@@ -115,6 +115,8 @@ export default function Navbar(): JSX.Element {
   };
 
   const handleLogout = async () => {
+    const supabase = createClient();
+    useCartStore.getState().clearCart();
     await supabase.auth.signOut();
     router.push("/");
     router.refresh();
