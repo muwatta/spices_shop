@@ -22,7 +22,7 @@ const Icon = {
     </svg>
   ),
   close: () => (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <path
         d="M6 6l12 12M18 6L6 18"
         stroke="currentColor"
@@ -95,9 +95,7 @@ export default function Navbar(): JSX.Element {
           .select("full_name")
           .eq("id", user.id)
           .single();
-        if (customer?.full_name) {
-          setUserName(customer.full_name.split(" ")[0]);
-        }
+        if (customer?.full_name) setUserName(customer.full_name.split(" ")[0]);
       } else {
         setUser(null);
         setUserName("");
@@ -115,7 +113,6 @@ export default function Navbar(): JSX.Element {
   };
 
   const handleLogout = async () => {
-    const supabase = createClient();
     useCartStore.getState().clearCart();
     await supabase.auth.signOut();
     router.push("/");
@@ -129,7 +126,7 @@ export default function Navbar(): JSX.Element {
       className="nav"
     >
       <div className="nav__inner">
-        {/* Hamburger (left) */}
+        {/* Hamburger — mobile only */}
         <button
           className="nav__menu"
           onClick={() => setMenuOpen(true)}
@@ -143,14 +140,14 @@ export default function Navbar(): JSX.Element {
           <Image
             src="/images/logo.jpg"
             alt="KMA Spices"
-            width={50}
-            height={50}
+            width={40}
+            height={40}
             className="nav__logo"
           />
           <span>KMA Spices</span>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop center links */}
         <div className="nav__center">
           <Link href="/" className={pathname === "/" ? "active" : ""}>
             Shop
@@ -163,7 +160,7 @@ export default function Navbar(): JSX.Element {
           </Link>
         </div>
 
-        {/* Actions (right side) */}
+        {/* Right actions */}
         <div className="nav__actions">
           <form
             onSubmit={handleSearchSubmit}
@@ -172,17 +169,17 @@ export default function Navbar(): JSX.Element {
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search"
+              placeholder="Search..."
               aria-label="Search"
             />
-            <button type="submit">
+            <button type="submit" aria-label="Submit search">
               <Icon.search />
             </button>
           </form>
 
-          <Link href="/cart" className="nav__cart">
+          <Link href="/cart" className="nav__cart" aria-label="Cart">
             <Icon.cart />
-            {cartCount > 0 && <span>{cartCount}</span>}
+            {cartCount > 0 && <span className="nav__badge">{cartCount}</span>}
           </Link>
 
           {user ? (
@@ -190,6 +187,7 @@ export default function Navbar(): JSX.Element {
               <button
                 className="nav__user-btn"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
+                aria-label="Account"
               >
                 {userName ? (
                   <span className="nav__user-name">{userName}</span>
@@ -228,14 +226,14 @@ export default function Navbar(): JSX.Element {
               )}
             </div>
           ) : (
-            <Link href="/login" className="nav__user-btn">
+            <Link href="/login" className="nav__user-btn" aria-label="Login">
               <Icon.user />
             </Link>
           )}
         </div>
       </div>
 
-      {/* Mobile Drawer (slides from left) */}
+      {/* Mobile Drawer */}
       <AnimatePresence>
         {menuOpen && (
           <>
@@ -251,15 +249,18 @@ export default function Navbar(): JSX.Element {
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "tween", duration: 0.3 }}
+              transition={{ type: "tween", duration: 0.28 }}
             >
               <div className="nav__drawer-header">
-                <button onClick={() => setMenuOpen(false)}>
+                <span>KMA Spices</span>
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  aria-label="Close menu"
+                >
                   <Icon.close />
                 </button>
               </div>
 
-              {/* Search inside drawer */}
               <form
                 onSubmit={handleSearchSubmit}
                 className="nav__drawer-search"
@@ -269,15 +270,20 @@ export default function Navbar(): JSX.Element {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search products..."
                 />
-                <button type="submit"></button>
+                <button type="submit" aria-label="Search">
+                  <Icon.search />
+                </button>
               </form>
 
-              <div className="nav__drawer-links">
+              <nav className="nav__drawer-links">
                 <Link href="/" onClick={() => setMenuOpen(false)}>
-                🏠Shop
+                  🏠 Shop
                 </Link>
                 <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>
-                💡Tips
+                  💡 Tips
+                </Link>
+                <Link href="/cart" onClick={() => setMenuOpen(false)}>
+                  🛒 Cart {cartCount > 0 && `(${cartCount})`}
                 </Link>
                 {user ? (
                   <>
@@ -285,19 +291,19 @@ export default function Navbar(): JSX.Element {
                       href="/account/overview"
                       onClick={() => setMenuOpen(false)}
                     >
-                    📊Overview
+                      📊 Overview
                     </Link>
                     <Link
                       href="/account/orders"
                       onClick={() => setMenuOpen(false)}
                     >
-                    📦Orders
+                      📦 Orders
                     </Link>
                     <Link
                       href="/account/profile"
                       onClick={() => setMenuOpen(false)}
                     >
-                    👤Profile
+                      👤 Profile
                     </Link>
                     <button
                       onClick={() => {
@@ -305,176 +311,177 @@ export default function Navbar(): JSX.Element {
                         setMenuOpen(false);
                       }}
                     >
-                    🚪Logout
+                      🚪 Logout
                     </button>
                   </>
                 ) : (
                   <Link href="/login" onClick={() => setMenuOpen(false)}>
-                    🔐Login
+                    🔐 Login
                   </Link>
                 )}
-                <Link href="/cart" onClick={() => setMenuOpen(false)}>
-                  🛒Cart ({cartCount})
-                </Link>
-              </div>
+              </nav>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
       <style>{`
+        /* ════════════════════════════════
+           BASE — mobile first (< 768px)
+        ════════════════════════════════ */
         .nav {
           background: var(--clr-bark);
           color: var(--clr-cream);
           position: sticky;
           top: 0;
           z-index: 100;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+          box-shadow: 0 2px 12px rgba(0,0,0,0.25);
         }
         .nav__inner {
-          max-width: 1100px;
-          margin: 0 auto;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.75rem 1rem;
-          gap: 0.75rem;
+          padding: 0.6rem 1rem;
+          gap: 0.5rem;
+          max-width: 1100px;
+          margin: 0 auto;
         }
+
+        /* Brand */
         .nav__brand {
           display: flex;
           align-items: center;
-          gap: 0.6rem;
+          gap: 0.5rem;
           font-weight: 700;
+          font-size: 0.875rem;
           color: var(--clr-saffron);
           text-decoration: none;
+          flex-shrink: 0;
         }
         .nav__logo {
           border-radius: 50%;
           object-fit: cover;
+          width: 36px !important;
+          height: 36px !important;
         }
-        .nav__center {
+
+        /* Hamburger */
+        .nav__menu {
           display: flex;
-          gap: 1.2rem;
+          align-items: center;
+          justify-content: center;
+          background: none;
+          border: none;
+          color: var(--clr-cream);
+          cursor: pointer;
+          flex-shrink: 0;
+          padding: 0.2rem;
         }
-        .nav__center a {
-          text-decoration: none;
-          color: inherit;
-          opacity: 0.75;
-        }
-        .nav__center a.active {
-          color: var(--clr-saffron);
-          opacity: 1;
-          font-weight: 600;
-        }
+
+        /* Center nav — hidden on mobile */
+        .nav__center { display: none; }
+
+        /* Desktop search — hidden on mobile */
+        .desktop-search { display: none; }
+
+        /* Actions */
         .nav__actions {
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          flex-shrink: 0;
         }
-        .nav__search {
-          display: flex;
-          align-items: center;
-          background: rgba(255,255,255,0.08);
-          border-radius: 999px;
-          padding: 0.2rem 0.4rem;
-        }
-        .nav__search input {
-          border: none;
-          background: transparent;
-          color: white;
-          padding: 0.4rem;
-          outline: none;
-          width: 120px;
-        }
-        .nav__search button {
-          background: none;
-          border: none;
-          color: var(--clr-saffron);
-          cursor: pointer;
-        }
-        .nav__cart {
-          position: relative;
+
+        /* Shared circle button styles */
+        .nav__cart,
+        .nav__user-btn {
           display: flex;
           align-items: center;
           justify-content: center;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          border: none;
+          cursor: pointer;
+          flex-shrink: 0;
+          transition: opacity 150ms ease, transform 150ms ease;
+          text-decoration: none;
+        }
+        .nav__cart:active,
+        .nav__user-btn:active { transform: scale(0.93); }
+
+        .nav__cart {
           background: var(--clr-saffron);
           color: var(--clr-bark);
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-        }
-        .nav__cart span {
-          position: absolute;
-          top: -4px;
-          right: -4px;
-          background: var(--clr-chili);
-          color: white;
-          font-size: 0.65rem;
-          padding: 0 0.35rem;
-          border-radius: 999px;
-        }
-        .nav__user {
           position: relative;
         }
-        .nav__user-btn {
-          background: none;
-          border: none;
-          cursor: pointer;
+        .nav__badge {
+          position: absolute;
+          top: -3px;
+          right: -3px;
+          background: var(--clr-chili);
+          color: #fff;
+          font-size: 0.6rem;
+          font-weight: 700;
+          min-width: 15px;
+          height: 15px;
+          padding: 0 0.2rem;
+          border-radius: 999px;
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          background: rgba(255,255,255,0.08);
+          line-height: 1;
+        }
+
+        .nav__user-btn {
+          background: rgba(255,255,255,0.1);
           color: var(--clr-cream);
+          font-family: var(--font-body);
         }
         .nav__user-name {
-          font-size: 0.85rem;
+          font-size: 0.75rem;
           font-weight: 600;
           text-transform: capitalize;
+          padding: 0 0.2rem;
         }
+
+        /* Dropdown */
+        .nav__user { position: relative; }
         .nav__dropdown {
           position: absolute;
-          top: 100%;
+          top: calc(100% + 0.5rem);
           right: 0;
-          margin-top: 0.5rem;
-          background: white;
-          border-radius: 0.5rem;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          min-width: 140px;
-          z-index: 10;
+          background: #fff;
+          border-radius: 0.625rem;
+          box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+          min-width: 148px;
+          z-index: 200;
           overflow: hidden;
         }
-        .nav__dropdown a, .nav__dropdown button {
+        .nav__dropdown a,
+        .nav__dropdown button {
           display: block;
           width: 100%;
-          padding: 0.6rem 1rem;
+          padding: 0.625rem 1rem;
           text-align: left;
           background: none;
           border: none;
           color: var(--clr-bark);
           text-decoration: none;
-          font-size: 0.85rem;
+          font-size: 0.84rem;
           cursor: pointer;
+          font-family: var(--font-body);
+          transition: background 120ms ease;
         }
-        .nav__dropdown a:hover, .nav__dropdown button:hover {
-          background: var(--clr-cream-dark);
-        }
-        .nav__menu {
-          display: none;
-          background: none;
-          border: none;
-          color: white;
-          cursor: pointer;
-        }
-        /* Mobile drawer */
+        .nav__dropdown a:hover,
+        .nav__dropdown button:hover { background: var(--clr-cream-dark); }
+
+        /* ════════════════════════════════
+           DRAWER
+        ════════════════════════════════ */
         .nav__overlay {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
+          inset: 0;
           background: rgba(0,0,0,0.5);
           z-index: 1000;
         }
@@ -483,84 +490,175 @@ export default function Navbar(): JSX.Element {
           top: 0;
           left: 0;
           bottom: 0;
-          width: 200px;
+          width: 75vw;
+          max-width: 200px;
           background: var(--clr-bark-mid);
           z-index: 1001;
-          padding: 1px;
           display: flex;
-          text-align: left;
           flex-direction: column;
-          justify-content: flex-start;
+          overflow-y: auto;
         }
         .nav__drawer-header {
           display: flex;
-          justify-content: flex-end;
-          width: 100%;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.875rem 1.125rem;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+          flex-shrink: 0;
+        }
+        .nav__drawer-header span {
+          font-family: var(--font-display);
+          color: var(--clr-saffron);
+          font-size: 1rem;
+          font-weight: 700;
         }
         .nav__drawer-header button {
-          background: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.1);
           border: none;
-          color: white;
+          color: var(--clr-cream);
           cursor: pointer;
         }
+
         .nav__drawer-search {
           display: flex;
           align-items: center;
-          background: rgba(255,255,255,0.15);
-          border-radius: 100px;
-          padding: 0.2rem 0.4rem;
-          width: 70%;
+          margin: 0.875rem 1.125rem;
+          background: rgba(255,255,255,0.1);
+          border-radius: 999px;
+          padding: 0.3rem 0.75rem;
+          flex-shrink: 0;
         }
         .nav__drawer-search input {
           flex: 1;
           border: none;
           background: transparent;
-          color: white;
-          padding: 0.6rem 0.5rem;
+          color: #fff;
+          padding: 0.4rem 0.25rem;
           outline: none;
-          font-size: 0.9rem;
+          font-size: 0.875rem;
+          font-family: var(--font-body);
+          min-width: 0;
         }
+        .nav__drawer-search input::placeholder { color: rgba(255,255,255,0.4); }
         .nav__drawer-search button {
           background: none;
           border: none;
           color: var(--clr-saffron);
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          flex-shrink: 0;
         }
+
         .nav__drawer-links {
           display: flex;
           flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-          width: 50%;
+          flex: 1;
+          padding: 0.375rem 0 1rem;
         }
-        .nav__drawer-links a, .nav__drawer-links button {
-          color: white;
+        .nav__drawer-links a,
+        .nav__drawer-links button {
+          display: flex;
+          align-items: center;
+          gap: 0.625rem;
+          color: rgba(255,255,255,0.82);
           text-decoration: none;
-          font-size: 1rem;
+          font-size: 0.9375rem;
           background: none;
           border: none;
           text-align: left;
           cursor: pointer;
-          padding: 0.5rem 0;
-          margin: 0;
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 0.1rem;
+          padding: 0.75rem 1.125rem;
+          width: 50%;
+          font-family: var(--font-body);
+          transition: background 120ms ease, color 120ms ease;
         }
-        /* Hide desktop search on mobile, show drawer search */
-        @media (max-width: 900px) {
-          .nav__center { display: none; }
-          .nav__menu { display: block; }
-          .desktop-search { display: none; }
-          .nav__brand span { font-size: 0.9rem; }
+        .nav__drawer-links a:hover,
+        .nav__drawer-links button:hover {
+          background: rgba(255,255,255,0.06);
+          color: var(--clr-saffron);
         }
-        @media (min-width: 901px) {
-          .nav__drawer-search { display: none; }
+        /* Logout stands out */
+        .nav__drawer-links button:last-of-type {
+          color: rgba(255, 110, 110, 0.85);
+          margin-top: auto;
+          border-top: 1px solid rgba(255,255,255,0.07);
         }
-        @media (max-width: 480px) {
-          .nav__inner { padding: 0.5rem 0.8rem; }
-          .nav__cart, .nav__user-btn { width: 40px; height: 40px; }
+
+        /* ════════════════════════════════
+           MD — 768px
+        ════════════════════════════════ */
+        @media (min-width: 768px) {
+          .nav__inner { padding: 0.65rem 1.5rem; }
+          .nav__brand { font-size: 0.9375rem; gap: 0.6rem; }
+          .nav__logo { width: 50px !important; height: 50px !important; }
+          .nav__cart,
+          .nav__user-btn { width: 50px; height: 50px; }
+          .nav__actions { gap: 0.625rem; }
+        }
+
+        /* ════════════════════════════════
+           LG — 900px (desktop layout)
+        ════════════════════════════════ */
+        @media (min-width: 900px) {
+          .nav__menu { display: none; }
+
+          .nav__center {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex: 1;
+            justify-content: center;
+          }
+          .nav__center a {
+            text-decoration: none;
+            color: rgba(253,246,236,0.68);
+            font-size: 0.9375rem;
+            transition: color 150ms ease;
+          }
+          .nav__center a:hover { color: var(--clr-cream); }
+          .nav__center a.active {
+            color: var(--clr-saffron);
+            font-weight: 600;
+          }
+
+          .desktop-search {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.09);
+            border-radius: 999px;
+            padding: 0.25rem 0.5rem 0.25rem 1rem;
+            gap: 0.25rem;
+          }
+          .desktop-search input {
+            border: none;
+            background: transparent;
+            color: #fff;
+            padding: 0.35rem 0;
+            outline: none;
+            width: 150px;
+            font-size: 0.875rem;
+            font-family: var(--font-body);
+          }
+          .desktop-search input::placeholder { color: rgba(255,255,255,0.38); }
+          .desktop-search button {
+            background: none;
+            border: none;
+            color: var(--clr-saffron);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0.35rem;
+          }
+
+          .nav__cart,
+          .nav__user-btn { width: 50px; height: 50px; }
         }
       `}</style>
     </MotionNav>
