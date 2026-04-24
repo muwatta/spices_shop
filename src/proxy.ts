@@ -26,7 +26,6 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect admin routes – redirect to /admin-login
   if (
     request.nextUrl.pathname.startsWith("/admin") &&
     request.nextUrl.pathname !== "/admin-login"
@@ -38,7 +37,6 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Protect account routes
   if (request.nextUrl.pathname.startsWith("/account")) {
     if (!user) {
       const url = request.nextUrl.clone();
