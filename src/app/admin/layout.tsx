@@ -24,6 +24,7 @@ export default async function AdminLayout({
       <style>{`
         .admin-shell {
           display: flex;
+          flex-direction: column;
           min-height: 100vh;
           background: #F3EFE9;
         }
@@ -33,11 +34,18 @@ export default async function AdminLayout({
           flex: 1;
           min-width: 0;
           overflow-y: auto;
+          padding: 1.25rem 1rem 2rem;
         }
 
         /* MD+: sidebar is permanent, sits beside main */
         @media (min-width: 768px) {
-          .admin-shell { flex-direction: row; }
+          .admin-shell {
+            flex-direction: row;
+          }
+
+          .admin-main {
+            padding: 1.75rem 1.5rem 2rem;
+          }
         }
       `}</style>
     </div>
