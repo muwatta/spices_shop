@@ -1,13 +1,6 @@
 import { NextResponse } from "next/server";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
-
-async function requireAdmin(request: Request) {
-  const supabase = createClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return null;
-  if (data.user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) return null;
-  return createAdminClient();
-}
+import { createAdminClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin";
 
 async function parseForm(request: Request) {
   const contentType = request.headers.get("content-type") || "";
@@ -34,7 +27,6 @@ async function uploadImage(
   const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  // Use a dedicated bucket for Do You Know images
   const { data: uploadData, error: uploadError } = await adminClient.storage
     .from("do-you-know-images")
     .upload(fileName, buffer, { upsert: true });
@@ -49,10 +41,10 @@ async function uploadImage(
 }
 
 export async function POST(request: Request) {
-  const adminClient = await requireAdmin(request);
-  if (!adminClient)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
+  const adminClient = createAdminClient();
   const body = await parseForm(request);
   const name = String(body.name || "").trim();
   const recommendation = String(body.recommendation || "").trim();
@@ -90,10 +82,10 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const adminClient = await requireAdmin(request);
-  if (!adminClient)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
+  const adminClient = createAdminClient();
   const body = await parseForm(request);
   const id = String(body.id || "").trim();
   const name = String(body.name || "").trim();
@@ -135,10 +127,10 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const adminClient = await requireAdmin(request);
-  if (!adminClient)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
+  const adminClient = createAdminClient();
   const body = await request.json();
   const id = String(body.id || "").trim();
   if (!id) {
