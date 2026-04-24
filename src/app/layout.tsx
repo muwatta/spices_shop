@@ -21,9 +21,28 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body style={{ position: "relative", minHeight: "100vh" }}>
+      <body
+        style={{
+          position: "relative",
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <BackgroundAnimations />
-        <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
+
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {children}
+        </div>
+
         <CartReminder />
         <Analytics />
       </body>
