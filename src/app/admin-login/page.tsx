@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase();
+
 export default function AdminLoginPage() {
   const router = useRouter();
   const supabase = createClient();
@@ -16,10 +18,25 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!ADMIN_EMAIL) {
+      setError("Admin login is not configured. Contact the site owner.");
+      setLoading(false);
+      return;
+    }
+
+    if (normalizedEmail !== ADMIN_EMAIL) {
+      setError("Unauthorized: only the admin email can sign in here.");
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: normalizedEmail,
       password,
     });
+
     if (error) {
       setError(error.message);
       setLoading(false);
