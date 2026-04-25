@@ -39,6 +39,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const loadOrders = useCallback(async () => {
     setLoading(true);
@@ -59,6 +60,17 @@ export default function AdminOrdersPage() {
     setOrders(result.data ?? []);
     setLoading(false);
   }, [filter]);
+
+  const filteredOrders = orders.filter((order) => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
+
+    return [
+      order.id.toLowerCase(),
+      order.customers?.full_name?.toLowerCase() ?? "",
+      order.customers?.phone?.toLowerCase() ?? "",
+    ].some((value) => value.includes(term));
+  });
 
   async function updateStatus(orderId: string, status: OrderStatus) {
     setOrders((prev) =>
@@ -108,28 +120,74 @@ export default function AdminOrdersPage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "2rem",
+            marginBottom: "1.5rem",
             flexWrap: "wrap",
             gap: "1rem",
           }}
         >
-          <h1
-            style={{ fontFamily: "var(--font-display)", fontSize: "1.75rem" }}
-          >
-            Orders
-          </h1>
+          <div>
+            <h1
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.75rem",
+                margin: 0,
+              }}
+            >
+              Orders
+            </h1>
+            <p
+              style={{
+                margin: "0.5rem 0 0",
+                color: "var(--clr-muted)",
+                fontSize: "0.95rem",
+              }}
+            >
+              Manage customer orders, update status, and review payment details.
+            </p>
+          </div>
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button
+              onClick={() => loadOrders()}
+              className="btn btn-outline btn-sm"
+            >
+              Refresh
+            </button>
+            <Link href="/admin" className="btn btn-primary btn-sm">
+              Dashboard
+            </Link>
+          </div>
+        </div>
+
+        <div className="admin-orders__toolbar">
+          <div className="admin-orders__search">
+            <label
+              htmlFor="order-search"
+              className="form-label"
+              style={{
+                fontSize: "0.85rem",
+                marginBottom: "0.35rem",
+                display: "inline-block",
+              }}
+            >
+              Search orders
+            </label>
+            <input
+              id="order-search"
+              className="form-input"
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by order ID, customer name, or phone"
+              style={{ width: "100%" }}
+            />
+          </div>
+          <div className="admin-orders__filters">
             {["all", ...STATUS_OPTIONS].map((s) => (
               <button
                 key={s}
                 onClick={() => setFilter(s as typeof filter)}
-                className="btn btn-sm"
-                style={{
-                  background: filter === s ? "var(--clr-bark)" : "white",
-                  color: filter === s ? "var(--clr-cream)" : "var(--clr-bark)",
-                  border: "2px solid var(--clr-bark)",
-                  textTransform: "capitalize",
-                }}
+                className={`btn btn-sm ${filter === s ? "btn-primary" : "btn-outline"}`}
+                style={{ textTransform: "capitalize" }}
               >
                 {s}
               </button>
@@ -140,7 +198,7 @@ export default function AdminOrdersPage() {
           <div style={{ textAlign: "center", padding: "4rem" }}>
             <span className="spinner" style={{ margin: "0 auto" }} />
           </div>
-        ) : orders.length === 0 ? (
+        ) : filteredOrders.length === 0 ? (
           <div
             style={{
               textAlign: "center",
@@ -150,17 +208,13 @@ export default function AdminOrdersPage() {
               color: "var(--clr-muted)",
             }}
           >
-            No orders found.
+            {orders.length === 0
+              ? "No orders found."
+              : "No orders match your search."}
           </div>
         ) : (
-          <div className="card" style={{ overflowX: "auto" }}>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: "0.875rem",
-              }}
-            >
+          <div className="card admin-orders__table-wrapper">
+            <table className="admin-orders__table">
               <thead>
                 <tr
                   style={{
@@ -197,7 +251,7 @@ export default function AdminOrdersPage() {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
+                {filteredOrders.map((order) => (
                   <tr
                     key={order.id}
                     style={{ borderBottom: "1px solid var(--clr-cream-dark)" }}
@@ -296,6 +350,106 @@ export default function AdminOrdersPage() {
           </div>
         )}
       </div>
+      <style>{`
+        .admin-orders__toolbar {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+          justify-content: space-between;
+          align-items: flex-end;
+          margin-bottom: 1.25rem;
+        }
+
+        .admin-orders__search {
+          min-width: 280px;
+          flex: 1;
+          max-width: 520px;
+        }
+
+        .admin-orders__filters {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+
+        .admin-orders__table-wrapper {
+          box-shadow: var(--shadow-sm);
+          border-radius: var(--radius-lg);
+          overflow: hidden;
+        }
+
+        .admin-orders__table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 0.9rem;
+          min-width: 900px;
+        }
+
+        .admin-orders__table th,
+        .admin-orders__table td {
+          padding: 1rem 1.1rem;
+          border-bottom: 1px solid var(--clr-cream-dark);
+          vertical-align: middle;
+        }
+
+        .admin-orders__table thead {
+          background: var(--clr-cream);
+        }
+
+        .admin-orders__table th {
+          text-align: left;
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: var(--clr-muted);
+          white-space: nowrap;
+        }
+
+        .admin-orders__status {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.35rem 0.65rem;
+          border-radius: 999px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: capitalize;
+        }
+
+        .admin-orders__status--pending {
+          background: #fef3c7;
+          color: #92400e;
+        }
+        .admin-orders__status--confirmed {
+          background: #dcfce7;
+          color: #166534;
+        }
+        .admin-orders__status--delivered {
+          background: #dbeafe;
+          color: #1d4ed8;
+        }
+        .admin-orders__status--cancelled {
+          background: #fee2e2;
+          color: #991b1b;
+        }
+
+        @media (max-width: 960px) {
+          .admin-orders__table {
+            min-width: 720px;
+          }
+        }
+
+        @media (max-width: 740px) {
+          .admin-orders__toolbar {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .admin-orders__search {
+            max-width: 100%;
+          }
+        }
+      `}</style>
     </>
   );
 }

@@ -96,27 +96,122 @@ export default function AdminOrderDetailPage() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gridTemplateColumns: "1.35fr 0.9fr",
           gap: "1.5rem",
+          alignItems: "start",
         }}
       >
         {/* Customer info */}
         <div className="card" style={{ padding: "1.5rem" }}>
-          <h2
+          <div
             style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.05rem",
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "1rem",
+              flexWrap: "wrap",
+              alignItems: "flex-start",
               marginBottom: "1rem",
             }}
           >
-            Customer
-          </h2>
+            <div>
+              <h2
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "1.05rem",
+                  marginBottom: "0.75rem",
+                }}
+              >
+                Customer
+              </h2>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "0.5rem",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                }}
+              >
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    padding: "0.4rem 0.75rem",
+                    borderRadius: "999px",
+                    fontSize: "0.8rem",
+                    background: "#f3f4f6",
+                    color: "#111827",
+                  }}
+                >
+                  {order.payment_method === "bank_transfer"
+                    ? "🏦 Transfer"
+                    : "💵 COD"}
+                </span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    padding: "0.4rem 0.75rem",
+                    borderRadius: "999px",
+                    fontSize: "0.8rem",
+                    background:
+                      order.status === "pending"
+                        ? "#fef3c7"
+                        : order.status === "confirmed"
+                          ? "#dcfce7"
+                          : order.status === "delivered"
+                            ? "#dbeafe"
+                            : "#fee2e2",
+                    color:
+                      order.status === "pending"
+                        ? "#92400e"
+                        : order.status === "confirmed"
+                          ? "#166534"
+                          : order.status === "delivered"
+                            ? "#1d4ed8"
+                            : "#991b1b",
+                    textTransform: "capitalize",
+                    fontWeight: 700,
+                  }}
+                >
+                  {order.status}
+                </span>
+              </div>
+            </div>
+            <div style={{ minWidth: "160px", textAlign: "right" }}>
+              <div
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "1.2rem",
+                  fontWeight: 700,
+                }}
+              >
+                {formatNaira(order.total_amount)}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.85rem",
+                  color: "var(--clr-muted)",
+                  marginTop: "0.35rem",
+                }}
+              >
+                {new Date(order.created_at).toLocaleString("en-NG", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
+            </div>
+          </div>
+
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "0.5rem",
-              fontSize: "0.9rem",
+              gap: "0.75rem",
+              fontSize: "0.95rem",
+              color: "var(--clr-bark)",
             }}
           >
             <div>
@@ -129,18 +224,19 @@ export default function AdminOrderDetailPage() {
               <strong>Address:</strong>{" "}
               {order.delivery_address ?? order.customers?.address ?? "—"}
             </div>
-            {order.customers?.phone && (
-              <a
-                href={`https://wa.me/${order.customers.phone.replace(/\D/g, "")}?text=Hello ${order.customers.full_name}, your order #${order.id.slice(0, 8).toUpperCase()} has been ${order.status}.`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn whatsapp-btn btn-sm"
-                style={{ marginTop: "0.5rem", width: "fit-content" }}
-              >
-                💬 Message Customer
-              </a>
-            )}
           </div>
+
+          {order.customers?.phone && (
+            <a
+              href={`https://wa.me/${order.customers.phone.replace(/\D/g, "")}?text=Hello ${order.customers.full_name}, your order #${order.id.slice(0, 8).toUpperCase()} has been ${order.status}.`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn whatsapp-btn btn-sm"
+              style={{ marginTop: "1rem", width: "fit-content" }}
+            >
+              💬 Message Customer
+            </a>
+          )}
         </div>
 
         {/* Status control */}
@@ -166,8 +262,7 @@ export default function AdminOrderDetailPage() {
                 style={{
                   background:
                     order.status === s ? "var(--clr-saffron)" : "white",
-                  color:
-                    order.status === s ? "var(--clr-bark)" : "var(--clr-bark)",
+                  color: "var(--clr-bark)",
                   border: "2px solid var(--clr-cream-dark)",
                   textTransform: "capitalize",
                   justifyContent: "flex-start",
