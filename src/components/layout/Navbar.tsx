@@ -576,7 +576,7 @@ export default function Navbar(): JSX.Element {
           border: none;
           text-align: left;
           cursor: pointer;
-          width: 100%;
+          width: 50%;
           font-family: var(--font-body);
           transition: background 120ms ease, color 120ms ease;
         }
