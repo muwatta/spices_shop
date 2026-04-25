@@ -292,7 +292,7 @@ export default function Navbar(): JSX.Element {
                       href="/account/overview"
                       onClick={() => setMenuOpen(false)}
                     >
-                      📊 Overview
+                    📊Overview
                     </Link>
                     <Link
                       href="/account/orders"
@@ -575,7 +575,7 @@ export default function Navbar(): JSX.Element {
           border: none;
           text-align: left;
           cursor: pointer;
-          padding: 0.75rem 1.125rem;
+          padding: 0.2rem;
           width: 50%;
           font-family: var(--font-body);
           transition: background 120ms ease, color 120ms ease;
