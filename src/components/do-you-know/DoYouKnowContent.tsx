@@ -49,6 +49,7 @@ export default async function DoYouKnowContent() {
               alt="KMA Spices logo"
               width={92}
               height={92}
+              loading="lazy"
               style={{ borderRadius: "1.25rem", objectFit: "cover" }}
               sizes="(max-width: 768px) 92px, 92px"
             />

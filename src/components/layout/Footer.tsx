@@ -34,6 +34,7 @@ export default function Footer() {
               alt="KMA Spices logo"
               width={40}
               height={40}
+              loading="lazy"
               className="footer__logo"
             />
             <span className="footer__name">KMA Spices</span>

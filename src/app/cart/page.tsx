@@ -10,6 +10,7 @@ import {
 } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { Skeleton } from "@/components/ui/Skeleton";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -82,12 +83,54 @@ export default function CartPage() {
     return (
       <>
         <Navbar />
-        <div
-          className="container"
-          style={{ padding: "4rem", textAlign: "center" }}
-        >
-          Loading cart...
-        </div>
+        <main>
+          <div
+            className="container"
+            style={{ padding: "4rem 0", minHeight: "60vh" }}
+          >
+            <div
+              style={{
+                display: "grid",
+                gap: "1.5rem",
+                maxWidth: "720px",
+                margin: "0 auto",
+              }}
+            >
+              <Skeleton
+                style={{ width: "40%", height: "22px", margin: "0 auto" }}
+              />
+              <div
+                style={{
+                  display: "grid",
+                  gap: "1rem",
+                }}
+              >
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "80px 1fr",
+                      gap: "1rem",
+                      alignItems: "center",
+                      padding: "1rem",
+                      background: "white",
+                      borderRadius: "1rem",
+                      boxShadow: "0 20px 40px rgba(0,0,0,0.06)",
+                    }}
+                  >
+                    <Skeleton style={{ width: "80px", height: "80px" }} />
+                    <div style={{ display: "grid", gap: "0.6rem" }}>
+                      <Skeleton style={{ width: "70%", height: "18px" }} />
+                      <Skeleton style={{ width: "50%", height: "16px" }} />
+                      <Skeleton style={{ width: "40%", height: "16px" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </main>
         <Footer />
       </>
     );
@@ -169,6 +212,7 @@ export default function CartPage() {
                         src={product.image_url}
                         alt={product.name}
                         fill
+                        loading="lazy"
                         style={{ objectFit: "cover" }}
                       />
                     ) : (

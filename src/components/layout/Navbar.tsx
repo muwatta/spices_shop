@@ -142,6 +142,7 @@ export default function Navbar(): JSX.Element {
             alt="KMA Spices"
             width={40}
             height={40}
+            loading="lazy"
             className="nav__logo"
           />
           <span>KMA Spices</span>

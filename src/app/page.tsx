@@ -5,6 +5,22 @@ import Link from "next/link";
 import ProductGrid from "@/components/product/ProductGrid";
 import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 
+function HomeSkeletonGrid() {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+        gap: "1.5rem",
+      }}
+    >
+      {Array.from({ length: 6 }).map((_, index) => (
+        <ProductCardSkeleton key={index} />
+      ))}
+    </div>
+  );
+}
+
 export default function HomePage() {
   return (
     <>
@@ -110,7 +126,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <Suspense fallback={<ProductCardSkeleton />}>
+            <Suspense fallback={<HomeSkeletonGrid />}>
               <ProductGrid />
             </Suspense>
           </div>

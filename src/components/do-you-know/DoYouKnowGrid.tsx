@@ -52,6 +52,7 @@ export default function DoYouKnowGrid({ items }: { items: DoYouKnowItem[] }) {
               src={getCardImage(item)}
               alt={item.name}
               fill
+              loading="lazy"
               sizes="(max-width: 640px) 100vw, 420px"
               style={{ objectFit: "cover" }}
             />

@@ -151,3 +151,4 @@ INSERT INTO admin_settings (key, value) VALUES
   ('shop_name', '"KMA Spices and Herbs"'),
   ('delivery_fee', '500')
 ON CONFLICT (key) DO NOTHING;
+ 

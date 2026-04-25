@@ -27,9 +27,9 @@ export default function ClientProductImage({
           src={imageUrl}
           alt={productName}
           fill
+          loading="lazy"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           style={{ objectFit: "cover" }}
-          priority
           onError={() => setImgError(true)}
         />
       ) : (

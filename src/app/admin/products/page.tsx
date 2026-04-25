@@ -389,6 +389,7 @@ export default function AdminProductsPage() {
                     src={product.image_url}
                     alt={product.name}
                     fill
+                    loading="lazy"
                     style={{ objectFit: "cover" }}
                   />
                 ) : (

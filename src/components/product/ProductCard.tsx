@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { Product } from "@/types";
 import { formatNaira } from "@/lib/utils";
 import { useCartStore } from "@/lib/store/cart";
@@ -23,24 +24,17 @@ export default function ProductCard({ product }: Props) {
   }
 
   return (
-    <div
+    <motion.article
       className="card fade-in"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -6, boxShadow: "var(--shadow-lg)" }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
       style={{
         display: "flex",
         flexDirection: "column",
         transition:
           "transform var(--transition-base), box-shadow var(--transition-base)",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform =
-          "translateY(-4px)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow =
-          "var(--shadow-lg)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow =
-          "var(--shadow-sm)";
       }}
     >
       {/* Image */}
@@ -61,6 +55,7 @@ export default function ProductCard({ product }: Props) {
               src={product.image_url}
               alt={product.name}
               fill
+              loading="lazy"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               style={{
                 objectFit: "cover",
@@ -170,6 +165,6 @@ export default function ProductCard({ product }: Props) {
           </button>
         </div>
       </div>
-    </div>
+    </motion.article>
   );
 }
