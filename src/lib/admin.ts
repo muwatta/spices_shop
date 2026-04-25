@@ -1,7 +1,10 @@
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-const DEVELOPER_EMAIL = "abdullahmusliudeen@gmail.com";
+const ALERT_EMAIL =
+  process.env.ADMIN_ALERT_EMAIL ||
+  process.env.NEXT_PUBLIC_ADMIN_EMAIL ||
+  "security@example.com";
 const ADMIN_EMAIL_KEY = "admin_email";
 const BLOCK_THRESHOLD = 5;
 const BLOCK_WINDOW_MS = 1000 * 60 * 60;
@@ -166,8 +169,8 @@ async function sendDeveloperAlert(details: {
     `;
 
     await resend.emails.send({
-      from: "KMA Spices <onboarding@resend.dev>",
-      to: [DEVELOPER_EMAIL],
+      from: "KMA Spices <security@kmaspices.com>",
+      to: [ALERT_EMAIL],
       subject: "Security alert: unauthorized admin access",
       html,
     });

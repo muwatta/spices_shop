@@ -175,22 +175,33 @@ function LoginContent() {
             </button>
           </form>
 
-          <p
+          <div
             style={{
-              textAlign: "center",
+              display: "flex",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "0.75rem",
               marginTop: "1.5rem",
               fontSize: "0.9rem",
               color: "var(--clr-muted)",
             }}
           >
-            No account?{" "}
             <Link
-              href={`/signup?redirect=${redirect}`}
+              href="/forgot-password"
               style={{ color: "var(--clr-saffron-dark)", fontWeight: 600 }}
             >
-              Create one
+              Forgot password?
             </Link>
-          </p>
+            <span>
+              No account?{" "}
+              <Link
+                href={`/signup?redirect=${redirect}`}
+                style={{ color: "var(--clr-saffron-dark)", fontWeight: 600 }}
+              >
+                Create one
+              </Link>
+            </span>
+          </div>
         </div>
       </main>
       <Footer />

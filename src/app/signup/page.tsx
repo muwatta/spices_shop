@@ -13,6 +13,7 @@ function SignupContent() {
   const redirect = searchParams.get("redirect") ?? "/account";
   const supabase = createClient();
 
+  const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase();
   const [form, setForm] = useState({
     full_name: "",
     email: "",
@@ -29,8 +30,17 @@ function SignupContent() {
     setMessage("");
     setLoading(true);
 
+    const normalizedEmail = form.email.trim().toLowerCase();
+    if (ADMIN_EMAIL && normalizedEmail === ADMIN_EMAIL) {
+      setError(
+        "This email is reserved for the admin dashboard. Please use the admin login page instead.",
+      );
+      setLoading(false);
+      return;
+    }
+
     const { data, error: signupError } = await supabase.auth.signUp({
-      email: form.email,
+      email: normalizedEmail,
       password: form.password,
     });
 
