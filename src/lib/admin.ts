@@ -57,7 +57,9 @@ export function isAdminEmail(
   );
 }
 
-export async function requireAdmin(request: Request) {
+export async function requireAdmin(
+  request: Request,
+): Promise<NextResponse | null> {
   const supabase = createClient();
   const {
     data: { user },

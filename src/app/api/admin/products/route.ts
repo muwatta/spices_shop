@@ -44,10 +44,10 @@ async function uploadImage(
 }
 
 export async function POST(request: Request) {
-  const adminClient = await requireAdmin(request);
-  if (!adminClient)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
+  const adminClient = createAdminClient();
   const body = await parseForm(request);
   const name = String(body.name || "").trim();
   const price = parseInt(String(body.price || "0"), 10);
@@ -85,10 +85,10 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const adminClient = await requireAdmin(request);
-  if (!adminClient)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
+  const adminClient = createAdminClient();
   const body = await parseForm(request);
   const id = String(body.id || "").trim();
   const name = String(body.name || "").trim();
@@ -130,10 +130,10 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const adminClient = await requireAdmin(request);
-  if (!adminClient)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
+  const adminClient = createAdminClient();
   const body = await request.json();
   const id = String(body.id || "").trim();
   if (!id) {
