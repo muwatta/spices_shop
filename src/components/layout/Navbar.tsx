@@ -278,13 +278,13 @@ export default function Navbar(): JSX.Element {
 
               <nav className="nav__drawer-links">
                 <Link href="/" onClick={() => setMenuOpen(false)}>
-                  🏠 Shop
+                  🏠Shop
                 </Link>
                 <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>
-                  💡 Tips
+                  💡Tips
                 </Link>
                 <Link href="/cart" onClick={() => setMenuOpen(false)}>
-                  🛒 Cart {cartCount > 0 && `(${cartCount})`}
+                  🛒Cart {cartCount > 0 && `(${cartCount})`}
                 </Link>
                 {user ? (
                   <>
@@ -298,13 +298,13 @@ export default function Navbar(): JSX.Element {
                       href="/account/orders"
                       onClick={() => setMenuOpen(false)}
                     >
-                      📦 Orders
+                    📦Orders
                     </Link>
                     <Link
                       href="/account/profile"
                       onClick={() => setMenuOpen(false)}
                     >
-                      👤 Profile
+                    👤Profile
                     </Link>
                     <button
                       onClick={() => {
@@ -312,12 +312,12 @@ export default function Navbar(): JSX.Element {
                         setMenuOpen(false);
                       }}
                     >
-                      🚪 Logout
+                    🚪Logout
                     </button>
                   </>
                 ) : (
                   <Link href="/login" onClick={() => setMenuOpen(false)}>
-                    🔐 Login
+                    🔐Login
                   </Link>
                 )}
               </nav>
@@ -561,7 +561,8 @@ export default function Navbar(): JSX.Element {
           display: flex;
           flex-direction: column;
           flex: 1;
-          padding: 0.375rem 0 1rem;
+          padding: 0.5rem 0.75rem;
+          gap: 0.25rem;
         }
         .nav__drawer-links a,
         .nav__drawer-links button {
@@ -575,8 +576,7 @@ export default function Navbar(): JSX.Element {
           border: none;
           text-align: left;
           cursor: pointer;
-          padding: 0.2rem;
-          width: 50%;
+          width: 100%;
           font-family: var(--font-body);
           transition: background 120ms ease, color 120ms ease;
         }
