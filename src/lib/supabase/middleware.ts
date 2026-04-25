@@ -26,14 +26,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const isAdminLoginPath = request.nextUrl.pathname === "/admin-login";
+
   // Protect admin routes (except login page)
-  if (
-    request.nextUrl.pathname.startsWith("/admin") &&
-    request.nextUrl.pathname !== "/admin/login"
-  ) {
+  if (request.nextUrl.pathname.startsWith("/admin") && !isAdminLoginPath) {
     if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
       const url = request.nextUrl.clone();
-      url.pathname = "/admin/login";
+      url.pathname = "/admin-login";
       return NextResponse.redirect(url);
     }
   }

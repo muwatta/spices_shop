@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getAdminEmail } from "@/lib/admin";
 import { redirect } from "next/navigation";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
@@ -12,8 +13,12 @@ export default async function AdminLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
-    redirect("/admin-login");
+  const adminEmail = await getAdminEmail();
+  const userEmail = user?.email?.toLowerCase() ?? "";
+  const isAdmin = userEmail !== "" && userEmail === adminEmail;
+
+  if (!isAdmin) {
+    redirect("/admin-login?unauthorized=1");
   }
 
   return (

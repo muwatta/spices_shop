@@ -1,13 +1,6 @@
 import { NextResponse } from "next/server";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
-
-async function requireAdmin(request: Request) {
-  const supabase = createClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return null;
-  if (data.user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) return null;
-  return createAdminClient();
-}
+import { createAdminClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin";
 
 async function parseForm(request: Request) {
   const contentType = request.headers.get("content-type") || "";

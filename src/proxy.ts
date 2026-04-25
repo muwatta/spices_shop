@@ -19,17 +19,16 @@ export async function proxy(request: NextRequest) {
           });
         },
       },
-    }
+    },
   );
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    request.nextUrl.pathname.startsWith("/admin") &&
-    request.nextUrl.pathname !== "/admin-login"
-  ) {
+  const isAdminLoginPath = request.nextUrl.pathname === "/admin-login";
+
+  if (request.nextUrl.pathname.startsWith("/admin") && !isAdminLoginPath) {
     if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin-login";
