@@ -2,13 +2,30 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 const MotionNav = motion.nav;
+
+function getDisplayName(fullName: string | null | undefined) {
+  const name = fullName?.trim() || "";
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "";
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts[1]}`;
+}
+
+function getInitials(fullName: string | null | undefined) {
+  const name = fullName?.trim() || "";
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+}
 
 const Icon = {
   menu: () => (
@@ -70,6 +87,7 @@ const Icon = {
 export default function Navbar(): JSX.Element {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const totalItems = useCartStore((s) => s.totalItems);
   const supabase = createClient();
 
@@ -78,10 +96,16 @@ export default function Navbar(): JSX.Element {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState<string>("");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
 
   useEffect(() => setMounted(true), []);
   const cartCount = mounted ? totalItems() : 0;
+
+  useEffect(() => {
+    const query = searchParams?.get("q")?.trim() || "";
+    setSearchTerm(query);
+  }, [searchParams]);
 
   useEffect(() => {
     async function fetchUser() {
@@ -95,10 +119,26 @@ export default function Navbar(): JSX.Element {
           .select("full_name")
           .eq("id", user.id)
           .single();
-        if (customer?.full_name) setUserName(customer.full_name.split(" ")[0]);
+
+        const fullName =
+          customer?.full_name ||
+          user.user_metadata?.full_name ||
+          user.user_metadata?.name ||
+          user.email ||
+          "";
+
+        setUserName(getDisplayName(fullName));
+
+        const avatarUrl =
+          user.user_metadata?.avatar_url ||
+          user.user_metadata?.avatar ||
+          user.user_metadata?.image ||
+          null;
+        setProfileImage(typeof avatarUrl === "string" ? avatarUrl : null);
       } else {
         setUser(null);
         setUserName("");
+        setProfileImage(null);
       }
     }
     fetchUser();
@@ -170,11 +210,16 @@ export default function Navbar(): JSX.Element {
             <input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search..."
+              placeholder="Search products, tips, recipes..."
               aria-label="Search"
             />
-            <button type="submit" aria-label="Submit search">
+            <button
+              type="submit"
+              aria-label="Submit search"
+              className="nav__search-button"
+            >
               <Icon.search />
+              <span>Search</span>
             </button>
           </form>
 
@@ -189,11 +234,22 @@ export default function Navbar(): JSX.Element {
                 className="nav__user-btn"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 aria-label="Account"
+                title={userName || user.email || "Account"}
               >
-                {userName ? (
-                  <span className="nav__user-name">{userName}</span>
+                {profileImage ? (
+                  <Image
+                    src={profileImage}
+                    alt={userName || "User"}
+                    width={40}
+                    height={40}
+                    className="nav__user-avatar"
+                    loading="lazy"
+                    onError={() => setProfileImage(null)}
+                  />
                 ) : (
-                  <Icon.user />
+                  <span className="nav__user-initials">
+                    {getInitials(userName || user?.email || "")}
+                  </span>
                 )}
               </button>
               {dropdownOpen && (
@@ -271,8 +327,13 @@ export default function Navbar(): JSX.Element {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search products..."
                 />
-                <button type="submit" aria-label="Search">
+                <button
+                  type="submit"
+                  aria-label="Search"
+                  className="nav__search-button"
+                >
                   <Icon.search />
+                  <span>Search</span>
                 </button>
               </form>
 
@@ -292,19 +353,19 @@ export default function Navbar(): JSX.Element {
                       href="/account/overview"
                       onClick={() => setMenuOpen(false)}
                     >
-                    📊Overview
+                      📊Overview
                     </Link>
                     <Link
                       href="/account/orders"
                       onClick={() => setMenuOpen(false)}
                     >
-                    📦Orders
+                      📦Orders
                     </Link>
                     <Link
                       href="/account/profile"
                       onClick={() => setMenuOpen(false)}
                     >
-                    👤Profile
+                      👤Profile
                     </Link>
                     <button
                       onClick={() => {
@@ -312,7 +373,7 @@ export default function Navbar(): JSX.Element {
                         setMenuOpen(false);
                       }}
                     >
-                    🚪Logout
+                      🚪Logout
                     </button>
                   </>
                 ) : (
@@ -444,6 +505,28 @@ export default function Navbar(): JSX.Element {
           font-weight: 600;
           text-transform: capitalize;
           padding: 0 0.2rem;
+        }
+
+        .nav__user-avatar {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        .nav__user-initials {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.16);
+          color: inherit;
+          font-size: 0.95rem;
+          font-weight: 700;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
         }
 
         /* Dropdown */
@@ -648,14 +731,26 @@ export default function Navbar(): JSX.Element {
             font-family: var(--font-body);
           }
           .desktop-search input::placeholder { color: rgba(255,255,255,0.38); }
-          .desktop-search button {
+          .desktop-search button,
+          .nav__search-button {
             background: none;
             border: none;
             color: var(--clr-saffron);
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            padding: 0.35rem;
+            gap: 0.35rem;
+            padding: 0.35rem 0.6rem;
+            border-radius: 999px;
+            transition: background 150ms ease;
+          }
+          .desktop-search button:hover,
+          .nav__search-button:hover {
+            background: rgba(255,255,255,0.12);
+          }
+          .desktop-search .nav__search-button span {
+            font-size: 0.8rem;
+            font-weight: 700;
           }
 
           .nav__cart,

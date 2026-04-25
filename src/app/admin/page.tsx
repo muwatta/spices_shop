@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { formatNaira } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Stats {
   totalOrders: number;
@@ -11,6 +12,25 @@ interface Stats {
   pendingOrders: number;
   productCount: number;
   lowStockCount: number;
+}
+
+interface OrderItem {
+  quantity: number;
+  products: {
+    name: string;
+    image_url: string | null;
+  } | null;
+}
+
+interface RecentOrder {
+  id: string;
+  status: string;
+  total_amount: number;
+  created_at: string;
+  delivery_address: string | null;
+  payment_method: string;
+  customers: { full_name: string; phone: string } | null;
+  order_items: OrderItem[];
 }
 
 const STAT_CARDS = (stats: Stats) => [
@@ -61,7 +81,7 @@ export default function AdminDashboardPage() {
     productCount: 0,
     lowStockCount: 0,
   });
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
 
   useEffect(() => {
     async function loadStats() {
@@ -81,7 +101,13 @@ export default function AdminDashboardPage() {
           .lte("stock", 5),
         supabase
           .from("orders")
-          .select("id, status, total_amount, created_at, customers(full_name)")
+          .select(
+            `
+            id, status, total_amount, created_at, delivery_address, payment_method,
+            customers(full_name, phone),
+            order_items(quantity, products(name, image_url))
+          `,
+          )
           .order("created_at", { ascending: false })
           .limit(5),
       ]);
@@ -94,10 +120,25 @@ export default function AdminDashboardPage() {
         productCount: products?.length ?? 0,
         lowStockCount: lowStock?.length ?? 0,
       });
-      setRecentOrders(recent ?? []);
+      setRecentOrders((recent as unknown as RecentOrder[]) ?? []);
       setLoading(false);
     }
     loadStats();
+
+    const channel = supabase
+      .channel("dashboard-orders")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "orders" },
+        () => {
+          loadStats();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const cards = STAT_CARDS(stats);
@@ -167,50 +208,129 @@ export default function AdminDashboardPage() {
             {recentOrders.length === 0 ? (
               <div className="dash__empty">No orders yet.</div>
             ) : (
-              <div className="orders-table-wrap">
-                <table className="orders-table">
-                  <thead>
-                    <tr>
-                      <th>Order</th>
-                      <th>Customer</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentOrders.map((order) => (
-                      <tr key={order.id}>
-                        <td>
+              <div className="order-cards">
+                {recentOrders.map((order) => {
+                  const customer = order.customers;
+                  const items = order.order_items ?? [];
+                  const firstImg =
+                    items.find((i) => i.products?.image_url)?.products
+                      ?.image_url ?? null;
+
+                  return (
+                    <div key={order.id} className="order-card">
+                      {/* Left: product thumbnails */}
+                      <div className="order-card__imgs">
+                        {items.slice(0, 3).map((item, idx) => (
+                          <div key={idx} className="order-card__thumb">
+                            {item.products?.image_url ? (
+                              <Image
+                                src={item.products.image_url}
+                                alt={item.products.name ?? "Product"}
+                                fill
+                                style={{ objectFit: "cover" }}
+                              />
+                            ) : (
+                              <span style={{ fontSize: "1.25rem" }}>🌶</span>
+                            )}
+                          </div>
+                        ))}
+                        {items.length > 3 && (
+                          <div className="order-card__thumb order-card__thumb--more">
+                            +{items.length - 3}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Middle: order info */}
+                      <div className="order-card__info">
+                        {/* Order ID + status */}
+                        <div className="order-card__top">
                           <Link
                             href={`/admin/orders/${order.id}`}
-                            className="orders-table__id"
+                            className="order-card__id"
                           >
                             #{order.id.slice(0, 8).toUpperCase()}
                           </Link>
-                        </td>
-                        <td>{(order.customers as any)?.full_name ?? "—"}</td>
-                        <td className="orders-table__amount">
-                          {formatNaira(order.total_amount)}
-                        </td>
-                        <td>
                           <span className={`badge badge-${order.status}`}>
                             {order.status}
                           </span>
-                        </td>
-                        <td className="orders-table__date">
-                          {new Date(order.created_at).toLocaleDateString(
-                            "en-NG",
-                            {
-                              day: "numeric",
-                              month: "short",
-                            },
+                        </div>
+
+                        {/* Products list */}
+                        <div className="order-card__products">
+                          {items.map((item, idx) => (
+                            <span key={idx} className="order-card__product-tag">
+                              {item.products?.name ?? "Product"} ×
+                              {item.quantity}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Customer */}
+                        <div className="order-card__meta">
+                          <span>👤 {customer?.full_name ?? "—"}</span>
+                          {customer?.phone && (
+                            <a
+                              href={`tel:${customer.phone}`}
+                              className="order-card__phone"
+                            >
+                              📞 {customer.phone}
+                            </a>
                           )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+
+                        {/* Delivery address */}
+                        {order.delivery_address && (
+                          <div className="order-card__address">
+                            📍 {order.delivery_address}
+                          </div>
+                        )}
+
+                        {/* Payment + date */}
+                        <div className="order-card__footer">
+                          <span>
+                            {order.payment_method === "bank_transfer"
+                              ? "🏦 Transfer"
+                              : "💵 COD"}
+                          </span>
+                          <span className="order-card__date">
+                            {new Date(order.created_at).toLocaleDateString(
+                              "en-NG",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "2-digit",
+                              },
+                            )}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Right: amount + action */}
+                      <div className="order-card__right">
+                        <div className="order-card__amount">
+                          {formatNaira(order.total_amount)}
+                        </div>
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="btn btn-outline btn-sm"
+                        >
+                          View
+                        </Link>
+                        {customer?.phone && (
+                          <a
+                            href={`https://wa.me/${customer.phone.replace(/\D/g, "")}?text=Hi ${customer.full_name}, your KMA Spices order %23${order.id.slice(0, 8).toUpperCase()} is being processed.`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-sm whatsapp-btn"
+                          >
+                            💬
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -218,7 +338,6 @@ export default function AdminDashboardPage() {
       )}
 
       <style>{`
-        /* ── Page shell ── */
         .dash {
           display: flex;
           flex-direction: column;
@@ -227,8 +346,6 @@ export default function AdminDashboardPage() {
           max-width: 1100px;
           width: 100%;
         }
-
-        /* ── Header ── */
         .dash__header {
           display: flex;
           flex-direction: column;
@@ -251,13 +368,12 @@ export default function AdminDashboardPage() {
           flex-wrap: wrap;
         }
 
-        /* ── Stat cards grid ── */
+        /* ── Stat cards ── */
         .dash__grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 0.75rem;
         }
-
         .stat-card {
           background: #fff;
           border-radius: var(--radius-lg);
@@ -295,7 +411,7 @@ export default function AdminDashboardPage() {
           white-space: nowrap;
         }
 
-        /* ── Section (recent orders) ── */
+        /* ── Section ── */
         .dash__section {
           background: #fff;
           border-radius: var(--radius-lg);
@@ -328,50 +444,128 @@ export default function AdminDashboardPage() {
           font-size: 0.875rem;
         }
 
-        /* ── Orders table ── */
-        .orders-table-wrap {
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
+        /* ── Order cards ── */
+        .order-cards {
+          display: flex;
+          flex-direction: column;
         }
-        .orders-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 0.8125rem;
-          min-width: 480px;
+        .order-card {
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          gap: 1rem;
+          padding: 1rem 1.25rem;
+          border-bottom: 1px solid var(--clr-cream-dark);
+          align-items: start;
+          transition: background 150ms ease;
         }
-        .orders-table thead tr {
-          border-bottom: 2px solid var(--clr-cream-dark);
-          background: #fafaf9;
+        .order-card:last-child { border-bottom: none; }
+        .order-card:hover { background: #fafaf9; }
+
+        /* Product thumbnails */
+        .order-card__imgs {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          padding-top: 0.125rem;
         }
-        .orders-table th {
-          padding: 0.625rem 1rem;
-          text-align: left;
+        .order-card__thumb {
+          position: relative;
+          width: 44px;
+          height: 44px;
+          border-radius: var(--radius-md);
+          background: var(--clr-cream-dark);
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          font-size: 1.1rem;
+        }
+        .order-card__thumb--more {
+          background: var(--clr-bark);
+          color: var(--clr-cream);
           font-size: 0.7rem;
-          text-transform: uppercase;
-          letter-spacing: 0.06em;
+          font-weight: 700;
+        }
+
+        /* Info column */
+        .order-card__info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.375rem;
+          min-width: 0;
+        }
+        .order-card__top {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+        .order-card__id {
+          font-weight: 700;
+          color: var(--clr-saffron-dark);
+          text-decoration: none;
+          font-size: 0.875rem;
+        }
+        .order-card__products {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .order-card__product-tag {
+          font-size: 0.75rem;
+          background: var(--clr-cream-dark);
+          color: var(--clr-bark);
+          padding: 0.2rem 0.5rem;
+          border-radius: var(--radius-full);
+          white-space: nowrap;
+          font-weight: 500;
+        }
+        .order-card__meta {
+          display: flex;
+          align-items: center;
+          gap: 0.875rem;
+          font-size: 0.8125rem;
+          color: var(--clr-bark-mid);
+          flex-wrap: wrap;
+        }
+        .order-card__phone {
+          color: var(--clr-saffron-dark);
+          text-decoration: none;
+          font-weight: 500;
+        }
+        .order-card__address {
+          font-size: 0.8rem;
           color: var(--clr-muted);
-          font-weight: 600;
+          line-height: 1.4;
+          max-width: 340px;
+        }
+        .order-card__footer {
+          display: flex;
+          gap: 0.75rem;
+          font-size: 0.78rem;
+          color: var(--clr-muted);
+          align-items: center;
+        }
+        .order-card__date { margin-left: auto; }
+
+        /* Right column */
+        .order-card__right {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 0.5rem;
+          flex-shrink: 0;
+        }
+        .order-card__amount {
+          font-family: var(--font-display);
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--clr-bark);
           white-space: nowrap;
         }
-        .orders-table td {
-          padding: 0.75rem 1rem;
-          border-bottom: 1px solid var(--clr-cream-dark);
-          color: var(--clr-bark);
-          vertical-align: middle;
-        }
-        .orders-table tbody tr:last-child td { border-bottom: none; }
-        .orders-table tbody tr:hover td { background: #fafaf9; }
 
-        .orders-table__id {
-          color: var(--clr-saffron-dark);
-          font-weight: 700;
-          text-decoration: none;
-          font-size: 0.8125rem;
-        }
-        .orders-table__amount { font-weight: 600; }
-        .orders-table__date { color: var(--clr-muted); white-space: nowrap; }
-
-        /* ── MD: 768px ── */
+        /* ── MD ── */
         @media (min-width: 768px) {
           .dash { padding: 1.75rem 1.5rem; gap: 2rem; }
           .dash__header { flex-direction: row; justify-content: space-between; align-items: flex-start; }
@@ -381,9 +575,10 @@ export default function AdminDashboardPage() {
           .stat-card__icon { width: 48px; height: 48px; }
           .stat-card__value { font-size: 1.4rem; }
           .stat-card__label { font-size: 0.8125rem; }
+          .order-card__imgs { flex-direction: row; }
         }
 
-        /* ── LG: 1024px ── */
+        /* ── LG ── */
         @media (min-width: 1024px) {
           .dash { padding: 2rem; }
           .dash__grid { grid-template-columns: repeat(5, 1fr); }

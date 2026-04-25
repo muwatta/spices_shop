@@ -25,6 +25,15 @@ export default function AccountSecurityPage() {
       return;
     }
 
+    if (passwordForm.newPassword.length < 6) {
+      setMessage({
+        text: "Password must be at least 6 characters.",
+        type: "error",
+      });
+      setSaving(false);
+      return;
+    }
+
     const supabase = createClient();
     const {
       data: { user },
@@ -35,13 +44,39 @@ export default function AccountSecurityPage() {
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({
-      password: passwordForm.newPassword,
+    const response = await fetch("/api/auth/update-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: passwordForm.newPassword }),
     });
-    if (error) {
-      setMessage({ text: error.message, type: "error" });
+
+    const result = await response.json();
+    if (!response.ok) {
+      setMessage({
+        text: result.error || "Unable to update password.",
+        type: "error",
+      });
     } else {
-      setMessage({ text: "Password updated successfully.", type: "success" });
+      const email = user.email;
+      const fullName =
+        user.user_metadata?.full_name || user.user_metadata?.name || "Customer";
+
+      if (email) {
+        await fetch("/api/send-password-change-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            userName: fullName,
+            returnUrl: `${window.location.origin}/account/security`,
+          }),
+        });
+      }
+
+      setMessage({
+        text: "Password updated successfully. A confirmation email has been sent.",
+        type: "success",
+      });
       setPasswordForm({ newPassword: "", confirmPassword: "" });
     }
 

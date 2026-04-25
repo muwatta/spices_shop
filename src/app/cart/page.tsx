@@ -27,6 +27,8 @@ export default function CartPage() {
     useCartStore();
   const supabase = createClient();
   const [products, setProducts] = useState<Record<string, Product>>({});
+  const [orderHistory, setOrderHistory] = useState<any[]>([]);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
   const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
 
@@ -54,6 +56,33 @@ export default function CartPage() {
     fetchProducts();
   }, [items]);
 
+  useEffect(() => {
+    async function loadOrderHistory() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setHistoryLoaded(true);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("orders")
+        .select("id, status, total_amount, created_at")
+        .eq("customer_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(4);
+
+      if (!error && data) {
+        setOrderHistory(data);
+      }
+      setHistoryLoaded(true);
+    }
+
+    loadOrderHistory();
+  }, [supabase]);
+
   const cartItems = items
     .map((item) => ({
       ...item,
@@ -65,6 +94,36 @@ export default function CartPage() {
     (sum, item) => sum + (item.product?.price || 0) * item.quantity,
     0,
   );
+
+  const getOrderStatusLabel = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "Waiting for confirmation";
+      case "confirmed":
+        return "Confirmed and preparing your order";
+      case "delivered":
+        return "Delivered to your doorstep";
+      case "cancelled":
+        return "Order was cancelled";
+      default:
+        return "Order status updated";
+    }
+  };
+
+  const currentCartActivity = [
+    {
+      title: "Items in cart",
+      description: `${cartItems.length} item${cartItems.length === 1 ? "" : "s"} ready to checkout`,
+    },
+    {
+      title: "Estimated total",
+      description: formatNaira(totalPrice),
+    },
+    {
+      title: "Next step",
+      description: "Proceed to checkout or order via WhatsApp",
+    },
+  ];
 
   function handleWhatsAppOrder() {
     if (!phone) return;
@@ -143,20 +202,205 @@ export default function CartPage() {
         <main>
           <div
             className="container"
-            style={{ padding: "4rem var(--space-md)", textAlign: "center" }}
+            style={{ padding: "2rem var(--space-md)" }}
           >
-            <p style={{ fontSize: "3rem", marginBottom: "1rem" }}>🛒</p>
-            <h2
+            <h1
               style={{
                 fontFamily: "var(--font-display)",
-                marginBottom: "0.75rem",
+                fontSize: "2rem",
+                marginBottom: "1rem",
               }}
             >
-              Your cart is empty
-            </h2>
-            <Link href="/" className="btn btn-primary">
-              Browse Spices
-            </Link>
+              Your Cart
+            </h1>
+            <p style={{ color: "var(--clr-muted)", marginBottom: "2rem" }}>
+              Track your current cart activity and recent order progress even
+              when your basket is empty.
+            </p>
+
+            <div
+              className="card"
+              style={{
+                padding: "1.5rem",
+                marginBottom: "2rem",
+                display: "grid",
+                gap: "1.25rem",
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gap: "1rem",
+                  gridTemplateColumns: "1fr 1fr",
+                  alignItems: "stretch",
+                }}
+              >
+                <div style={{ display: "grid", gap: "0.75rem" }}>
+                  <h2
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "1.1rem",
+                      margin: 0,
+                    }}
+                  >
+                    Current cart activity
+                  </h2>
+                  {currentCartActivity.map((item) => (
+                    <div
+                      key={item.title}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.25rem",
+                        padding: "0.95rem 1rem",
+                        borderRadius: "1rem",
+                        background: "rgba(255,255,255,0.92)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "0.9rem",
+                          fontWeight: 700,
+                          color: "var(--clr-bark)",
+                        }}
+                      >
+                        {item.title}
+                      </span>
+                      <span
+                        style={{
+                          color: "var(--clr-muted)",
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        {item.description}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: "grid", gap: "0.75rem" }}>
+                  <h2
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "1.1rem",
+                      margin: 0,
+                    }}
+                  >
+                    Recent order history
+                  </h2>
+                  {historyLoaded ? (
+                    orderHistory.length > 0 ? (
+                      orderHistory.map((order) => (
+                        <div
+                          key={order.id}
+                          style={{
+                            padding: "0.95rem 1rem",
+                            borderRadius: "1rem",
+                            background: "rgba(255,255,255,0.92)",
+                            border: "1px solid rgba(0,0,0,0.06)",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              gap: "1rem",
+                              alignItems: "center",
+                            }}
+                          >
+                            <strong style={{ fontSize: "0.95rem" }}>
+                              Order #{order.id.slice(0, 8).toUpperCase()}
+                            </strong>
+                            <span
+                              style={{
+                                fontSize: "0.8rem",
+                                fontWeight: 700,
+                                color:
+                                  order.status === "delivered"
+                                    ? "var(--clr-success)"
+                                    : order.status === "cancelled"
+                                      ? "var(--clr-chili)"
+                                      : "var(--clr-saffron)",
+                              }}
+                            >
+                              {order.status}
+                            </span>
+                          </div>
+                          <p
+                            style={{
+                              margin: "0.4rem 0 0",
+                              color: "var(--clr-muted)",
+                              fontSize: "0.9rem",
+                            }}
+                          >
+                            {getOrderStatusLabel(order.status)} •{" "}
+                            {new Date(order.created_at).toLocaleDateString()}
+                          </p>
+                          <p
+                            style={{
+                              margin: "0.5rem 0 0",
+                              fontWeight: 700,
+                              color: "var(--clr-bark)",
+                            }}
+                          >
+                            {formatNaira(order.total_amount)}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div
+                        style={{
+                          padding: "0.95rem 1rem",
+                          borderRadius: "1rem",
+                          background: "rgba(255,255,255,0.92)",
+                          color: "var(--clr-muted)",
+                        }}
+                      >
+                        No recent orders yet. Your activity will appear here
+                        once you place an order.
+                      </div>
+                    )
+                  ) : (
+                    <div
+                      style={{
+                        padding: "0.95rem 1rem",
+                        borderRadius: "1rem",
+                        background: "rgba(255,255,255,0.92)",
+                        color: "var(--clr-muted)",
+                      }}
+                    >
+                      Loading order activity...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                textAlign: "center",
+                padding: "3rem 1rem",
+                borderRadius: "1rem",
+                background: "rgba(255,255,255,0.98)",
+              }}
+            >
+              <p style={{ fontSize: "3rem", marginBottom: "1rem" }}>🛒</p>
+              <h2
+                style={{
+                  fontFamily: "var(--font-display)",
+                  marginBottom: "0.75rem",
+                }}
+              >
+                Your cart is empty
+              </h2>
+              <p style={{ color: "var(--clr-muted)", marginBottom: "1.5rem" }}>
+                Add a few spices to get started. Your recent order activity is
+                shown above.
+              </p>
+              <Link href="/" className="btn btn-primary">
+                Browse Spices
+              </Link>
+            </div>
           </div>
         </main>
         <Footer />
@@ -173,11 +417,170 @@ export default function CartPage() {
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "2rem",
-              marginBottom: "2rem",
+              marginBottom: "1rem",
             }}
           >
             Your Cart
           </h1>
+          <p style={{ color: "var(--clr-muted)", marginBottom: "2rem" }}>
+            Track current cart activity and recent order progress so you always
+            know what’s happening.
+          </p>
+
+          <div
+            className="card"
+            style={{
+              padding: "1.5rem",
+              marginBottom: "2rem",
+              display: "grid",
+              gap: "1.25rem",
+            }}
+          >
+            <div
+              style={{
+                display: "grid",
+                gap: "1rem",
+                gridTemplateColumns: "1fr 1fr",
+                alignItems: "stretch",
+              }}
+            >
+              <div style={{ display: "grid", gap: "0.75rem" }}>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1.1rem",
+                    margin: 0,
+                  }}
+                >
+                  Current cart activity
+                </h2>
+                {currentCartActivity.map((item) => (
+                  <div
+                    key={item.title}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.25rem",
+                      padding: "0.95rem 1rem",
+                      borderRadius: "1rem",
+                      background: "rgba(255,255,255,0.92)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "0.9rem",
+                        fontWeight: 700,
+                        color: "var(--clr-bark)",
+                      }}
+                    >
+                      {item.title}
+                    </span>
+                    <span
+                      style={{ color: "var(--clr-muted)", fontSize: "0.9rem" }}
+                    >
+                      {item.description}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: "grid", gap: "0.75rem" }}>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1.1rem",
+                    margin: 0,
+                  }}
+                >
+                  Recent order history
+                </h2>
+                {historyLoaded ? (
+                  orderHistory.length > 0 ? (
+                    orderHistory.map((order) => (
+                      <div
+                        key={order.id}
+                        style={{
+                          padding: "0.95rem 1rem",
+                          borderRadius: "1rem",
+                          background: "rgba(255,255,255,0.92)",
+                          border: "1px solid rgba(0,0,0,0.06)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            gap: "1rem",
+                            alignItems: "center",
+                          }}
+                        >
+                          <strong style={{ fontSize: "0.95rem" }}>
+                            Order #{order.id.slice(0, 8).toUpperCase()}
+                          </strong>
+                          <span
+                            style={{
+                              fontSize: "0.8rem",
+                              fontWeight: 700,
+                              color:
+                                order.status === "delivered"
+                                  ? "var(--clr-success)"
+                                  : order.status === "cancelled"
+                                    ? "var(--clr-chili)"
+                                    : "var(--clr-saffron)",
+                            }}
+                          >
+                            {order.status}
+                          </span>
+                        </div>
+                        <p
+                          style={{
+                            margin: "0.4rem 0 0",
+                            color: "var(--clr-muted)",
+                            fontSize: "0.9rem",
+                          }}
+                        >
+                          {getOrderStatusLabel(order.status)} •{" "}
+                          {new Date(order.created_at).toLocaleDateString()}
+                        </p>
+                        <p
+                          style={{
+                            margin: "0.5rem 0 0",
+                            fontWeight: 700,
+                            color: "var(--clr-bark)",
+                          }}
+                        >
+                          {formatNaira(order.total_amount)}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      style={{
+                        padding: "0.95rem 1rem",
+                        borderRadius: "1rem",
+                        background: "rgba(255,255,255,0.92)",
+                        color: "var(--clr-muted)",
+                      }}
+                    >
+                      No recent orders yet. Your activity will appear here once
+                      you place an order.
+                    </div>
+                  )
+                ) : (
+                  <div
+                    style={{
+                      padding: "0.95rem 1rem",
+                      borderRadius: "1rem",
+                      background: "rgba(255,255,255,0.92)",
+                      color: "var(--clr-muted)",
+                    }}
+                  >
+                    Loading order activity...
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div
             style={{ display: "grid", gridTemplateColumns: "1fr", gap: "2rem" }}

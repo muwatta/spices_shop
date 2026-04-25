@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { formatNaira } from "@/lib/utils";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
@@ -37,113 +36,68 @@ const STATUS_OPTIONS: OrderStatus[] = [
 ];
 
 export default function AdminOrdersPage() {
-  const supabase = createClient();
-
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
 
   const loadOrders = useCallback(async () => {
     setLoading(true);
-    let query = supabase
-      .from("orders")
-      .select("*, customers(full_name, phone, email), order_items(id)")
-      .order("created_at", { ascending: false });
-    if (filter !== "all") query = query.eq("status", filter);
-    const { data, error } = await query;
-    if (error) {
-      toast.error("Failed to load orders");
+    const searchParams = new URLSearchParams();
+    if (filter !== "all") searchParams.set("status", filter);
+
+    const response = await fetch(
+      `/api/admin/orders?${searchParams.toString()}`,
+    );
+    const result = await response.json();
+
+    if (!response.ok) {
+      toast.error(result.error || "Failed to load orders");
       setLoading(false);
       return;
     }
-    setOrders((data as Order[]) ?? []);
+
+    setOrders(result.data ?? []);
     setLoading(false);
-  }, [filter, supabase]);
+  }, [filter]);
 
   async function updateStatus(orderId: string, status: OrderStatus) {
-    // optimistic UI
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status } : o)),
     );
-    const { error } = await supabase
-      .from("orders")
-      .update({ status })
-      .eq("id", orderId);
-    if (error) {
-      toast.error("Failed to update status");
+
+    const response = await fetch(`/api/admin/orders/${orderId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      toast.error(result.error || "Failed to update status");
       loadOrders();
       return;
     }
-    toast.success("Order status updated");
 
-    // Send email notification to customer
-    try {
-      const { data: orderData } = await supabase
-        .from("orders")
-        .select("customers(email, full_name)")
-        .eq("id", orderId)
-        .single();
-
-      // Type assertion: the customers field is an object with email and full_name
-      const customer = orderData?.customers as {
-        email?: string;
-        full_name?: string;
-      } | null;
-      if (customer?.email) {
-        await fetch("/api/send-order-status-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: customer.email,
-            orderId,
-            status,
-            customerName: customer.full_name,
-          }),
-        });
-      }
-    } catch (err) {
-      console.error("Failed to send status email:", err);
+    const order = orders.find((o) => o.id === orderId);
+    if (order?.customers?.email) {
+      await fetch("/api/send-order-status-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: order.customers.email,
+          orderId,
+          status,
+          customerName: order.customers.full_name,
+        }),
+      });
     }
+
+    toast.success("Order status updated");
   }
 
   useEffect(() => {
     loadOrders();
   }, [loadOrders]);
-
-  useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      Notification.permission === "default"
-    ) {
-      Notification.requestPermission();
-    }
-    const channel = supabase
-      .channel("orders-realtime")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "orders" },
-        (payload) => {
-          const newOrder = payload.new as Order;
-          if (Notification.permission === "granted") {
-            new Notification(
-              `New Order #${newOrder.id.slice(0, 8).toUpperCase()}`,
-              {
-                body: `Total: ${formatNaira(newOrder.total_amount)}`,
-                icon: "/favicon.ico",
-              },
-            );
-          }
-          toast.success(
-            `New order #${newOrder.id.slice(0, 8).toUpperCase()} received!`,
-          );
-          setOrders((prev) => [newOrder, ...prev]);
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase]);
 
   return (
     <>

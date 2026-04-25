@@ -1,5 +1,7 @@
+export const dynamic = 'force-dynamic';
+
 import { createClient } from '@/lib/supabase/server';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { formatNaira } from '@/lib/utils';
@@ -15,36 +17,50 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: order } = await supabase
+  const { data: order, error } = await supabase
     .from('orders')
-    .select('*, order_items(*, products(name, image_url, price)), customers(*)')
+    .select('*, order_items(*, products(name, image_url, price, description)), customers(*)')
     .eq('id', params.id)
     .eq('customer_id', user.id)
     .single();
 
-  if (!order) notFound();
-
   const statusSteps = ['pending', 'confirmed', 'delivered'];
-  const currentStep = statusSteps.indexOf(order.status);
+
+  const orderNotFound = !order || error;
+  const currentStep = order ? statusSteps.indexOf(order.status) : -1;
 
   return (
     <>
       <Navbar />
       <main>
         <div className="container" style={{ padding: '2rem var(--space-md)', maxWidth: '780px' }}>
-          {searchParams.success && (
-            <div className="alert alert-success fade-in" style={{ marginBottom: '1.5rem' }}>
-              🎉 <strong>Order placed successfully!</strong> We'll confirm it shortly.
-            </div>
-          )}
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <Link href="/account" style={{ color: 'var(--clr-saffron-dark)', fontSize: '0.875rem' }}>← My Orders</Link>
-              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', marginTop: '0.25rem' }}>
-                Order #{order.id.slice(0, 8).toUpperCase()}
+          {orderNotFound ? (
+            <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', marginBottom: '1rem' }}>
+                Order not found
               </h1>
+              <p style={{ color: 'var(--clr-muted)', marginBottom: '1.5rem' }}>
+                We couldn't locate that order. Please return to your orders list and try again.
+              </p>
+              <Link href="/account/orders" className="btn btn-primary">
+                Back to Orders
+              </Link>
             </div>
+          ) : (
+            <>
+              {searchParams.success && (
+                <div className="alert alert-success fade-in" style={{ marginBottom: '1.5rem' }}>
+                  🎉 <strong>Order placed successfully!</strong> We'll confirm it shortly.
+                </div>
+              )}
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <Link href="/account/orders" style={{ color: 'var(--clr-saffron-dark)', fontSize: '0.875rem' }}>← My Orders</Link>
+                  <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', marginTop: '0.25rem' }}>
+                    Order #{order.id.slice(0, 8).toUpperCase()}
+                  </h1>
+                </div>
             <span className={`badge badge-${order.status}`} style={{ fontSize: '0.875rem' }}>
               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
             </span>
@@ -99,13 +115,74 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
           {/* Order items */}
           <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem', marginBottom: '1rem' }}>Items Ordered</h2>
-            {(order.order_items as any[]).map((item: any) => (
-              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.625rem 0', borderBottom: '1px solid var(--clr-cream-dark)', fontSize: '0.9rem' }}>
-                <span>{item.products?.name ?? 'Product'} × {item.quantity}</span>
-                <span style={{ fontWeight: 600 }}>{formatNaira(item.unit_price * item.quantity)}</span>
-              </div>
-            ))}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', fontWeight: 700, fontSize: '1.05rem' }}>
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              {(order.order_items as any[]).map((item: any) => (
+                <div
+                  key={item.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '72px 1fr',
+                    gap: '1rem',
+                    alignItems: 'center',
+                    padding: '1rem',
+                    borderRadius: '1rem',
+                    background: 'rgba(255,255,255,0.85)',
+                    border: '1px solid rgba(0,0,0,0.06)',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '72px',
+                      height: '72px',
+                      borderRadius: '1rem',
+                      overflow: 'hidden',
+                      background: 'var(--clr-cream-dark)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {item.products?.image_url ? (
+                      <img
+                        src={item.products.image_url}
+                        alt={item.products?.name ?? 'Product image'}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <span style={{ color: 'var(--clr-muted)', fontSize: '0.75rem', textAlign: 'center', padding: '0.5rem' }}>
+                        No image
+                      </span>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
+                      <div>
+                        <p style={{ margin: 0, fontWeight: 700, color: 'var(--clr-bark)' }}>
+                          {item.products?.name ?? 'Product'}
+                        </p>
+                        {item.products?.description && (
+                          <p style={{ margin: '0.35rem 0 0', color: 'var(--clr-muted)', fontSize: '0.85rem' }}>
+                            {item.products.description}
+                          </p>
+                        )}
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <p style={{ margin: 0, fontWeight: 700 }}>{formatNaira(item.unit_price)}</p>
+                        <p style={{ margin: '0.25rem 0 0', color: 'var(--clr-muted)', fontSize: '0.85rem' }}>
+                          × {item.quantity}
+                        </p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: 'var(--clr-bark-mid)' }}>
+                      <span>Subtotal</span>
+                      <span style={{ fontWeight: 700 }}>{formatNaira(item.unit_price * item.quantity)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', fontWeight: 700, fontSize: '1.05rem' }}>
               <span>Total</span>
               <span style={{ fontFamily: 'var(--font-display)', color: 'var(--clr-saffron-dark)' }}>
                 {formatNaira(order.total_amount)}
