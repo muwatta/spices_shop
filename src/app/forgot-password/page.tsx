@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function ForgotPasswordPage() {
-  const supabase = createClient();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -20,12 +18,26 @@ export default function ForgotPasswordPage() {
     setMessage("");
     setLoading(true);
 
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+    const normalizedEmail = email.trim().toLowerCase();
+    if (
+      !normalizedEmail ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
+    ) {
+      setError("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
+
+    const response = await fetch("/api/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: normalizedEmail }),
     });
 
-    if (error) {
-      setError(error.message);
+    const result = await response.json();
+
+    if (!response.ok) {
+      setError(result.error || "Unable to send reset email. Please try again.");
     } else {
       setMessage(
         "If that email exists, a password reset link has been sent. Check your inbox.",

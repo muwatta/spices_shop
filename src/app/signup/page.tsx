@@ -1,23 +1,21 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 function SignupContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "/account";
-  const supabase = createClient();
 
   const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase();
   const [form, setForm] = useState({
     full_name: "",
     email: "",
     password: "",
+    confirmPassword: "",
     phone: "",
   });
   const [loading, setLoading] = useState(false);
@@ -31,6 +29,12 @@ function SignupContent() {
     setLoading(true);
 
     const normalizedEmail = form.email.trim().toLowerCase();
+    if (!form.full_name.trim()) {
+      setError("Please enter your full name.");
+      setLoading(false);
+      return;
+    }
+
     if (ADMIN_EMAIL && normalizedEmail === ADMIN_EMAIL) {
       setError(
         "This email is reserved for the admin dashboard. Please use the admin login page instead.",
@@ -39,37 +43,39 @@ function SignupContent() {
       return;
     }
 
-    const { data, error: signupError } = await supabase.auth.signUp({
-      email: normalizedEmail,
-      password: form.password,
-    });
-
-    if (signupError) {
-      if (signupError.message.includes("fetch failed")) {
-        setError(
-          "Network error. Please check your internet connection and refresh the page.",
-        );
-      } else {
-        setError(signupError.message);
-      }
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
       setLoading(false);
       return;
     }
 
-    if (data.user) {
-      await supabase.from("customers").upsert({
-        id: data.user.id,
-        full_name: form.full_name,
-        phone: form.phone,
-        email: form.email, // store email
-      });
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      setLoading(false);
+      return;
     }
 
-    setMessage(
-      "Account created! Please check your email to confirm your account before logging in.",
-    );
+    const response = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        full_name: form.full_name.trim(),
+        email: normalizedEmail,
+        password: form.password,
+        phone: form.phone.trim(),
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      setError(result.error || "Unable to create account. Please try again.");
+      setLoading(false);
+      return;
+    }
+
+    setMessage(result.message);
     setLoading(false);
-    // do NOT redirect automatically – wait for email confirmation
   }
 
   return (
@@ -174,6 +180,20 @@ function SignupContent() {
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 placeholder="Min. 6 characters"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Confirm Password</label>
+              <input
+                className="form-input"
+                type="password"
+                required
+                minLength={6}
+                value={form.confirmPassword}
+                onChange={(e) =>
+                  setForm({ ...form, confirmPassword: e.target.value })
+                }
+                placeholder="Repeat your password"
               />
             </div>
             <button

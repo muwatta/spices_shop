@@ -53,6 +53,24 @@ function ResetPasswordContent() {
     if (error) {
       setMessage({ text: error.message, type: "error" });
     } else {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user?.email) {
+        await fetch("/api/send-password-change-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: user.email,
+            userName:
+              user.user_metadata?.full_name ||
+              user.user_metadata?.name ||
+              "Customer",
+            returnUrl: `${window.location.origin}/login`,
+          }),
+        });
+      }
+
       setMessage({
         text: "Password updated successfully. Please sign in.",
         type: "success",
