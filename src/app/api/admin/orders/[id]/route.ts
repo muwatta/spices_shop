@@ -13,16 +13,17 @@ type Status = (typeof STATUS_VALUES)[number];
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const authError = await requireAdmin(request);
   if (authError) return authError;
 
+  const { id } = await params;
   const adminClient = createAdminClient();
   const { data, error } = await adminClient
     .from("orders")
     .select("*, customers(*), order_items(*, products(name, price))")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (error) {
@@ -34,11 +35,12 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const authError = await requireAdmin(request);
   if (authError) return authError;
 
+  const { id } = await params;
   const body = await request.json().catch(() => ({}));
   const status = typeof body.status === "string" ? body.status : "";
 
@@ -53,7 +55,7 @@ export async function PUT(
   const { error } = await adminClient
     .from("orders")
     .update({ status })
-    .eq("id", params.id);
+    .eq("id", id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
