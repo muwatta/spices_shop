@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { formatNaira } from "@/lib/utils";
 
 export default function AdminReportsPage() {
-  const supabase = createClient();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalOrders: 0,
@@ -17,29 +15,20 @@ export default function AdminReportsPage() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      // Fetch orders summary
-      const { data: orders } = await supabase
-        .from("orders")
-        .select("status, total_amount");
+      const response = await fetch("/api/admin/reports");
+      const payload = await response.json();
 
-      const totalOrders = orders?.length || 0;
-      const totalSales =
-        orders?.reduce((sum, o) => sum + o.total_amount, 0) || 0;
-      const pendingOrders =
-        orders?.filter((o) => o.status === "pending").length || 0;
-
-      // Fetch low stock products (stock <= 5 and stock is not null)
-      const { data: products } = await supabase
-        .from("products")
-        .select("name, stock")
-        .not("stock", "is", null)
-        .lte("stock", 5);
+      if (!response.ok) {
+        console.error("[reports] failed to load", payload.error);
+        setLoading(false);
+        return;
+      }
 
       setStats({
-        totalOrders,
-        totalSales,
-        pendingOrders,
-        lowStockProducts: products || [],
+        totalOrders: payload.totalOrders ?? 0,
+        totalSales: payload.totalSales ?? 0,
+        pendingOrders: payload.pendingOrders ?? 0,
+        lowStockProducts: payload.lowStockProducts ?? [],
       });
       setLoading(false);
     }

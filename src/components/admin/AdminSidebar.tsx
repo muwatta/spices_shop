@@ -45,6 +45,7 @@ export default function AdminSidebar() {
           className="admin-topbar__hamburger"
           onClick={() => setOpen(true)}
           aria-label="Open menu"
+          aria-expanded={open}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <path
@@ -188,9 +189,9 @@ export default function AdminSidebar() {
           left: 0;
           bottom: 0;
 
-          width: 70vw;
-          max-width: 260px;
-          padding: 0.85rem 0 0.85rem 0;
+          width: 72vw;
+          max-width: 220px;
+          padding: 0.75rem 0 0.75rem 0;
 
           display: flex;
           flex-direction: column;
@@ -216,9 +217,9 @@ export default function AdminSidebar() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 1rem;
+          gap: 0.75rem;
 
-          padding: 1rem 1.25rem;
+          padding: 0.9rem 1rem;
 
           border-bottom: 1px solid rgba(255,255,255,0.08);
         }
@@ -255,53 +256,55 @@ export default function AdminSidebar() {
           flex: 1;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.35rem;
 
-          padding: 0.75rem 0.75rem 0;
+          padding: 0.6rem 0.75rem 0;
         }
 
         .admin-sidebar__link {
           display: flex;
           align-items: center;
-          gap: 0.85rem;
+          gap: 0.7rem;
 
-          padding: 0.75rem 1rem;
-          min-height: 42px;
+          padding: 0.7rem 0.95rem;
+          min-height: 40px;
 
-          font-size: 0.92rem;
+          font-size: 0.9rem;
           font-weight: 500;
 
-          border-radius: var(--radius-md);
+          border-radius: var(--radius-lg);
           text-decoration: none;
 
           color: rgba(253,246,236,0.82);
 
-          transition: background 150ms ease, color 150ms ease;
+          transition: background 150ms ease, color 150ms ease, transform 150ms ease;
         }
 
         .admin-sidebar__link:hover {
-          background: rgba(232,160,32,0.12);
+          background: rgba(232,160,32,0.14);
           color: var(--clr-saffron);
+          transform: translateX(1px);
         }
 
         .admin-sidebar__link--active {
           font-weight: 600;
           color: var(--clr-saffron);
-          background: rgba(232,160,32,0.18);
+          background: rgba(232,160,32,0.2);
+          box-shadow: inset 4px 0 0 var(--clr-saffron);
         }
 
         .admin-sidebar__icon {
-          width: 26px;
+          width: 24px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           text-align: center;
           flex-shrink: 0;
-          font-size: 1.05rem;
+          font-size: 1rem;
         }
 
         .admin-sidebar__footer {
-          padding: 1rem 1.25rem;
+          padding: 0.8rem 1rem 1rem;
           border-top: 1px solid rgba(255,255,255,0.08);
         }
 
@@ -311,7 +314,7 @@ export default function AdminSidebar() {
           gap: 0.45rem;
           font-size: 0.85rem;
           text-decoration: none;
-          color: rgba(253,246,236,0.65);
+          color: rgba(253,246,236,0.72);
         }
 
         .admin-sidebar__back:hover {

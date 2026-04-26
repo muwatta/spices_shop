@@ -7,11 +7,12 @@ import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import toast, { Toaster } from "react-hot-toast";
+import { sanitizeRedirect } from "@/lib/utils";
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") ?? "/account";
+  const redirect = sanitizeRedirect(searchParams.get("redirect"), "/account");
   const confirmed = searchParams.get("confirmed") === "true";
   const supabase = createClient();
 
