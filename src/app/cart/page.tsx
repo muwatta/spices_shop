@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/lib/store/cart";
 import { createClient } from "@/lib/supabase/client";
@@ -22,7 +23,8 @@ interface Product {
   stock: number | null;
 }
 
-export default function CartPage() {
+// Move all cart logic into a separate component that can be wrapped in Suspense
+function CartContent() {
   const { items, removeItem, updateQuantity, totalItems, clearCart } =
     useCartStore();
   const supabase = createClient();
@@ -820,5 +822,49 @@ export default function CartPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+// Fallback UI while waiting for Suspense (search params are resolved)
+function CartLoadingFallback() {
+  return (
+    <>
+      <Navbar />
+      <div
+        className="container"
+        style={{ padding: "4rem 0", minHeight: "60vh", textAlign: "center" }}
+      >
+        <div style={{ maxWidth: "720px", margin: "0 auto" }}>
+          <div style={{ marginBottom: "2rem" }}>
+            <div
+              style={{
+                width: "60px",
+                height: "60px",
+                borderRadius: "50%",
+                border: "4px solid var(--clr-cream-dark)",
+                borderTopColor: "var(--clr-saffron)",
+                animation: "spin 1s linear infinite",
+                margin: "0 auto 1.5rem auto",
+              }}
+            />
+            <p style={{ color: "var(--clr-muted)" }}>Loading your cart...</p>
+          </div>
+        </div>
+      </div>
+      <Footer />
+      <style jsx>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+    </>
+  );
+}
+
+export default function CartPage() {
+  return (
+    <Suspense fallback={<CartLoadingFallback />}>
+      <CartContent />
+    </Suspense>
   );
 }
