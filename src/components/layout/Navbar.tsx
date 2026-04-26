@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart";
 import { useEffect, useState } from "react";
@@ -87,7 +87,6 @@ const Icon = {
 export default function Navbar(): JSX.Element {
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const totalItems = useCartStore((s) => s.totalItems);
   const supabase = createClient();
 
@@ -103,9 +102,11 @@ export default function Navbar(): JSX.Element {
   const cartCount = mounted ? totalItems() : 0;
 
   useEffect(() => {
-    const query = searchParams?.get("q")?.trim() || "";
+    if (typeof window === "undefined") return;
+    const query =
+      new URLSearchParams(window.location.search).get("q")?.trim() || "";
     setSearchTerm(query);
-  }, [searchParams]);
+  }, []);
 
   useEffect(() => {
     async function fetchUser() {
