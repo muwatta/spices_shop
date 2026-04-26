@@ -72,6 +72,8 @@ export default function AdminOrdersPage() {
     ].some((value) => value.includes(term));
   });
 
+  const orderCount = filteredOrders.length;
+
   async function updateStatus(orderId: string, status: OrderStatus) {
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status } : o)),
@@ -156,6 +158,15 @@ export default function AdminOrdersPage() {
               Dashboard
             </Link>
           </div>
+        </div>
+
+        <div className="admin-orders__summary">
+          <span className="admin-orders__summary-pill">
+            Showing {orderCount} of {orders.length} orders
+          </span>
+          <span className="admin-orders__summary-note">
+            Filter and search to find specific orders quickly.
+          </span>
         </div>
 
         <div className="admin-orders__toolbar">
@@ -256,7 +267,7 @@ export default function AdminOrdersPage() {
                     key={order.id}
                     style={{ borderBottom: "1px solid var(--clr-cream-dark)" }}
                   >
-                    <td style={{ padding: "0.875rem 1rem" }}>
+                    <td data-label="Order" style={{ padding: "0.875rem 1rem" }}>
                       <Link
                         href={`/admin/orders/${order.id}`}
                         style={{
@@ -267,7 +278,10 @@ export default function AdminOrdersPage() {
                         #{order.id.slice(0, 8).toUpperCase()}
                       </Link>
                     </td>
-                    <td style={{ padding: "0.875rem 1rem" }}>
+                    <td
+                      data-label="Customer"
+                      style={{ padding: "0.875rem 1rem" }}
+                    >
                       <div style={{ fontWeight: 500 }}>
                         {order.customers?.full_name ?? "—"}
                       </div>
@@ -280,13 +294,19 @@ export default function AdminOrdersPage() {
                         {order.customers?.phone}
                       </div>
                     </td>
-                    <td style={{ padding: "0.875rem 1rem" }}>
+                    <td data-label="Items" style={{ padding: "0.875rem 1rem" }}>
                       {order.order_items?.length ?? 0}
                     </td>
-                    <td style={{ padding: "0.875rem 1rem", fontWeight: 700 }}>
+                    <td
+                      data-label="Amount"
+                      style={{ padding: "0.875rem 1rem", fontWeight: 700 }}
+                    >
                       {formatNaira(order.total_amount)}
                     </td>
-                    <td style={{ padding: "0.875rem 1rem" }}>
+                    <td
+                      data-label="Payment"
+                      style={{ padding: "0.875rem 1rem" }}
+                    >
                       {order.payment_method === "bank_transfer"
                         ? "🏦 Transfer"
                         : "💵 COD"}
@@ -302,7 +322,10 @@ export default function AdminOrdersPage() {
                         </span>
                       )}
                     </td>
-                    <td style={{ padding: "0.875rem 1rem" }}>
+                    <td
+                      data-label="Status"
+                      style={{ padding: "0.875rem 1rem" }}
+                    >
                       <select
                         value={order.status}
                         onChange={(e) =>
@@ -313,6 +336,7 @@ export default function AdminOrdersPage() {
                           padding: "0.35rem 0.5rem",
                           fontSize: "0.8125rem",
                           cursor: "pointer",
+                          width: "100%",
                         }}
                       >
                         {STATUS_OPTIONS.map((s) => (
@@ -323,6 +347,7 @@ export default function AdminOrdersPage() {
                       </select>
                     </td>
                     <td
+                      data-label="Date"
                       style={{
                         padding: "0.875rem 1rem",
                         color: "var(--clr-muted)",
@@ -335,7 +360,10 @@ export default function AdminOrdersPage() {
                         year: "2-digit",
                       })}
                     </td>
-                    <td style={{ padding: "0.875rem 1rem" }}>
+                    <td
+                      data-label="Actions"
+                      style={{ padding: "0.875rem 1rem" }}
+                    >
                       <Link
                         href={`/admin/orders/${order.id}`}
                         className="btn btn-ghost btn-sm"
@@ -405,6 +433,31 @@ export default function AdminOrdersPage() {
           white-space: nowrap;
         }
 
+        .admin-orders__summary {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          margin-bottom: 1.5rem;
+          align-items: center;
+        }
+
+        .admin-orders__summary-pill {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.65rem 0.9rem;
+          border-radius: 999px;
+          background: rgba(255, 243, 205, 0.9);
+          color: #92400e;
+          font-size: 0.85rem;
+          font-weight: 700;
+        }
+
+        .admin-orders__summary-note {
+          color: var(--clr-muted);
+          font-size: 0.9rem;
+        }
+
         .admin-orders__status {
           display: inline-flex;
           align-items: center;
@@ -433,13 +486,18 @@ export default function AdminOrdersPage() {
           color: #991b1b;
         }
 
+        .admin-orders__table-wrapper {
+          overflow-x: auto;
+          padding-bottom: 0.25rem;
+        }
+
         @media (max-width: 960px) {
           .admin-orders__table {
             min-width: 720px;
           }
         }
 
-        @media (max-width: 740px) {
+        @media (max-width: 820px) {
           .admin-orders__toolbar {
             flex-direction: column;
             align-items: stretch;
@@ -447,6 +505,62 @@ export default function AdminOrdersPage() {
 
           .admin-orders__search {
             max-width: 100%;
+          }
+
+          .admin-orders__filters {
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 740px) {
+          .admin-orders__table {
+            min-width: 100%;
+          }
+
+          .admin-orders__table thead {
+            display: none;
+          }
+
+          .admin-orders__table,
+          .admin-orders__table tbody,
+          .admin-orders__table tr,
+          .admin-orders__table td {
+            display: block;
+            width: 100%;
+          }
+
+          .admin-orders__table tr {
+            margin-bottom: 1rem;
+            border: 1px solid var(--clr-cream-dark);
+            border-radius: var(--radius-lg);
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            overflow: hidden;
+          }
+
+          .admin-orders__table td {
+            padding: 0.85rem 1rem;
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+          }
+
+          .admin-orders__table td:last-child {
+            border-bottom: none;
+          }
+
+          .admin-orders__table td::before {
+            content: attr(data-label);
+            display: block;
+            margin-bottom: 0.45rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--clr-muted);
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+          }
+
+          .admin-orders__table td[data-label="Actions"] {
+            padding-bottom: 1.2rem;
           }
         }
       `}</style>

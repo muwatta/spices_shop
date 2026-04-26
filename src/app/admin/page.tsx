@@ -86,41 +86,52 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     async function loadStats() {
       setLoading(true);
-      const [
-        { data: orders },
-        { data: products },
-        { data: lowStock },
-        { data: recent },
-      ] = await Promise.all([
-        supabase.from("orders").select("status, total_amount"),
+
+      const [ordersResponse, productsResponse] = await Promise.all([
+        fetch("/api/admin/orders"),
         supabase.from("products").select("id"),
-        supabase
-          .from("products")
-          .select("id")
-          .not("stock", "is", null)
-          .lte("stock", 5),
-        supabase
-          .from("orders")
-          .select(
-            `
+      ]);
+
+      const ordersPayload = await ordersResponse.json();
+      const orders = Array.isArray(ordersPayload.data)
+        ? (ordersPayload.data as Array<{
+            status: string;
+            total_amount: number | string;
+          }>)
+        : [];
+
+      const { data: products } = productsResponse;
+
+      const recent = await supabase
+        .from("orders")
+        .select(
+          `
             id, status, total_amount, created_at, delivery_address, payment_method,
             customers(full_name, phone),
             order_items(quantity, products(name, image_url))
           `,
-          )
-          .order("created_at", { ascending: false })
-          .limit(5),
-      ]);
+        )
+        .order("created_at", { ascending: false })
+        .limit(5);
 
       setStats({
-        totalOrders: orders?.length ?? 0,
-        totalSales: orders?.reduce((s, o) => s + o.total_amount, 0) ?? 0,
-        pendingOrders:
-          orders?.filter((o) => o.status === "pending").length ?? 0,
+        totalOrders: orders.length,
+        totalSales:
+          orders.reduce((sum, o) => sum + Number(o.total_amount ?? 0), 0) ?? 0,
+        pendingOrders: orders.filter(
+          (o) => String(o.status).toLowerCase() === "pending",
+        ).length,
         productCount: products?.length ?? 0,
-        lowStockCount: lowStock?.length ?? 0,
+        lowStockCount:
+          (
+            await supabase
+              .from("products")
+              .select("id")
+              .not("stock", "is", null)
+              .lte("stock", 5)
+          )?.data?.length ?? 0,
       });
-      setRecentOrders((recent as unknown as RecentOrder[]) ?? []);
+      setRecentOrders((recent.data as unknown as RecentOrder[]) ?? []);
       setLoading(false);
     }
     loadStats();
