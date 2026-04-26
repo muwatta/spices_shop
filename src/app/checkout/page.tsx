@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+export const dynamic = "force-dynamic";
+
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/store/cart";
@@ -29,9 +31,9 @@ const staggerContainer = {
   animate: { transition: { staggerChildren: 0.1 } },
 };
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter();
-  const { items, clearCart } = useCartStore(); // no totalPrice
+  const { items, clearCart } = useCartStore();
   const supabase = createClient();
 
   const [user, setUser] = useState<any>(null);
@@ -59,8 +61,6 @@ export default function CheckoutPage() {
     city: false,
     state: false,
   });
-
-  // Products fetched for cart items
   const [cartProducts, setCartProducts] = useState<Record<string, any>>({});
   const [cartLoading, setCartLoading] = useState(true);
 
@@ -71,7 +71,6 @@ export default function CheckoutPage() {
   };
   const bankInfo = bankDetails ?? defaultBankDetails;
 
-  // Fetch product details for all cart items
   useEffect(() => {
     async function fetchProducts() {
       if (items.length === 0) {
@@ -94,20 +93,15 @@ export default function CheckoutPage() {
     fetchProducts();
   }, [items, supabase]);
 
-  // Build cart items with product data
   const cartItems = items
-    .map((item) => ({
-      ...item,
-      product: cartProducts[item.productId],
-    }))
-    .filter((item) => item.product); // remove if product deleted
+    .map((item) => ({ ...item, product: cartProducts[item.productId] }))
+    .filter((item) => item.product);
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + (item.product?.price || 0) * item.quantity,
     0,
   );
 
-  // Form validation
   const isFormValid = useMemo(() => {
     return (
       form.full_name.trim() !== "" &&
@@ -120,7 +114,6 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
-
     supabase
       .from("admin_settings")
       .select("value")
@@ -129,7 +122,6 @@ export default function CheckoutPage() {
       .then(({ data }) => {
         if (data?.value) setBankDetails(data.value as BankDetails);
       });
-
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
         supabase
@@ -159,8 +151,10 @@ export default function CheckoutPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    const sanitized = value.replace(/<[^>]*>/g, "").trimStart();
-    setForm((prev) => ({ ...prev, [name]: sanitized }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: value.replace(/<[^>]*>/g, "").trimStart(),
+    }));
   };
 
   const handleBlur = (field: keyof typeof touched) => {
@@ -170,7 +164,6 @@ export default function CheckoutPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-
     if (!user) {
       router.push("/login?redirect=/checkout");
       return;
@@ -187,14 +180,11 @@ export default function CheckoutPage() {
       setError("Please upload your payment proof (screenshot/receipt).");
       return;
     }
-
     setLoading(true);
     try {
-      // Build full address string
       const fullAddress =
         `${form.address_line1} ${form.address_line2 ? form.address_line2 + " " : ""}${form.city}, ${form.state} ${form.postal_code || ""}`.trim();
 
-      // 1. Upsert customer profile
       await supabase.from("customers").upsert({
         id: user.id,
         full_name: form.full_name.trim(),
@@ -207,7 +197,6 @@ export default function CheckoutPage() {
         account_number: form.account_number.trim(),
       });
 
-      // 2. Upload payment proof if bank transfer
       let proofUrl: string | null = null;
       if (paymentMethod === "bank_transfer" && proofFile) {
         const ext = proofFile.name.split(".").pop();
@@ -219,7 +208,6 @@ export default function CheckoutPage() {
         proofUrl = uploadData.path;
       }
 
-      // 3. Create order
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -234,7 +222,6 @@ export default function CheckoutPage() {
         .single();
       if (orderError) throw orderError;
 
-      // 4. Insert order items & decrement stock
       for (const item of cartItems) {
         const { error: itemsError } = await supabase
           .from("order_items")
@@ -245,7 +232,6 @@ export default function CheckoutPage() {
             unit_price: item.product.price,
           });
         if (itemsError) throw itemsError;
-
         if (item.product.stock !== null) {
           const newStock = item.product.stock - item.quantity;
           if (newStock < 0)
@@ -258,7 +244,6 @@ export default function CheckoutPage() {
         }
       }
 
-      // 5. Send order confirmation email (non-blocking)
       fetch("/api/send-order-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -400,7 +385,7 @@ export default function CheckoutPage() {
                 alignItems: "start",
               }}
             >
-              {/* Left Column: Delivery & Payment */}
+              {/* Left: Delivery & Payment */}
               <div
                 style={{
                   display: "flex",
@@ -408,7 +393,7 @@ export default function CheckoutPage() {
                   gap: "1.5rem",
                 }}
               >
-                {/* Delivery Details Card */}
+                {/* Delivery Details */}
                 <motion.div
                   variants={fadeInUp}
                   className="card"
@@ -434,152 +419,89 @@ export default function CheckoutPage() {
                       gap: "1rem",
                     }}
                   >
-                    <div className="form-group">
-                      <label className="form-label">Full Name *</label>
-                      <input
-                        className="form-input"
-                        type="text"
-                        name="full_name"
-                        required
-                        value={form.full_name}
-                        onChange={handleInputChange}
-                        onBlur={() => handleBlur("full_name")}
-                        placeholder="Your full name"
-                      />
-                      {touched.full_name && !form.full_name.trim() && (
-                        <p
-                          style={{
-                            color: "var(--clr-chili)",
-                            fontSize: "0.75rem",
-                            marginTop: "0.25rem",
-                          }}
-                        >
-                          Full name is required
-                        </p>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Phone Number *</label>
-                      <input
-                        className="form-input"
-                        type="tel"
-                        name="phone"
-                        required
-                        value={form.phone}
-                        onChange={handleInputChange}
-                        onBlur={() => handleBlur("phone")}
-                        placeholder="08012345678"
-                      />
-                      {touched.phone && !form.phone.trim() && (
-                        <p
-                          style={{
-                            color: "var(--clr-chili)",
-                            fontSize: "0.75rem",
-                            marginTop: "0.25rem",
-                          }}
-                        >
-                          Phone number is required
-                        </p>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Address Line 1 *</label>
-                      <input
-                        className="form-input"
-                        type="text"
-                        name="address_line1"
-                        required
-                        value={form.address_line1}
-                        onChange={handleInputChange}
-                        onBlur={() => handleBlur("address_line1")}
-                        placeholder="Street, house number"
-                      />
-                      {touched.address_line1 && !form.address_line1.trim() && (
-                        <p
-                          style={{
-                            color: "var(--clr-chili)",
-                            fontSize: "0.75rem",
-                            marginTop: "0.25rem",
-                          }}
-                        >
-                          Address is required
-                        </p>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">
-                        Address Line 2 (optional)
-                      </label>
-                      <input
-                        className="form-input"
-                        type="text"
-                        name="address_line2"
-                        value={form.address_line2}
-                        onChange={handleInputChange}
-                        placeholder="Apartment, suite, etc."
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">City *</label>
-                      <input
-                        className="form-input"
-                        type="text"
-                        name="city"
-                        required
-                        value={form.city}
-                        onChange={handleInputChange}
-                        onBlur={() => handleBlur("city")}
-                        placeholder="City"
-                      />
-                      {touched.city && !form.city.trim() && (
-                        <p
-                          style={{
-                            color: "var(--clr-chili)",
-                            fontSize: "0.75rem",
-                            marginTop: "0.25rem",
-                          }}
-                        >
-                          City is required
-                        </p>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">State *</label>
-                      <input
-                        className="form-input"
-                        type="text"
-                        name="state"
-                        required
-                        value={form.state}
-                        onChange={handleInputChange}
-                        onBlur={() => handleBlur("state")}
-                        placeholder="State"
-                      />
-                      {touched.state && !form.state.trim() && (
-                        <p
-                          style={{
-                            color: "var(--clr-chili)",
-                            fontSize: "0.75rem",
-                            marginTop: "0.25rem",
-                          }}
-                        >
-                          State is required
-                        </p>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">
-                        Postal Code (optional)
-                      </label>
-                      <input
-                        className="form-input"
-                        type="text"
-                        name="postal_code"
-                        value={form.postal_code}
-                        onChange={handleInputChange}
-                        placeholder="e.g., 23401"
-                      />
-                    </div>
+                    {[
+                      {
+                        name: "full_name",
+                        label: "Full Name",
+                        type: "text",
+                        placeholder: "Your full name",
+                        required: true,
+                      },
+                      {
+                        name: "phone",
+                        label: "Phone Number",
+                        type: "tel",
+                        placeholder: "08012345678",
+                        required: true,
+                      },
+                      {
+                        name: "address_line1",
+                        label: "Address Line 1",
+                        type: "text",
+                        placeholder: "Street, house number",
+                        required: true,
+                      },
+                      {
+                        name: "address_line2",
+                        label: "Address Line 2 (optional)",
+                        type: "text",
+                        placeholder: "Apartment, suite, etc.",
+                        required: false,
+                      },
+                      {
+                        name: "city",
+                        label: "City",
+                        type: "text",
+                        placeholder: "City",
+                        required: true,
+                      },
+                      {
+                        name: "state",
+                        label: "State",
+                        type: "text",
+                        placeholder: "State",
+                        required: true,
+                      },
+                      {
+                        name: "postal_code",
+                        label: "Postal Code (optional)",
+                        type: "text",
+                        placeholder: "e.g., 23401",
+                        required: false,
+                      },
+                    ].map((field) => (
+                      <div key={field.name} className="form-group">
+                        <label className="form-label">
+                          {field.label} {field.required && "*"}
+                        </label>
+                        <input
+                          className="form-input"
+                          type={field.type}
+                          name={field.name}
+                          required={field.required}
+                          value={(form as any)[field.name]}
+                          onChange={handleInputChange}
+                          onBlur={() =>
+                            field.required &&
+                            handleBlur(field.name as keyof typeof touched)
+                          }
+                          placeholder={field.placeholder}
+                        />
+                        {field.required &&
+                          (touched as any)[field.name] &&
+                          !(form as any)[field.name].trim() && (
+                            <p
+                              style={{
+                                color: "var(--clr-chili)",
+                                fontSize: "0.75rem",
+                                marginTop: "0.25rem",
+                              }}
+                            >
+                              {field.label} is required
+                            </p>
+                          )}
+                      </div>
+                    ))}
                     <div className="form-group">
                       <label className="form-label">
                         Account Number (optional)
@@ -600,7 +522,7 @@ export default function CheckoutPage() {
                   </div>
                 </motion.div>
 
-                {/* Payment Method Card */}
+                {/* Payment Method */}
                 <motion.div
                   variants={fadeInUp}
                   className="card"
@@ -742,7 +664,7 @@ export default function CheckoutPage() {
                                 }
                               />
                               Use stored account number ({form.account_number})
-                              for transfer? (faster checkout)
+                              for transfer?
                             </label>
                           </div>
                         )}
@@ -757,6 +679,7 @@ export default function CheckoutPage() {
                           <input
                             type="file"
                             accept="image/*,.pdf"
+                            required
                             onChange={(e) =>
                               setProofFile(e.target.files?.[0] ?? null)
                             }
@@ -765,7 +688,6 @@ export default function CheckoutPage() {
                               padding: "0.5rem",
                               borderRadius: "0.75rem",
                             }}
-                            required
                           />
                           <p
                             style={{
@@ -783,7 +705,7 @@ export default function CheckoutPage() {
                 </motion.div>
               </div>
 
-              {/* Right Column: Order Summary */}
+              {/* Right: Order Summary */}
               <motion.div
                 variants={fadeInUp}
                 className="card"
@@ -909,5 +831,22 @@ export default function CheckoutPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div style={{ textAlign: "center", padding: "4rem" }}>
+          <span
+            className="spinner"
+            style={{ margin: "0 auto", display: "block" }}
+          />
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
   );
 }
