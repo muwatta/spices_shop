@@ -130,8 +130,8 @@ export default function AdminSidebar() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 0.75rem;
-          padding: 0.75rem 1rem;
+          gap: 0.65rem;
+          padding: 0.65rem 0.95rem;
 
           background: var(--clr-bark);
           color: var(--clr-cream);
@@ -167,9 +167,9 @@ export default function AdminSidebar() {
         }
 
         .admin-topbar__shop {
-          font-size: 0.78rem;
+          font-size: 0.8rem;
           text-decoration: none;
-          color: rgba(253,246,236,0.75);
+          color: rgba(253,246,236,0.76);
           white-space: nowrap;
         }
 
@@ -188,9 +188,9 @@ export default function AdminSidebar() {
           left: 0;
           bottom: 0;
 
-          width: 76vw;
-          max-width: 280px;
-          padding: 1rem 0 1rem 0;
+          width: 70vw;
+          max-width: 260px;
+          padding: 0.85rem 0 0.85rem 0;
 
           display: flex;
           flex-direction: column;
@@ -198,7 +198,7 @@ export default function AdminSidebar() {
 
           background: var(--clr-bark);
           color: var(--clr-cream);
-          box-shadow: 2px 0 24px rgba(0,0,0,0.08);
+          box-shadow: 2px 0 18px rgba(0,0,0,0.08);
           border-right: 1px solid rgba(255,255,255,0.08);
 
           transform: translateX(-100%);
@@ -226,17 +226,17 @@ export default function AdminSidebar() {
         .admin-sidebar__brand {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.45rem;
 
-          font-size: 1rem;
+          font-size: 0.95rem;
           font-weight: 700;
           font-family: var(--font-display);
           color: var(--clr-saffron);
         }
 
         .admin-sidebar__close {
-          width: 45px;
-          height: 45px;
+          width: 38px;
+          height: 38px;
 
           display: flex;
           align-items: center;
@@ -265,16 +265,16 @@ export default function AdminSidebar() {
           align-items: center;
           gap: 0.85rem;
 
-          padding: 0.9rem 1rem;
-          min-height: 48px;
+          padding: 0.75rem 1rem;
+          min-height: 42px;
 
-          font-size: 0.95rem;
+          font-size: 0.92rem;
           font-weight: 500;
 
           border-radius: var(--radius-md);
           text-decoration: none;
 
-          color: rgba(253,246,236,0.78);
+          color: rgba(253,246,236,0.82);
 
           transition: background 150ms ease, color 150ms ease;
         }
@@ -291,13 +291,13 @@ export default function AdminSidebar() {
         }
 
         .admin-sidebar__icon {
-          width: 1px;
+          width: 26px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           text-align: center;
           flex-shrink: 0;
-          font-size: 1.1rem;
+          font-size: 1.05rem;
         }
 
         .admin-sidebar__footer {
