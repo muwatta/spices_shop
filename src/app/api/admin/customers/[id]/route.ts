@@ -1,15 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/admin";
 
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } },
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const authError = await requireAdmin(request);
   if (authError) return authError;
 
-  const { id } = params;
+  const { id } = await params;
   const body = await request.json();
   const { full_name, phone, address, city, state, postal_code, email } = body;
 
@@ -17,15 +17,7 @@ export async function PUT(
 
   const { data, error } = await adminClient
     .from("customers")
-    .update({
-      full_name,
-      phone,
-      address,
-      city,
-      state,
-      postal_code,
-      email,
-    })
+    .update({ full_name, phone, address, city, state, postal_code, email })
     .eq("id", id)
     .select()
     .single();
