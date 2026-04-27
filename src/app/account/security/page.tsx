@@ -13,6 +13,8 @@ export default function AccountSecurityPage() {
     newPassword: "",
     confirmPassword: "",
   });
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -110,11 +112,11 @@ export default function AccountSecurityPage() {
           onSubmit={handleSave}
           style={{ display: "grid", gap: "1rem", maxWidth: "480px" }}
         >
-          <div className="form-group">
+          <div className="form-group" style={{ position: "relative" }}>
             <label className="form-label">New Password</label>
             <input
               className="form-input"
-              type="password"
+              type={showNewPassword ? "text" : "password"}
               required
               minLength={6}
               value={passwordForm.newPassword}
@@ -125,13 +127,30 @@ export default function AccountSecurityPage() {
                 })
               }
             />
+            <button
+              type="button"
+              onClick={() => setShowNewPassword((current) => !current)}
+              style={{
+                position: "absolute",
+                right: "0.85rem",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                color: "var(--clr-saffron-dark)",
+                cursor: "pointer",
+                fontWeight: 600,
+              }}
+            >
+              {showNewPassword ? "Hide" : "Show"}
+            </button>
           </div>
 
-          <div className="form-group">
+          <div className="form-group" style={{ position: "relative" }}>
             <label className="form-label">Confirm New Password</label>
             <input
               className="form-input"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               required
               value={passwordForm.confirmPassword}
               onChange={(e) =>
@@ -141,6 +160,23 @@ export default function AccountSecurityPage() {
                 })
               }
             />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((current) => !current)}
+              style={{
+                position: "absolute",
+                right: "0.85rem",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                color: "var(--clr-saffron-dark)",
+                cursor: "pointer",
+                fontWeight: 600,
+              }}
+            >
+              {showConfirmPassword ? "Hide" : "Show"}
+            </button>
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={saving}>

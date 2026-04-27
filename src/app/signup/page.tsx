@@ -19,6 +19,8 @@ function SignupContent() {
     confirmPassword: "",
     phone: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -171,23 +173,40 @@ function SignupContent() {
                 placeholder="08012345678"
               />
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ position: "relative" }}>
               <label className="form-label">Password</label>
               <input
                 className="form-input"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 minLength={6}
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 placeholder="Min. 6 characters"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                style={{
+                  position: "absolute",
+                  right: "0.85rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "var(--clr-saffron-dark)",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ position: "relative" }}>
               <label className="form-label">Confirm Password</label>
               <input
                 className="form-input"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 required
                 minLength={6}
                 value={form.confirmPassword}
@@ -196,6 +215,23 @@ function SignupContent() {
                 }
                 placeholder="Repeat your password"
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((current) => !current)}
+                style={{
+                  position: "absolute",
+                  right: "0.85rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "var(--clr-saffron-dark)",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+              >
+                {showConfirmPassword ? "Hide" : "Show"}
+              </button>
             </div>
             <button
               type="submit"

@@ -154,6 +154,10 @@ export default function Navbar(): JSX.Element {
   };
 
   const handleLogout = async () => {
+    if (!window.confirm("Are you sure you want to log out?")) {
+      return;
+    }
+
     useCartStore.getState().clearCart();
     await supabase.auth.signOut();
     router.push("/");

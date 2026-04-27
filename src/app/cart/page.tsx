@@ -128,7 +128,30 @@ export default function CartPage() {
   ];
 
   function handleWhatsAppOrder() {
-    if (!phone) return;
+    if (!phone) {
+      window.alert(
+        "WhatsApp ordering is not available right now. Please contact support.",
+      );
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      window.alert(
+        "Your cart is empty. Add items before ordering via WhatsApp.",
+      );
+      return;
+    }
+
+    const summary = cartItems
+      .map((item) => `${item.product.name} x${item.quantity}`)
+      .join("\n");
+
+    const confirmation = `You are about to order the following items via WhatsApp:\n\n${summary}\n\nTotal: ${formatNaira(totalPrice)}\n\nContinue to WhatsApp?`;
+
+    if (!window.confirm(confirmation)) {
+      return;
+    }
+
     const message = buildOrderWhatsAppMessage(
       cartItems.map((i) => ({
         name: i.product.name,

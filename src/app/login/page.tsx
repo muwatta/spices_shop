@@ -18,6 +18,7 @@ function LoginContent() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -142,16 +143,33 @@ function LoginContent() {
                 placeholder="you@example.com"
               />
             </div>
-            <div className="form-group">
+            <div className="form-group" style={{ position: "relative" }}>
               <label className="form-label">Password</label>
               <input
                 className="form-input"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                style={{
+                  position: "absolute",
+                  right: "0.85rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "var(--clr-saffron-dark)",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
             </div>
             <button
               type="submit"

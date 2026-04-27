@@ -11,6 +11,8 @@ function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
@@ -134,26 +136,60 @@ function ResetPasswordContent() {
               onSubmit={handleUpdatePassword}
               style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
             >
-              <div className="form-group">
+              <div className="form-group" style={{ position: "relative" }}>
                 <label className="form-label">New Password</label>
                 <input
                   className="form-input"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   required
                   minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                  style={{
+                    position: "absolute",
+                    right: "0.85rem",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    color: "var(--clr-saffron-dark)",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                  }}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ position: "relative" }}>
                 <label className="form-label">Confirm New Password</label>
                 <input
                   className="form-input"
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((current) => !current)}
+                  style={{
+                    position: "absolute",
+                    right: "0.85rem",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    color: "var(--clr-saffron-dark)",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                  }}
+                >
+                  {showConfirmPassword ? "Hide" : "Show"}
+                </button>
               </div>
               <button
                 type="submit"

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/store/cart";
 import { createClient } from "@/lib/supabase/client";
-import { formatNaira, generateTransactionId } from "@/lib/utils";
+import { formatNaira } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
@@ -112,20 +112,6 @@ function CheckoutContent() {
     );
   }, [form]);
 
-  async function getUniqueTransactionId() {
-    const maxAttempts = 5;
-    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-      const transactionId = generateTransactionId();
-      const { data, error, count } = await supabase
-        .from("orders")
-        .select("id", { head: true, count: "exact" })
-        .eq("transaction_id", transactionId);
-      if (error) throw error;
-      if (!count) return transactionId;
-    }
-    return generateTransactionId();
-  }
-
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
     supabase
@@ -194,23 +180,24 @@ function CheckoutContent() {
       setError("Please upload your payment proof (screenshot/receipt).");
       return;
     }
+
+    const fullAddress =
+      `${form.address_line1} ${form.address_line2 ? form.address_line2 + " " : ""}${form.city}, ${form.state} ${form.postal_code || ""}`.trim();
+
+    const confirmationMessage =
+      `Please confirm your order:\n\nDelivery address:\n${fullAddress}\n\nPayment method: ${
+        paymentMethod === "bank_transfer" ? "Bank Transfer" : "Cash on Delivery"
+      }\nTotal: ${formatNaira(totalPrice)}\n\n` +
+      (paymentMethod === "bank_transfer"
+        ? "A payment proof file will be attached to your order."
+        : "You will pay when your order is delivered.");
+
+    if (!window.confirm(confirmationMessage)) {
+      return;
+    }
+
     setLoading(true);
     try {
-      const fullAddress =
-        `${form.address_line1} ${form.address_line2 ? form.address_line2 + " " : ""}${form.city}, ${form.state} ${form.postal_code || ""}`.trim();
-
-      await supabase.from("customers").upsert({
-        id: user.id,
-        full_name: form.full_name.trim(),
-        phone: form.phone.trim(),
-        address: form.address_line1.trim(),
-        address_line2: form.address_line2.trim(),
-        city: form.city.trim(),
-        state: form.state.trim(),
-        postal_code: form.postal_code.trim(),
-        account_number: form.account_number.trim(),
-      });
-
       let proofUrl: string | null = null;
       if (paymentMethod === "bank_transfer" && proofFile) {
         const ext = proofFile.name.split(".").pop();
@@ -222,41 +209,32 @@ function CheckoutContent() {
         proofUrl = uploadData.path;
       }
 
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          transaction_id: await getUniqueTransactionId(),
-          customer_id: user.id,
-          status: "pending",
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: form.full_name.trim(),
+          phone: form.phone.trim(),
+          address_line1: form.address_line1.trim(),
+          address_line2: form.address_line2.trim(),
+          city: form.city.trim(),
+          state: form.state.trim(),
+          postal_code: form.postal_code.trim(),
+          account_number: form.account_number.trim(),
           payment_method: paymentMethod,
           payment_proof_url: proofUrl,
-          total_amount: totalPrice,
-          delivery_address: fullAddress,
-        })
-        .select()
-        .single();
-      if (orderError) throw orderError;
-
-      for (const item of cartItems) {
-        const { error: itemsError } = await supabase
-          .from("order_items")
-          .insert({
-            order_id: order.id,
+          items: cartItems.map((item) => ({
             product_id: item.product.id,
             quantity: item.quantity,
-            unit_price: item.product.price,
-          });
-        if (itemsError) throw itemsError;
-        if (item.product.stock !== null) {
-          const newStock = item.product.stock - item.quantity;
-          if (newStock < 0)
-            throw new Error(`Insufficient stock for ${item.product.name}`);
-          const { error: stockError } = await supabase
-            .from("products")
-            .update({ stock: newStock })
-            .eq("id", item.product.id);
-          if (stockError) throw stockError;
-        }
+          })),
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          result.error || "Unable to place order. Please try again.",
+        );
       }
 
       fetch("/api/send-order-email", {
@@ -264,7 +242,7 @@ function CheckoutContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: user.email,
-          orderId: order.id,
+          orderId: result.order.id,
           items: cartItems.map((i) => ({
             name: i.product.name,
             quantity: i.quantity,
@@ -276,7 +254,7 @@ function CheckoutContent() {
       }).catch((err) => console.error("Email failed:", err));
 
       clearCart();
-      router.push(`/account/orders/${order.id}?success=1`);
+      router.push(`/account/orders/${result.order.id}?success=1`);
     } catch (err: any) {
       setError(err.message ?? "Something went wrong. Please try again.");
     } finally {
