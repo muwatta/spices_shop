@@ -44,6 +44,7 @@ function CheckoutContent() {
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
   const [useStoredAccount, setUseStoredAccount] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [form, setForm] = useState({
     full_name: "",
     phone: "",
@@ -151,6 +152,7 @@ function CheckoutContent() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
+    setShowConfirmation(false);
     setForm((prev) => ({
       ...prev,
       [name]: value.replace(/<[^>]*>/g, "").trimStart(),
@@ -181,18 +183,8 @@ function CheckoutContent() {
       return;
     }
 
-    const fullAddress =
-      `${form.address_line1} ${form.address_line2 ? form.address_line2 + " " : ""}${form.city}, ${form.state} ${form.postal_code || ""}`.trim();
-
-    const confirmationMessage =
-      `Please confirm your order:\n\nDelivery address:\n${fullAddress}\n\nPayment method: ${
-        paymentMethod === "bank_transfer" ? "Bank Transfer" : "Cash on Delivery"
-      }\nTotal: ${formatNaira(totalPrice)}\n\n` +
-      (paymentMethod === "bank_transfer"
-        ? "A payment proof file will be attached to your order."
-        : "You will pay when your order is delivered.");
-
-    if (!window.confirm(confirmationMessage)) {
+    if (!showConfirmation) {
+      setShowConfirmation(true);
       return;
     }
 
@@ -567,7 +559,10 @@ function CheckoutContent() {
                           name="payment"
                           value={method}
                           checked={paymentMethod === method}
-                          onChange={() => setPaymentMethod(method)}
+                          onChange={() => {
+                            setShowConfirmation(false);
+                            setPaymentMethod(method);
+                          }}
                           style={{
                             accentColor: "var(--clr-saffron)",
                             width: "1.2rem",
@@ -673,9 +668,10 @@ function CheckoutContent() {
                             type="file"
                             accept="image/*,.pdf"
                             required
-                            onChange={(e) =>
-                              setProofFile(e.target.files?.[0] ?? null)
-                            }
+                            onChange={(e) => {
+                              setShowConfirmation(false);
+                              setProofFile(e.target.files?.[0] ?? null);
+                            }}
                             className="form-input"
                             style={{
                               padding: "0.5rem",
@@ -779,6 +775,68 @@ function CheckoutContent() {
                   </motion.div>
                 )}
 
+                {showConfirmation && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    style={{
+                      marginBottom: "1rem",
+                      padding: "1rem",
+                      borderRadius: "1rem",
+                      border: "1px solid var(--clr-cream-dark)",
+                      background: "white",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontWeight: 700,
+                        marginBottom: "0.75rem",
+                      }}
+                    >
+                      Review your order before confirmation
+                    </p>
+                    <div
+                      style={{
+                        fontSize: "0.9rem",
+                        lineHeight: 1.6,
+                        color: "var(--clr-muted)",
+                      }}
+                    >
+                      <div>
+                        <strong>Delivery address:</strong>
+                        <div>
+                          {form.address_line1} {form.address_line2}
+                        </div>
+                        <div>
+                          {form.city}, {form.state} {form.postal_code}
+                        </div>
+                      </div>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <strong>Payment method:</strong>{" "}
+                        {paymentMethod === "bank_transfer"
+                          ? "Bank Transfer"
+                          : "Cash on Delivery"}
+                      </div>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <strong>Total:</strong> {formatNaira(totalPrice)}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => setShowConfirmation(false)}
+                      style={{
+                        marginTop: "1rem",
+                        width: "100%",
+                        borderRadius: "2rem",
+                        padding: "0.9rem",
+                      }}
+                    >
+                      Edit order details
+                    </button>
+                  </motion.div>
+                )}
+
                 <motion.button
                   type="submit"
                   className="btn btn-primary btn-lg"
@@ -802,8 +860,10 @@ function CheckoutContent() {
                     >
                       <span className="spinner" /> Placing Order...
                     </span>
+                  ) : showConfirmation ? (
+                    "Confirm order"
                   ) : (
-                    "Place Order"
+                    "Review order"
                   )}
                 </motion.button>
 
