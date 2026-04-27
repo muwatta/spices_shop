@@ -61,14 +61,24 @@ export async function requireAdmin(
   request: Request,
 ): Promise<NextResponse | null> {
   const supabase = createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
 
-  if (error || !user) {
+  let user: { email?: string | null } | null = null;
+  try {
+    const {
+      data: { user: currentUser },
+      error,
+    } = await supabase.auth.getUser();
+    user = currentUser;
+    if (error) {
+      user = null;
+    }
+  } catch {
+    user = null;
+  }
+
+  if (!user) {
     await recordUnauthorizedAttempt({
-      email: user?.email ?? null,
+      email: null,
       action: "route_access",
       message: "Missing admin authentication",
       request,
