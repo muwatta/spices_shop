@@ -1,11 +1,47 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { sanitizeRedirect } from "@/lib/utils";
+
+function EyeIcon({ open }: { open: boolean }) {
+  return open ? (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  ) : (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path
+        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line
+        x1="1"
+        y1="1"
+        x2="23"
+        y2="23"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 function SignupContent() {
   const searchParams = useSearchParams();
@@ -20,7 +56,7 @@ function SignupContent() {
     phone: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -32,26 +68,22 @@ function SignupContent() {
     setLoading(true);
 
     const normalizedEmail = form.email.trim().toLowerCase();
+
     if (!form.full_name.trim()) {
       setError("Please enter your full name.");
       setLoading(false);
       return;
     }
-
     if (ADMIN_EMAIL && normalizedEmail === ADMIN_EMAIL) {
-      setError(
-        "This email is reserved for the admin dashboard. Please use the admin login page instead.",
-      );
+      setError("This email is reserved. Please use the admin login page.");
       setLoading(false);
       return;
     }
-
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match.");
       setLoading(false);
       return;
     }
-
     if (form.password.length < 6) {
       setError("Password must be at least 6 characters.");
       setLoading(false);
@@ -70,7 +102,6 @@ function SignupContent() {
     });
 
     const result = await response.json();
-
     if (!response.ok) {
       setError(result.error || "Unable to create account. Please try again.");
       setLoading(false);
@@ -80,6 +111,64 @@ function SignupContent() {
     setMessage(result.message);
     setLoading(false);
   }
+
+  const PasswordField = ({
+    label,
+    value,
+    show,
+    onToggle,
+    onChange,
+    placeholder,
+    name,
+    autoComplete,
+  }: {
+    label: string;
+    value: string;
+    show: boolean;
+    onToggle: () => void;
+    onChange: (v: string) => void;
+    placeholder: string;
+    name: string;
+    autoComplete: string;
+  }) => (
+    <div className="form-group">
+      <label className="form-label">{label}</label>
+      <div style={{ position: "relative" }}>
+        <input
+          className="form-input"
+          type={show ? "text" : "password"}
+          required
+          minLength={6}
+          name={name}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          style={{ paddingRight: "3rem", width: "100%" }}
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={show ? "Hide password" : "Show password"}
+          style={{
+            position: "absolute",
+            right: "0.75rem",
+            top: "50%",
+            transform: "translateY(-50%)",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "var(--clr-muted)",
+            display: "flex",
+            alignItems: "center",
+            padding: "0.25rem",
+          }}
+        >
+          <EyeIcon open={show} />
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -150,6 +239,7 @@ function SignupContent() {
                   setForm({ ...form, full_name: e.target.value })
                 }
                 placeholder="Your full name"
+                autoComplete="name"
               />
             </div>
             <div className="form-group">
@@ -161,6 +251,7 @@ function SignupContent() {
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 placeholder="you@example.com"
+                autoComplete="email"
               />
             </div>
             <div className="form-group">
@@ -171,68 +262,49 @@ function SignupContent() {
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 placeholder="08012345678"
+                autoComplete="tel"
               />
             </div>
-            <div className="form-group" style={{ position: "relative" }}>
-              <label className="form-label">Password</label>
-              <input
-                className="form-input"
-                type={showPassword ? "text" : "password"}
-                required
-                minLength={6}
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                placeholder="Min. 6 characters"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((current) => !current)}
+
+            <PasswordField
+              label="Password"
+              name="password"
+              value={form.password}
+              show={showPassword}
+              onToggle={() => setShowPassword((v) => !v)}
+              onChange={(v) => setForm({ ...form, password: v })}
+              placeholder="Min. 6 characters"
+              autoComplete="new-password"
+            />
+            <PasswordField
+              label="Confirm Password"
+              name="confirmPassword"
+              value={form.confirmPassword}
+              show={showConfirm}
+              onToggle={() => setShowConfirm((v) => !v)}
+              onChange={(v) => setForm({ ...form, confirmPassword: v })}
+              placeholder="Repeat your password"
+              autoComplete="new-password"
+            />
+
+            {/* Password match indicator */}
+            {form.confirmPassword && (
+              <p
                 style={{
-                  position: "absolute",
-                  right: "0.85rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  color: "var(--clr-saffron-dark)",
-                  cursor: "pointer",
-                  fontWeight: 600,
+                  fontSize: "0.78rem",
+                  marginTop: "-0.5rem",
+                  color:
+                    form.password === form.confirmPassword
+                      ? "var(--clr-success)"
+                      : "var(--clr-chili)",
                 }}
               >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-            <div className="form-group" style={{ position: "relative" }}>
-              <label className="form-label">Confirm Password</label>
-              <input
-                className="form-input"
-                type={showConfirmPassword ? "text" : "password"}
-                required
-                minLength={6}
-                value={form.confirmPassword}
-                onChange={(e) =>
-                  setForm({ ...form, confirmPassword: e.target.value })
-                }
-                placeholder="Repeat your password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword((current) => !current)}
-                style={{
-                  position: "absolute",
-                  right: "0.85rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  color: "var(--clr-saffron-dark)",
-                  cursor: "pointer",
-                  fontWeight: 600,
-                }}
-              >
-                {showConfirmPassword ? "Hide" : "Show"}
-              </button>
-            </div>
+                {form.password === form.confirmPassword
+                  ? "✓ Passwords match"
+                  : "✗ Passwords do not match"}
+              </p>
+            )}
+
             <button
               type="submit"
               className="btn btn-primary btn-lg"
