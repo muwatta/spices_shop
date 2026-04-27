@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { formatNaira } from "@/lib/utils";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
 
 type OrderStatus = "pending" | "confirmed" | "delivered" | "cancelled";
+
+type OrderView = "all" | "new" | "recent" | "past";
 
 interface Customer {
   full_name: string;
@@ -39,7 +41,82 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
+  const [viewMode, setViewMode] = useState<OrderView>("all");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const VIEW_MODE_LABELS: Record<OrderView, string> = {
+    all: "All orders",
+    new: "New orders",
+    recent: "Recent orders",
+    past: "Past orders",
+  };
+
+  const isOrderInView = (order: Order) => {
+    if (viewMode === "all") return true;
+    const createdAt = new Date(order.created_at).getTime();
+    const ageDays = (Date.now() - createdAt) / (1000 * 60 * 60 * 24);
+
+    if (viewMode === "new") return ageDays <= 7;
+    if (viewMode === "recent") return ageDays > 7 && ageDays <= 30;
+    return ageDays > 30;
+  };
+
+  const CSV_HEADERS = [
+    "Order ID",
+    "Customer",
+    "Phone",
+    "Email",
+    "Status",
+    "Payment Method",
+    "Total Amount",
+    "Items",
+    "Created At",
+    "Payment Proof",
+  ];
+
+  function downloadOrdersCsv() {
+    const rows = orders
+      .filter((order) => isOrderInView(order))
+      .map((order) => {
+        const customer = order.customers;
+        return [
+          order.id,
+          customer?.full_name ?? "",
+          customer?.phone ?? "",
+          (customer as any)?.email ?? "",
+          order.status,
+          order.payment_method === "bank_transfer"
+            ? "Bank Transfer"
+            : "Cash on Delivery",
+          formatNaira(order.total_amount),
+          String(order.order_items?.length ?? 0),
+          new Date(order.created_at).toLocaleString("en-NG", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          order.payment_proof_url ? "Yes" : "No",
+        ];
+      });
+
+    const csvContent = [CSV_HEADERS, ...rows]
+      .map((row) =>
+        row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `spice-shop-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 
   const loadOrders = useCallback(async () => {
     setLoading(true);
@@ -61,16 +138,21 @@ export default function AdminOrdersPage() {
     setLoading(false);
   }, [filter]);
 
-  const filteredOrders = orders.filter((order) => {
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) return true;
+  const filteredOrders = useMemo(() => {
+    return orders
+      .filter((order) => isOrderInView(order))
+      .filter((order) => {
+        const term = searchTerm.trim().toLowerCase();
+        if (!term) return true;
 
-    return [
-      order.id.toLowerCase(),
-      order.customers?.full_name?.toLowerCase() ?? "",
-      order.customers?.phone?.toLowerCase() ?? "",
-    ].some((value) => value.includes(term));
-  });
+        return [
+          order.id.toLowerCase(),
+          order.customers?.full_name?.toLowerCase() ?? "",
+          order.customers?.phone?.toLowerCase() ?? "",
+        ].some((value) => value.includes(term));
+      })
+      .filter((order) => (filter === "all" ? true : order.status === filter));
+  }, [orders, filter, searchTerm, viewMode]);
 
   const orderCount = filteredOrders.length;
 
@@ -165,44 +247,69 @@ export default function AdminOrdersPage() {
             Showing {orderCount} of {orders.length} orders
           </span>
           <span className="admin-orders__summary-note">
-            Filter and search to find specific orders quickly.
+            {VIEW_MODE_LABELS[viewMode]}. Filter and search to find specific
+            orders quickly.
           </span>
         </div>
 
         <div className="admin-orders__toolbar">
-          <div className="admin-orders__search">
-            <label
-              htmlFor="order-search"
-              className="form-label"
-              style={{
-                fontSize: "0.85rem",
-                marginBottom: "0.35rem",
-                display: "inline-block",
-              }}
-            >
-              Search orders
-            </label>
-            <input
-              id="order-search"
-              className="form-input"
-              type="search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by order ID, customer name, or phone"
-              style={{ width: "100%" }}
-            />
-          </div>
-          <div className="admin-orders__filters">
-            {["all", ...STATUS_OPTIONS].map((s) => (
-              <button
-                key={s}
-                onClick={() => setFilter(s as typeof filter)}
-                className={`btn btn-sm ${filter === s ? "btn-primary" : "btn-outline"}`}
-                style={{ textTransform: "capitalize" }}
+          <div className="admin-orders__controls">
+            <div className="admin-orders__search">
+              <label
+                htmlFor="order-search"
+                className="form-label"
+                style={{
+                  fontSize: "0.85rem",
+                  marginBottom: "0.35rem",
+                  display: "inline-block",
+                }}
               >
-                {s}
-              </button>
-            ))}
+                Search orders
+              </label>
+              <input
+                id="order-search"
+                className="form-input"
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by order ID, customer name, or phone"
+                style={{ width: "100%" }}
+              />
+            </div>
+            <div className="admin-orders__view-tabs">
+              {(["all", "new", "recent", "past"] as OrderView[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className={`btn btn-sm ${viewMode === mode ? "btn-primary" : "btn-outline"}`}
+                  style={{ textTransform: "capitalize" }}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="admin-orders__actions">
+            <div className="admin-orders__filters">
+              {["all", ...STATUS_OPTIONS].map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setFilter(s as typeof filter)}
+                  className={`btn btn-sm ${filter === s ? "btn-primary" : "btn-outline"}`}
+                  style={{ textTransform: "capitalize" }}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={downloadOrdersCsv}
+              className="btn btn-outline btn-sm"
+            >
+              Export CSV
+            </button>
           </div>
         </div>
         {loading ? (
@@ -392,6 +499,29 @@ export default function AdminOrdersPage() {
           min-width: 280px;
           flex: 1;
           max-width: 520px;
+        }
+
+        .admin-orders__controls {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          flex: 1;
+          min-width: 280px;
+        }
+
+        .admin-orders__actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          align-items: center;
+          justify-content: flex-end;
+        }
+
+        .admin-orders__view-tabs {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          align-items: center;
         }
 
         .admin-orders__filters {
