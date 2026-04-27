@@ -4,15 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-/* =========================
-   NAV CONFIG
-========================= */
+
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: "📊" },
   { href: "/admin/orders", label: "Orders", icon: "📦" },
   { href: "/admin/products", label: "Products", icon: "🌶" },
   { href: "/admin/do-you-know", label: "Do You Know", icon: "📘" },
   { href: "/admin/reports", label: "Reports", icon: "📈" },
+  { href: "/admin/customers", label: "Customers", icon: "👥" },
 ];
 
 
