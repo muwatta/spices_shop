@@ -6,6 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { formatNaira } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Props {
   params: { id: string };
@@ -31,17 +32,21 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
   const statusSteps = ["pending", "confirmed", "delivered"];
   const orderNotFound = !order || error;
   const currentStep = order ? statusSteps.indexOf(order.status) : -1;
+  const progressWidth = Math.max(
+    0,
+    (currentStep / (statusSteps.length - 1)) * 100,
+  );
+
+  const displayId = order?.transaction_id
+    ? order.transaction_id
+    : order?.id.slice(0, 8).toUpperCase();
 
   return (
     <>
       <Navbar />
-      <main>
-        <div
-          className="container"
-          style={{ padding: "2rem var(--space-md)", maxWidth: "780px" }}
-        >
+      <main style={{ background: "var(--clr-cream)", minHeight: "70vh" }}>
+        <div className="container" style={{ padding: "2rem var(--space-md)" }}>
           {orderNotFound ? (
-            /* ── Not found ── */
             <div
               className="card"
               style={{ padding: "2rem", textAlign: "center" }}
@@ -64,28 +69,27 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
               </Link>
             </div>
           ) : (
-            /* ── Order found ── */
-            <div>
+            <div style={{ maxWidth: "780px", margin: "0 auto" }}>
               {/* Success banner */}
               {searchParams.success && (
                 <div
                   className="alert alert-success fade-in"
-                  style={{ marginBottom: "1.5rem" }}
+                  style={{ marginBottom: "1.5rem", borderRadius: "1rem" }}
                 >
                   🎉 <strong>Order placed successfully!</strong> We'll confirm
                   it shortly.
                 </div>
               )}
 
-              {/* Header */}
+              {/* Header with status */}
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "2rem",
+                  alignItems: "flex-start",
                   flexWrap: "wrap",
                   gap: "1rem",
+                  marginBottom: "2rem",
                 }}
               >
                 <div>
@@ -94,6 +98,9 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                     style={{
                       color: "var(--clr-saffron-dark)",
                       fontSize: "0.875rem",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.25rem",
                     }}
                   >
                     ← My Orders
@@ -101,32 +108,43 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                   <h1
                     style={{
                       fontFamily: "var(--font-display)",
-                      fontSize: "1.75rem",
-                      marginTop: "0.25rem",
+                      fontSize: "clamp(1.5rem, 5vw, 2rem)",
+                      marginTop: "0.5rem",
+                      marginBottom: "0.25rem",
                     }}
                   >
-                    Transaction #
-                    {order.transaction_id ?? order.id.slice(0, 8).toUpperCase()}
+                    Transaction #{displayId}
                   </h1>
                   <p
-                    style={{ margin: "0.5rem 0 0", color: "var(--clr-muted)" }}
+                    style={{
+                      margin: 0,
+                      color: "var(--clr-muted)",
+                      fontSize: "0.85rem",
+                    }}
                   >
                     Order #{order.id.slice(0, 8).toUpperCase()}
                   </p>
                 </div>
-                <span
-                  className={`badge badge-${order.status}`}
-                  style={{ fontSize: "0.875rem" }}
-                >
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                </span>
+                <div>
+                  <span
+                    className={`badge badge-${order.status}`}
+                    style={{ fontSize: "0.85rem", padding: "0.4rem 1rem" }}
+                  >
+                    {order.status.charAt(0).toUpperCase() +
+                      order.status.slice(1)}
+                  </span>
+                </div>
               </div>
 
               {/* Progress tracker */}
               {order.status !== "cancelled" && (
                 <div
                   className="card"
-                  style={{ padding: "1.5rem", marginBottom: "1.5rem" }}
+                  style={{
+                    padding: "1.5rem",
+                    marginBottom: "1.5rem",
+                    borderRadius: "1.25rem",
+                  }}
                 >
                   <div
                     style={{
@@ -135,25 +153,29 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       position: "relative",
                     }}
                   >
+                    {/* Background bar */}
                     <div
                       style={{
                         position: "absolute",
                         top: "18px",
                         left: "10%",
                         right: "10%",
-                        height: "3px",
+                        height: "4px",
                         background: "var(--clr-cream-dark)",
+                        borderRadius: "2px",
                         zIndex: 0,
                       }}
                     />
+                    {/* Foreground bar */}
                     <div
                       style={{
                         position: "absolute",
                         top: "18px",
                         left: "10%",
-                        width: `${(currentStep / (statusSteps.length - 1)) * 80}%`,
-                        height: "3px",
+                        width: `calc(${progressWidth}% - ${progressWidth === 0 ? 0 : (progressWidth / 100) * 10}%)`,
+                        height: "4px",
                         background: "var(--clr-saffron)",
+                        borderRadius: "2px",
                         zIndex: 1,
                         transition: "width 0.5s ease",
                       }}
@@ -173,8 +195,8 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       >
                         <div
                           style={{
-                            width: "36px",
-                            height: "36px",
+                            width: "40px",
+                            height: "40px",
                             borderRadius: "50%",
                             background:
                               i <= currentStep
@@ -188,8 +210,12 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                                 ? "var(--clr-bark)"
                                 : "var(--clr-muted)",
                             fontWeight: 700,
-                            fontSize: "0.875rem",
-                            transition: "background 0.3s",
+                            fontSize: "1rem",
+                            transition: "all 0.2s ease",
+                            boxShadow:
+                              i <= currentStep
+                                ? "0 2px 8px rgba(232,160,32,0.3)"
+                                : "none",
                           }}
                         >
                           {i < currentStep ? "✓" : i + 1}
@@ -216,16 +242,23 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
               {/* Order items */}
               <div
                 className="card"
-                style={{ padding: "1.5rem", marginBottom: "1.5rem" }}
+                style={{
+                  padding: "1.5rem",
+                  marginBottom: "1.5rem",
+                  borderRadius: "1.25rem",
+                }}
               >
                 <h2
                   style={{
                     fontFamily: "var(--font-display)",
-                    fontSize: "1.1rem",
-                    marginBottom: "1rem",
+                    fontSize: "1.25rem",
+                    marginBottom: "1.25rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
                   }}
                 >
-                  Items Ordered
+                  🛍️ Items Ordered
                 </h2>
                 <div style={{ display: "grid", gap: "1rem" }}>
                   {(order.order_items as any[]).map((item: any) => (
@@ -233,134 +266,147 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       key={item.id}
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "72px 1fr",
+                        gridTemplateColumns: "80px 1fr",
                         gap: "1rem",
-                        alignItems: "center",
-                        padding: "1rem",
+                        background: "white",
                         borderRadius: "1rem",
-                        background: "rgba(255,255,255,0.85)",
-                        border: "1px solid rgba(0,0,0,0.06)",
+                        padding: "0.75rem",
+                        border: "1px solid var(--clr-cream-dark)",
+                        transition: "box-shadow 0.2s ease",
                       }}
                     >
                       <div
                         style={{
-                          width: "72px",
-                          height: "72px",
-                          borderRadius: "1rem",
+                          position: "relative",
+                          width: "80px",
+                          height: "80px",
+                          borderRadius: "0.75rem",
                           overflow: "hidden",
                           background: "var(--clr-cream-dark)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
                         }}
                       >
                         {item.products?.image_url ? (
-                          <img
+                          <Image
                             src={item.products.image_url}
-                            alt={item.products?.name ?? "Product image"}
+                            alt={item.products.name}
+                            fill
+                            style={{ objectFit: "cover" }}
+                          />
+                        ) : (
+                          <div
                             style={{
                               width: "100%",
                               height: "100%",
-                              objectFit: "cover",
-                            }}
-                          />
-                        ) : (
-                          <span
-                            style={{
-                              color: "var(--clr-muted)",
-                              fontSize: "0.75rem",
-                              textAlign: "center",
-                              padding: "0.5rem",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "2rem",
                             }}
                           >
-                            No image
-                          </span>
+                            🌶
+                          </div>
                         )}
                       </div>
-
                       <div
                         style={{
                           display: "flex",
                           flexDirection: "column",
-                          gap: "0.4rem",
+                          justifyContent: "space-between",
                         }}
                       >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            gap: "1rem",
-                            alignItems: "flex-start",
-                          }}
-                        >
-                          <div>
-                            <p
+                        <div>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
+                              gap: "0.5rem",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <strong
                               style={{
-                                margin: 0,
-                                fontWeight: 700,
+                                fontSize: "1rem",
                                 color: "var(--clr-bark)",
                               }}
                             >
                               {item.products?.name ?? "Product"}
-                            </p>
-                            {item.products?.description && (
-                              <p
+                            </strong>
+                            <div style={{ textAlign: "right" }}>
+                              <span
+                                style={{ fontWeight: 700, fontSize: "0.9rem" }}
+                              >
+                                {formatNaira(item.unit_price)}
+                              </span>
+                              <span
                                 style={{
-                                  margin: "0.35rem 0 0",
+                                  fontSize: "0.8rem",
                                   color: "var(--clr-muted)",
-                                  fontSize: "0.85rem",
+                                  marginLeft: "0.25rem",
                                 }}
                               >
-                                {item.products.description}
-                              </p>
-                            )}
+                                × {item.quantity}
+                              </span>
+                            </div>
                           </div>
-                          <div style={{ textAlign: "right" }}>
-                            <p style={{ margin: 0, fontWeight: 700 }}>
-                              {formatNaira(item.unit_price)}
-                            </p>
+                          {item.products?.description && (
                             <p
                               style={{
                                 margin: "0.25rem 0 0",
                                 color: "var(--clr-muted)",
-                                fontSize: "0.85rem",
+                                fontSize: "0.8rem",
+                                lineHeight: 1.4,
                               }}
                             >
-                              × {item.quantity}
+                              {item.products.description.length > 80
+                                ? `${item.products.description.slice(0, 80)}…`
+                                : item.products.description}
                             </p>
-                          </div>
+                          )}
                         </div>
                         <div
                           style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            fontSize: "0.9rem",
-                            color: "var(--clr-bark-mid)",
+                            marginTop: "0.5rem",
+                            borderTop: "1px dashed var(--clr-cream-dark)",
+                            paddingTop: "0.5rem",
+                            textAlign: "right",
                           }}
                         >
-                          <span>Subtotal</span>
-                          <span style={{ fontWeight: 700 }}>
-                            {formatNaira(item.unit_price * item.quantity)}
+                          <span
+                            style={{
+                              fontSize: "0.8rem",
+                              color: "var(--clr-muted)",
+                            }}
+                          >
+                            Subtotal:{" "}
                           </span>
+                          <strong>
+                            {formatNaira(item.unit_price * item.quantity)}
+                          </strong>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-
                 <div
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
                     marginTop: "1.5rem",
-                    fontWeight: 700,
-                    fontSize: "1.05rem",
+                    paddingTop: "1rem",
+                    borderTop: "2px solid var(--clr-cream-dark)",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: "1rem",
+                    flexWrap: "wrap",
                   }}
                 >
-                  <span>Total</span>
+                  <span style={{ fontSize: "1rem", fontWeight: 600 }}>
+                    Total
+                  </span>
                   <span
                     style={{
                       fontFamily: "var(--font-display)",
+                      fontSize: "1.4rem",
+                      fontWeight: 700,
                       color: "var(--clr-saffron-dark)",
                     }}
                   >
@@ -370,28 +416,38 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
               </div>
 
               {/* Order meta */}
-              <div className="card" style={{ padding: "1.5rem" }}>
+              <div
+                className="card"
+                style={{ padding: "1.5rem", borderRadius: "1.25rem" }}
+              >
                 <h2
                   style={{
                     fontFamily: "var(--font-display)",
-                    fontSize: "1.1rem",
-                    marginBottom: "1rem",
+                    fontSize: "1.25rem",
+                    marginBottom: "1.25rem",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
                   }}
                 >
-                  Order Details
+                  📋 Order Details
                 </h2>
                 <div
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "0.625rem",
-                    fontSize: "0.9rem",
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                    gap: "0.75rem",
                   }}
                 >
                   <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      borderBottom: "1px solid var(--clr-cream-dark)",
+                      paddingBottom: "0.5rem",
+                    }}
                   >
-                    <span style={{ color: "var(--clr-muted)" }}>Date</span>
+                    <span style={{ color: "var(--clr-muted)" }}>📅 Date</span>
                     <span>
                       {new Date(order.created_at).toLocaleDateString("en-NG", {
                         day: "numeric",
@@ -401,9 +457,16 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                     </span>
                   </div>
                   <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      borderBottom: "1px solid var(--clr-cream-dark)",
+                      paddingBottom: "0.5rem",
+                    }}
                   >
-                    <span style={{ color: "var(--clr-muted)" }}>Payment</span>
+                    <span style={{ color: "var(--clr-muted)" }}>
+                      💳 Payment
+                    </span>
                     <span>
                       {order.payment_method === "bank_transfer"
                         ? "🏦 Bank Transfer"
@@ -415,10 +478,13 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
+                        borderBottom: "1px solid var(--clr-cream-dark)",
+                        paddingBottom: "0.5rem",
+                        alignItems: "flex-start",
                       }}
                     >
                       <span style={{ color: "var(--clr-muted)" }}>
-                        Delivery Address
+                        📍 Delivery
                       </span>
                       <span style={{ textAlign: "right", maxWidth: "60%" }}>
                         {order.delivery_address}
@@ -430,10 +496,12 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       style={{
                         display: "flex",
                         justifyContent: "space-between",
+                        borderBottom: "1px solid var(--clr-cream-dark)",
+                        paddingBottom: "0.5rem",
                       }}
                     >
                       <span style={{ color: "var(--clr-muted)" }}>
-                        Payment Proof
+                        📎 Payment Proof
                       </span>
                       <span
                         style={{ color: "var(--clr-success)", fontWeight: 600 }}
@@ -442,6 +510,25 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       </span>
                     </div>
                   )}
+                </div>
+                <div
+                  style={{
+                    marginTop: "1rem",
+                    textAlign: "center",
+                    fontSize: "0.75rem",
+                    color: "var(--clr-muted)",
+                  }}
+                >
+                  Need help?{" "}
+                  <Link
+                    href="/contact"
+                    style={{
+                      color: "var(--clr-saffron-dark)",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Contact support
+                  </Link>
                 </div>
               </div>
             </div>
