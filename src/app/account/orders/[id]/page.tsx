@@ -105,8 +105,14 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       marginTop: "0.25rem",
                     }}
                   >
-                    Order #{order.id.slice(0, 8).toUpperCase()}
+                    Transaction #
+                    {order.transaction_id ?? order.id.slice(0, 8).toUpperCase()}
                   </h1>
+                  <p
+                    style={{ margin: "0.5rem 0 0", color: "var(--clr-muted)" }}
+                  >
+                    Order #{order.id.slice(0, 8).toUpperCase()}
+                  </p>
                 </div>
                 <span
                   className={`badge badge-${order.status}`}

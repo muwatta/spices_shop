@@ -102,7 +102,7 @@ export default function AccountOrdersPage() {
               <thead>
                 <tr style={{ borderBottom: "2px solid var(--clr-cream-dark)" }}>
                   <th style={{ textAlign: "left", padding: "0.75rem" }}>
-                    Order
+                    Transaction
                   </th>
                   <th style={{ textAlign: "left", padding: "0.75rem" }}>
                     Date
@@ -123,7 +123,27 @@ export default function AccountOrdersPage() {
                     style={{ borderBottom: "1px solid var(--clr-cream-dark)" }}
                   >
                     <td style={{ padding: "0.75rem" }}>
-                      #{order.id.slice(0, 8).toUpperCase()}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.25rem",
+                        }}
+                      >
+                        <span style={{ fontWeight: 700 }}>
+                          #
+                          {order.transaction_id ??
+                            order.id.slice(0, 8).toUpperCase()}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: "0.85rem",
+                            color: "var(--clr-muted)",
+                          }}
+                        >
+                          {order.id.slice(0, 8).toUpperCase()}
+                        </span>
+                      </div>
                     </td>
                     <td style={{ padding: "0.75rem" }}>
                       {new Date(order.created_at).toLocaleDateString()}

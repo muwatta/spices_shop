@@ -20,6 +20,18 @@ export function sanitizeSearchQuery(query: string): string {
   return query.replace(/[^a-zA-Z0-9\s%\-_.@]/g, "").trim();
 }
 
+export function generateTransactionId(): string {
+  const prefix = "KMA26";
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  return (
+    prefix +
+    Array.from(
+      { length: 4 },
+      () => chars[Math.floor(Math.random() * chars.length)],
+    ).join("")
+  );
+}
+
 export function buildWhatsAppUrl(phone: string, orderSummary: string): string {
   const message = encodeURIComponent(orderSummary);
   return `https://wa.me/${phone}?text=${message}`;

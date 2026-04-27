@@ -21,6 +21,7 @@ interface OrderItem {
 
 interface Order {
   id: string;
+  transaction_id?: string;
   status: OrderStatus;
   payment_method: "bank_transfer" | "cash_on_delivery";
   payment_proof_url: string | null;
@@ -42,7 +43,17 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
   const [viewMode, setViewMode] = useState<OrderView>("all");
+  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = () => {
+    setSearchTerm(searchInput.trim());
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    setSearchTerm("");
+  };
 
   const VIEW_MODE_LABELS: Record<OrderView, string> = {
     all: "All orders",
@@ -62,7 +73,8 @@ export default function AdminOrdersPage() {
   };
 
   const CSV_HEADERS = [
-    "Order ID",
+    "Transaction ID",
+    "Order UUID",
     "Customer",
     "Phone",
     "Email",
@@ -80,6 +92,7 @@ export default function AdminOrdersPage() {
       .map((order) => {
         const customer = order.customers;
         return [
+          order.transaction_id ?? order.id,
           order.id,
           customer?.full_name ?? "",
           customer?.phone ?? "",
@@ -139,13 +152,15 @@ export default function AdminOrdersPage() {
   }, [filter]);
 
   const filteredOrders = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+
     return orders
       .filter((order) => isOrderInView(order))
       .filter((order) => {
-        const term = searchTerm.trim().toLowerCase();
         if (!term) return true;
 
         return [
+          order.transaction_id?.toLowerCase() ?? "",
           order.id.toLowerCase(),
           order.customers?.full_name?.toLowerCase() ?? "",
           order.customers?.phone?.toLowerCase() ?? "",
@@ -266,15 +281,34 @@ export default function AdminOrdersPage() {
               >
                 Search orders
               </label>
-              <input
-                id="order-search"
-                className="form-input"
-                type="search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by order ID, customer name, or phone"
-                style={{ width: "100%" }}
-              />
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <input
+                  id="order-search"
+                  className="form-input"
+                  type="search"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                  placeholder="Search by transaction, customer name, or phone"
+                  style={{ width: "100%" }}
+                />
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className="btn btn-primary btn-sm"
+                  style={{ whiteSpace: "nowrap" }}
+                >
+                  Search
+                </button>
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="btn btn-outline btn-sm"
+                  style={{ whiteSpace: "nowrap" }}
+                >
+                  Clear
+                </button>
+              </div>
             </div>
             <div className="admin-orders__view-tabs">
               {(["all", "new", "recent", "past"] as OrderView[]).map((mode) => (
@@ -375,15 +409,39 @@ export default function AdminOrdersPage() {
                     style={{ borderBottom: "1px solid var(--clr-cream-dark)" }}
                   >
                     <td data-label="Order" style={{ padding: "0.875rem 1rem" }}>
-                      <Link
-                        href={`/admin/orders/${order.id}`}
+                      <div
                         style={{
-                          color: "var(--clr-saffron-dark)",
-                          fontWeight: 700,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.25rem",
                         }}
                       >
-                        #{order.id.slice(0, 8).toUpperCase()}
-                      </Link>
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          style={{
+                            color: "var(--clr-saffron-dark)",
+                            fontWeight: 700,
+                          }}
+                        >
+                          #
+                          {order.transaction_id ??
+                            order.id.slice(0, 8).toUpperCase()}
+                        </Link>
+                        <span
+                          style={{
+                            fontSize: "0.75rem",
+                            color: "var(--clr-muted)",
+                          }}
+                        >
+                          {new Date(order.created_at).toLocaleString("en-NG", {
+                            day: "numeric",
+                            month: "short",
+                            year: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
                     </td>
                     <td
                       data-label="Customer"
@@ -433,25 +491,11 @@ export default function AdminOrdersPage() {
                       data-label="Status"
                       style={{ padding: "0.875rem 1rem" }}
                     >
-                      <select
-                        value={order.status}
-                        onChange={(e) =>
-                          updateStatus(order.id, e.target.value as OrderStatus)
-                        }
-                        className="form-input"
-                        style={{
-                          padding: "0.35rem 0.5rem",
-                          fontSize: "0.8125rem",
-                          cursor: "pointer",
-                          width: "100%",
-                        }}
+                      <span
+                        className={`admin-orders__status admin-orders__status--${order.status}`}
                       >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {s.charAt(0).toUpperCase() + s.slice(1)}
-                          </option>
-                        ))}
-                      </select>
+                        {order.status}
+                      </span>
                     </td>
                     <td
                       data-label="Date"
@@ -461,10 +505,12 @@ export default function AdminOrdersPage() {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {new Date(order.created_at).toLocaleDateString("en-NG", {
+                      {new Date(order.created_at).toLocaleString("en-NG", {
                         day: "numeric",
                         month: "short",
                         year: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </td>
                     <td

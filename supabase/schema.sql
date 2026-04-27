@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS customers (
 
 CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  transaction_id TEXT UNIQUE,
   customer_id UUID REFERENCES customers(id) ON DELETE SET NULL,
   status TEXT NOT NULL DEFAULT 'pending'
     CHECK (status IN ('pending', 'confirmed', 'delivered', 'cancelled')),

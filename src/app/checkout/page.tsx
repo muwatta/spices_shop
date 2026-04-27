@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/store/cart";
 import { createClient } from "@/lib/supabase/client";
-import { formatNaira } from "@/lib/utils";
+import { formatNaira, generateTransactionId } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
@@ -112,6 +112,20 @@ function CheckoutContent() {
     );
   }, [form]);
 
+  async function getUniqueTransactionId() {
+    const maxAttempts = 5;
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const transactionId = generateTransactionId();
+      const { data, error, count } = await supabase
+        .from("orders")
+        .select("id", { head: true, count: "exact" })
+        .eq("transaction_id", transactionId);
+      if (error) throw error;
+      if (!count) return transactionId;
+    }
+    return generateTransactionId();
+  }
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
     supabase
@@ -211,6 +225,7 @@ function CheckoutContent() {
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
+          transaction_id: await getUniqueTransactionId(),
           customer_id: user.id,
           status: "pending",
           payment_method: paymentMethod,

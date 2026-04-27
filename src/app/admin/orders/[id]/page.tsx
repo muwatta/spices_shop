@@ -74,7 +74,7 @@ export default function AdminOrderDetailPage() {
   if (!order) return <div style={{ padding: "2rem" }}>Order not found.</div>;
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "820px" }}>
+    <div style={{ padding: "2rem", width: "100%", maxWidth: "820px" }}>
       <div style={{ marginBottom: "1.5rem" }}>
         <Link
           href="/admin/orders"
@@ -89,18 +89,26 @@ export default function AdminOrderDetailPage() {
             marginTop: "0.25rem",
           }}
         >
-          Order #{order.id.slice(0, 8).toUpperCase()}
+          Order #{order.transaction_id ?? order.id.slice(0, 8).toUpperCase()}
         </h1>
+        <p
+          style={{
+            color: "var(--clr-muted)",
+            margin: "0.5rem 0 0",
+            fontSize: "0.95rem",
+          }}
+        >
+          {new Date(order.created_at).toLocaleString("en-NG", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </p>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.35fr 0.9fr",
-          gap: "1.5rem",
-          alignItems: "start",
-        }}
-      >
+      <div className="admin-order-detail-grid">
         {/* Customer info */}
         <div className="card" style={{ padding: "1.5rem" }}>
           <div
@@ -371,6 +379,24 @@ export default function AdminOrderDetailPage() {
           ⚠️ No payment proof uploaded yet.
         </div>
       )}
+      <style>{`
+        .admin-order-detail-grid {
+          display: grid;
+          grid-template-columns: 1.35fr 0.9fr;
+          gap: 1.5rem;
+          align-items: start;
+        }
+
+        @media (max-width: 900px) {
+          .admin-order-detail-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .admin-order-detail-grid .card {
+          width: 100%;
+        }
+      `}</style>
     </div>
   );
 }
