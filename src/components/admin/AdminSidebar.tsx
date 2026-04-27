@@ -15,14 +15,11 @@ const NAV_ITEMS = [
   { href: "/admin/reports", label: "Reports", icon: "📈" },
 ];
 
-/* =========================
-   COMPONENT
-========================= */
+
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  /* ---------- Effects ---------- */
 
   useEffect(() => {
     if (open) {
@@ -36,10 +33,8 @@ export default function AdminSidebar() {
     };
   }, [open]);
 
-  /* ---------- Render ---------- */
   return (
     <>
-      {/* ================= MOBILE TOPBAR ================= */}
       <header className="admin-topbar">
         <button
           className="admin-topbar__hamburger"
@@ -64,12 +59,10 @@ export default function AdminSidebar() {
         </Link>
       </header>
 
-      {/* ================= OVERLAY ================= */}
+      
       {open && <div className="admin-overlay" onClick={() => setOpen(false)} />}
 
-      {/* ================= SIDEBAR ================= */}
       <aside className={`admin-sidebar ${open ? "admin-sidebar--open" : ""}`}>
-        {/* ----- Header ----- */}
         <div className="admin-sidebar__header">
           <div className="admin-sidebar__brand">
             <span>🌶</span>
@@ -92,7 +85,6 @@ export default function AdminSidebar() {
           </button>
         </div>
 
-        {/* ----- Navigation ----- */}
         <nav className="admin-sidebar__nav">
           {NAV_ITEMS.map((item) => {
             const isActive =
@@ -116,7 +108,6 @@ export default function AdminSidebar() {
           })}
         </nav>
 
-        {/* ----- Footer ----- */}
         <div className="admin-sidebar__footer">
           <Link href="/" className="admin-sidebar__back">
             ← View Shop
@@ -124,7 +115,6 @@ export default function AdminSidebar() {
         </div>
       </aside>
 
-      {/* ================= STYLES ================= */}
       <style>{`
         /* ===== Topbar ===== */
         .admin-topbar {

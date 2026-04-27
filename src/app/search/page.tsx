@@ -28,13 +28,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     const { data: productData, error: productError } = await supabase
       .from("products")
       .select("*")
-      .or(`name.ilike.${term},description.ilike.${term}`);
+      .or(`name.ilike."${term}",description.ilike."${term}"`);
 
     const { data: guideData, error: guideError } = await supabase
       .from("do_you_know_items")
       .select("*")
       .or(
-        `name.ilike.${term},subtitle.ilike.${term},benefits.ilike.${term},recommendation.ilike.${term}`,
+        `name.ilike."${term}",subtitle.ilike."${term}",benefits.ilike."${term}",recommendation.ilike."${term}"`,
       );
 
     if (productError) console.error("[search] products:", productError.message);
