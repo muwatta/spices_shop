@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
   const message = result.blocked
     ? "Too many unauthorized admin attempts detected. Access is temporarily blocked and the developer has been notified."
-    : "Unauthorized: only the admin email can sign in here.";
+  : "Unauthorized: You are not allowed to access the admin panel.";
 
   return NextResponse.json({
     blocked: result.blocked,

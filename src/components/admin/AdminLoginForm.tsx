@@ -47,7 +47,7 @@ export default function AdminLoginForm() {
       setBlocked(Boolean(result.blocked));
       setError(
         result.message ||
-          "Unauthorized: only the admin email can sign in here.",
+          "Unauthorized: You are not allowed to access the admin panel.",
       );
       setLoading(false);
       return;
