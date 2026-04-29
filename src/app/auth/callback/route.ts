@@ -11,8 +11,6 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  // Redirect to login page with a confirmation success message
-  return NextResponse.redirect(
-    new URL("/login?confirmed=true", requestUrl.origin),
-  );
+  // Redirect to the homepage after email confirmation
+  return NextResponse.redirect(new URL("/", requestUrl.origin));
 }
