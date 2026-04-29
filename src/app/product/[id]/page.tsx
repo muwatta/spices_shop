@@ -10,15 +10,16 @@ import ClientProductImage from "./ClientProductImage";
 export const revalidate = 60;
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function ProductPage({ params }: Props) {
+  const { id } = await params;
   const supabase = createClient();
   const { data: product } = await supabase
     .from("products")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (!product) notFound();

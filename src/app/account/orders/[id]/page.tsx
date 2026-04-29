@@ -10,11 +10,13 @@ import Image from "next/image";
 import PrintReceiptButton from "@/components/ui/PrintReceiptButton";
 
 interface Props {
-  params: { id: string };
-  searchParams: { success?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ success?: string }>;
 }
 
 export default async function OrderDetailPage({ params, searchParams }: Props) {
+  const { id } = await params;
+  const { success } = await searchParams;
   const supabase = createClient();
   const {
     data: { user },
@@ -26,7 +28,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
     .select(
       "*, order_items(*, products(name, image_url, price, description)), customers(*)",
     )
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("customer_id", user.id)
     .single();
 
@@ -39,7 +41,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
   );
   const displayId =
     order?.transaction_id ?? order?.id.slice(0, 8).toUpperCase();
-  const isSuccess = !!searchParams.success;
+  const isSuccess = !!success;
 
   return (
     <>
