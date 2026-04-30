@@ -35,6 +35,10 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
   const statusSteps = ["pending", "confirmed", "delivered"];
   const orderNotFound = !order || error;
   const currentStep = order ? statusSteps.indexOf(order.status) : -1;
+  const progressWidth =
+    currentStep >= 0 && statusSteps.length > 1
+      ? (currentStep / (statusSteps.length - 1)) * 100
+      : 0;
   const displayId =
     order?.transaction_id ?? order?.id.slice(0, 8).toUpperCase();
   const isSuccess = !!success;
