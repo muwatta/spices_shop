@@ -5,7 +5,6 @@ const ALERT_EMAIL =
   process.env.ADMIN_ALERT_EMAIL ||
   process.env.NEXT_PUBLIC_ADMIN_EMAIL ||
   "security@example.com";
-const ADMIN_EMAIL_KEY = "admin_email";
 const BLOCK_THRESHOLD = 5;
 const BLOCK_WINDOW_MS = 1000 * 60 * 60;
 
@@ -25,24 +24,40 @@ function parseSettingValue(value: any) {
   return value;
 }
 
+
+export async function getAdminRecord(email?: string | null) {
+  if (!email) return null;
+  const adminClient = createAdminClient();
+  const { data } = await adminClient
+    .from("admin_users")
+    .select("email, is_superadmin")
+    .eq("email", normalizeEmail(email))
+    .single();
+  return data ?? null;
+}
+
+export async function isAdmin(email?: string | null): Promise<boolean> {
+  const record = await getAdminRecord(email);
+  return record !== null;
+}
+
+export async function isSuperAdmin(email?: string | null): Promise<boolean> {
+  const record = await getAdminRecord(email);
+  return record?.is_superadmin === true;
+}
+
 export async function getAdminEmail() {
   const adminClient = createAdminClient();
-
   try {
-    const { data, error } = await adminClient
+    const { data } = await adminClient
       .from("admin_settings")
       .select("value")
-      .eq("key", ADMIN_EMAIL_KEY)
+      .eq("key", "admin_email")
       .single();
-
-    if (error || !data?.value) {
+    if (!data?.value)
       return normalizeEmail(process.env.NEXT_PUBLIC_ADMIN_EMAIL);
-    }
-
-    const parsed = parseSettingValue(data.value);
-    return normalizeEmail(String(parsed));
-  } catch (error) {
-    console.error("Failed to read admin email from database:", error);
+    return normalizeEmail(String(parseSettingValue(data.value)));
+  } catch {
     return normalizeEmail(process.env.NEXT_PUBLIC_ADMIN_EMAIL);
   }
 }
@@ -57,24 +72,25 @@ export function isAdminEmail(
   );
 }
 
+
+async function getCurrentUser() {
+  const supabase = createClient();
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    return error ? null : user;
+  } catch {
+    return null;
+  }
+}
+
+
 export async function requireAdmin(
   request: Request,
 ): Promise<NextResponse | null> {
-  const supabase = createClient();
-
-  let user: { email?: string | null } | null = null;
-  try {
-    const {
-      data: { user: currentUser },
-      error,
-    } = await supabase.auth.getUser();
-    user = currentUser;
-    if (error) {
-      user = null;
-    }
-  } catch {
-    user = null;
-  }
+  const user = await getCurrentUser();
 
   if (!user) {
     await recordUnauthorizedAttempt({
@@ -86,8 +102,8 @@ export async function requireAdmin(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const adminEmail = await getAdminEmail();
-  if (!isAdminEmail(user.email, adminEmail)) {
+  const adminRecord = await getAdminRecord(user.email);
+  if (!adminRecord) {
     await recordUnauthorizedAttempt({
       email: user.email,
       action: "route_access",
@@ -99,6 +115,50 @@ export async function requireAdmin(
 
   return null;
 }
+
+
+export async function requireSuperAdmin(
+  request: Request,
+): Promise<NextResponse | null> {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    await recordUnauthorizedAttempt({
+      email: null,
+      action: "superadmin_route_access",
+      message: "Missing authentication",
+      request,
+    });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const adminRecord = await getAdminRecord(user.email);
+  if (!adminRecord) {
+    await recordUnauthorizedAttempt({
+      email: user.email,
+      action: "superadmin_route_access",
+      message: "Non-admin attempted superadmin access",
+      request,
+    });
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  if (!adminRecord.is_superadmin) {
+    await recordUnauthorizedAttempt({
+      email: user.email,
+      action: "superadmin_route_access",
+      message: "Regular admin attempted superadmin-only action",
+      request,
+    });
+    return NextResponse.json(
+      { error: "Forbidden: superadmin access required" },
+      { status: 403 },
+    );
+  }
+
+  return null;
+}
+
 
 export async function recordUnauthorizedAttempt({
   email,
@@ -168,23 +228,21 @@ async function sendDeveloperAlert(details: {
     const { Resend } = await import("resend");
     const resend = new Resend(RESEND_API_KEY);
 
-    const html = `
-      <h2>Unauthorized admin access detected</h2>
-      <p>This admin protection system detected repeated unauthorized access attempts.</p>
-      <ul>
-        <li><strong>Email:</strong> ${details.email ?? "unknown"}</li>
-        <li><strong>IP:</strong> ${details.ip ?? "unknown"}</li>
-        <li><strong>Action:</strong> ${details.action}</li>
-        <li><strong>Attempts in last hour:</strong> ${details.attempts}</li>
-        <li><strong>User agent:</strong> ${details.userAgent ?? "unknown"}</li>
-      </ul>
-    `;
-
     await resend.emails.send({
       from: "KMA Spices <security@kmaspices.com>",
       to: [ALERT_EMAIL],
       subject: "Security alert: unauthorized admin access",
-      html,
+      html: `
+        <h2>Unauthorized admin access detected</h2>
+        <p>Repeated unauthorized access attempts detected on KMA Spices admin.</p>
+        <ul>
+          <li><strong>Email:</strong> ${details.email ?? "unknown"}</li>
+          <li><strong>IP:</strong> ${details.ip ?? "unknown"}</li>
+          <li><strong>Action:</strong> ${details.action}</li>
+          <li><strong>Attempts in last hour:</strong> ${details.attempts}</li>
+          <li><strong>User agent:</strong> ${details.userAgent ?? "unknown"}</li>
+        </ul>
+      `,
     });
 
     return true;

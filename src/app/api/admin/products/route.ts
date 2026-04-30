@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { requireAdmin } from "@/lib/admin";
+import { requireAdmin, requireSuperAdmin } from "@/lib/admin";
 
 async function parseForm(request: Request) {
   const contentType = request.headers.get("content-type") || "";
@@ -44,7 +44,7 @@ async function uploadImage(
 }
 
 export async function POST(request: Request) {
-  const authError = await requireAdmin(request);
+  const authError = await requireSuperAdmin(request);
   if (authError) return authError;
 
   const adminClient = createAdminClient();
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const authError = await requireAdmin(request);
+  const authError = await requireSuperAdmin(request);
   if (authError) return authError;
 
   const adminClient = createAdminClient();
@@ -130,7 +130,7 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const authError = await requireAdmin(request);
+  const authError = await requireSuperAdmin(request);
   if (authError) return authError;
 
   const adminClient = createAdminClient();
