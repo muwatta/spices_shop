@@ -60,7 +60,7 @@ const Icon = {
     </svg>
   ),
   search: () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <svg width="10" height="16" viewBox="0 0 24 24" fill="none">
       <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
       <line
         x1="20"
@@ -480,9 +480,9 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.6rem 1rem;
+          padding: 0.5rem 1rem;
           gap: 0.5rem;
-          max-width: 1100px;
+          max-width: 820px;
           margin: 0 auto;
         }
         .nav__brand {
@@ -505,7 +505,7 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: none;
+          background: transparent;
           border: none;
           color: var(--clr-cream);
           cursor: pointer;
@@ -623,8 +623,7 @@ export default function Navbar(): JSX.Element {
         .nav__drawer {
           position: fixed;
           top: 0; left: 0; bottom: 0;
-          width: 75vw;
-          max-width: 280px;
+          width: min(70vw, 156px);
           background: var(--clr-bark-mid);
           z-index: 1001;
           display: flex;
@@ -635,23 +634,23 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.875rem 1.125rem;
+          padding: 0.6rem 0.75rem;
           border-bottom: 1px solid rgba(255,255,255,0.08);
           flex-shrink: 0;
         }
         .nav__drawer-header span {
           font-family: var(--font-display);
           color: var(--clr-saffron);
-          font-size: 1rem;
+          font-size: 0.95rem;
           font-weight: 700;
         }
         .nav__drawer-header button {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 30px; height: 30px;
-          border-radius: 50%;
-          background: rgba(255,255,255,0.1);
+          width: 26px; height: 26px;
+          border-radius: 0;
+          background: transparent;
           border: none;
           color: var(--clr-cream);
           cursor: pointer;
@@ -659,10 +658,10 @@ export default function Navbar(): JSX.Element {
         .nav__drawer-search {
           display: flex;
           align-items: center;
-          margin: 0.875rem 1.125rem;
+          margin: 0.6rem 0.75rem;
           background: rgba(255,255,255,0.1);
           border-radius: 999px;
-          padding: 0.3rem 0.75rem;
+          padding: 0.2rem 0.55rem;
           flex-shrink: 0;
         }
         .nav__drawer-search input {
@@ -670,9 +669,9 @@ export default function Navbar(): JSX.Element {
           border: none;
           background: transparent;
           color: #fff;
-          padding: 0.4rem 0.25rem;
+          padding: 0.3rem 0.2rem;
           outline: none;
-          font-size: 0.875rem;
+          font-size: 0.85rem;
           font-family: var(--font-body);
           min-width: 0;
         }
@@ -690,22 +689,22 @@ export default function Navbar(): JSX.Element {
           display: flex;
           flex-direction: column;
           flex: 1;
-          padding: 0.5rem 0 1rem;
+          padding: 0.4rem 0 0.8rem;
         }
         .nav__drawer-links a,
         .nav__drawer-links button {
           display: flex;
           align-items: center;
-          gap: 0.625rem;
+          gap: 0.5rem;
           color: rgba(255,255,255,0.82);
           text-decoration: none;
-          font-size: 0.9375rem;
+          font-size: 0.9rem;
           background: none;
           border: none;
           text-align: left;
           cursor: pointer;
-          padding: 0.75rem 1.125rem;
-          width: 100%;
+          padding: 0.65rem 0.95rem;
+          width: 70%;
           font-family: var(--font-body);
           transition: background 120ms ease, color 120ms ease;
         }
