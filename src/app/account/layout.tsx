@@ -4,14 +4,6 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import AccountNav from "@/components/account/AccountNav";
-
-const tabs = [
-  { href: "/account/overview", label: "Overview", icon: "📊" },
-  { href: "/account/orders", label: "Orders", icon: "🛒" },
-  { href: "/account/profile", label: "Profile", icon: "👤" },
-  { href: "/account/security", label: "Security", icon: "🔒" },
-];
 
 export default async function AccountLayout({
   children,
@@ -49,7 +41,6 @@ export default async function AccountLayout({
               gap: "1.5rem",
             }}
           >
-            <AccountNav tabs={tabs} />
             <section>{children}</section>
           </div>
         </div>
