@@ -32,9 +32,9 @@ export default function AccountNav({ tabs }: AccountNavProps) {
           onClick={() => setMenuOpen(true)}
           style={{
             background: "var(--clr-saffron)",
-            border: "none",
-            borderRadius: "0.5rem",
-            padding: "0.75rem 1rem",
+            border: "1px solid rgba(0,0,0,0.08)",
+            borderRadius: "0.75rem",
+            padding: "0.85rem 1rem",
             display: "flex",
             alignItems: "center",
             gap: "0.5rem",
@@ -43,7 +43,10 @@ export default function AccountNav({ tabs }: AccountNavProps) {
             fontWeight: 600,
             color: "var(--clr-bark)",
             width: "100%",
+            maxWidth: "100%",
             justifyContent: "space-between",
+            boxSizing: "border-box",
+            lineHeight: 1.4,
           }}
         >
           <span>☰ {activeTab?.label || "Menu"}</span>
@@ -72,12 +75,14 @@ export default function AccountNav({ tabs }: AccountNavProps) {
               top: 0,
               left: 0,
               bottom: 0,
-              width: "280px",
+              width: "min(320px, 85vw)",
+              maxWidth: "100%",
               background: "white",
               zIndex: 1001,
               padding: "1.5rem",
-              boxShadow: "2px 0 12px rgba(0,0,0,0.15)",
+              boxShadow: "2px 0 24px rgba(0,0,0,0.15)",
               overflowY: "auto",
+              boxSizing: "border-box",
             }}
           >
             <div
@@ -109,11 +114,24 @@ export default function AccountNav({ tabs }: AccountNavProps) {
               >
                 My Account
               </h2>
-              <p style={{ color: "var(--clr-muted)", fontSize: "0.9rem" }}>
+              <p
+                style={{
+                  color: "var(--clr-muted)",
+                  fontSize: "0.95rem",
+                  lineHeight: 1.6,
+                  margin: 0,
+                }}
+              >
                 Manage orders, profile, security
               </p>
             </div>
-            <nav style={{ display: "grid", gap: "0.5rem" }}>
+            <nav
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+              }}
+            >
               {tabs.map((tab) => (
                 <Link
                   key={tab.href}
@@ -123,15 +141,20 @@ export default function AccountNav({ tabs }: AccountNavProps) {
                     display: "flex",
                     alignItems: "center",
                     gap: "0.75rem",
-                    padding: "0.9rem 1rem",
-                    borderRadius: "var(--radius-md)",
+                    padding: "1rem 1rem",
+                    borderRadius: "1rem",
                     background:
                       pathname === tab.href
-                        ? "rgba(232, 160, 32, 0.1)"
-                        : "transparent",
+                        ? "rgba(232, 160, 32, 0.14)"
+                        : "rgba(255,255,255,0.97)",
                     color: "var(--clr-bark)",
                     fontWeight: pathname === tab.href ? 700 : 500,
                     textDecoration: "none",
+                    width: "100%",
+                    boxSizing: "border-box",
+                    minHeight: "48px",
+                    lineHeight: 1.4,
+                    whiteSpace: "normal",
                   }}
                 >
                   <span>{tab.icon}</span>
