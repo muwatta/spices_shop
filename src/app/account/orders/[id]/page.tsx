@@ -2,8 +2,6 @@ export const dynamic = "force-dynamic";
 
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import { formatNaira } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
@@ -45,7 +43,6 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
 
   return (
     <>
-      <Navbar />
       <main style={{ background: "var(--clr-cream)", minHeight: "70vh" }}>
         <div className="container" style={{ padding: "2rem var(--space-md)" }}>
           {orderNotFound ? (
@@ -605,7 +602,6 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
           )}
         </div>
       </main>
-      <Footer />
 
       <style>{`
         @media print {
