@@ -3,6 +3,9 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import BackgroundAnimations from "@/components/ui/BackgroundAnimations";
 import CartReminder from "@/components/ui/CartReminder";
+import BackToTop from "@/components/ui/BackToTop";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 
 export const metadata: Metadata = {
   title: "KMA Spices and Herbs – Pure Nigerian Spices",
@@ -29,7 +32,9 @@ export default function RootLayout({
           flexDirection: "column",
         }}
       >
+        <BackToTop />
         <BackgroundAnimations />
+        <SpeedInsights />
 
         <div
           style={{
