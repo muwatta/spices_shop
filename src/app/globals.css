@@ -9,7 +9,6 @@
 }
 
 :root {
-  /* Earthy spice palette */
   --clr-saffron: #e8a020;
   --clr-saffron-dark: #c4841a;
   --clr-turmeric: #f5c842;
@@ -26,11 +25,9 @@
   --clr-warning: #e8a020;
   --clr-info: #2980b9;
 
-  /* Typography */
   --font-display: "Playfair Display", Georgia, serif;
   --font-body: "DM Sans", system-ui, sans-serif;
 
-  /* Spacing */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
@@ -39,18 +36,15 @@
   --space-2xl: 3rem;
   --space-3xl: 4rem;
 
-  /* Radius */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 16px;
   --radius-full: 9999px;
 
-  /* Shadows */
   --shadow-sm: 0 1px 3px rgba(61, 35, 20, 0.12);
   --shadow-md: 0 4px 16px rgba(61, 35, 20, 0.15);
   --shadow-lg: 0 8px 32px rgba(61, 35, 20, 0.2);
 
-  /* Transitions */
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
   --transition-slow: 400ms ease;
@@ -70,17 +64,12 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-
 }
-main{
+main {
   flex: 1;
 }
-/* Typography */
-h1,
-h2,
-h3,
-h4,
-h5 {
+
+h1, h2, h3, h4, h5 {
   font-family: var(--font-display);
   line-height: 1.2;
   color: var(--clr-bark);
@@ -101,13 +90,10 @@ button {
   font-family: var(--font-body);
 }
 
-input,
-textarea,
-select {
+input, textarea, select {
   font-family: var(--font-body);
 }
 
-/* Utility classes */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -185,7 +171,6 @@ select {
   transform: none !important;
 }
 
-/* Form elements */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -208,17 +193,14 @@ select {
   transition: border-color var(--transition-fast);
   outline: none;
 }
-
 .form-input:focus {
   border-color: var(--clr-saffron);
 }
-
 .form-input::placeholder {
   color: var(--clr-muted);
   opacity: 0.7;
 }
 
-/* Card */
 .card {
   background: var(--clr-white);
   border-radius: var(--radius-lg);
@@ -226,7 +208,6 @@ select {
   overflow: hidden;
 }
 
-/* Badge */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -237,25 +218,11 @@ select {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-confirmed { background: #dbeafe; color: #1e40af; }
+.badge-delivered { background: #d1fae5; color: #065f46; }
+.badge-cancelled { background: #fee2e2; color: #991b1b; }
 
-.badge-pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-.badge-confirmed {
-  background: #dbeafe;
-  color: #1e40af;
-}
-.badge-delivered {
-  background: #d1fae5;
-  color: #065f46;
-}
-.badge-cancelled {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-/* WhatsApp button */
 .whatsapp-btn {
   background: #25d366;
   color: var(--clr-white);
@@ -267,186 +234,124 @@ select {
   box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
 }
 
-/* Loading spinner */
 .spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(0,0,0,0.1);
   border-top-color: var(--clr-saffron);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Fade in */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+.fade-in { animation: fadeIn 0.4s ease both; }
 
 .skeleton {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.92),
-    rgba(236, 224, 198, 0.9)
-  );
+  background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(236,224,198,0.9));
   border-radius: var(--radius-md);
   position: relative;
   overflow: hidden;
 }
-
 .skeleton::after {
   content: "";
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.7),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
   animation: skeleton-shimmer 1.4s ease-in-out infinite;
 }
+@keyframes skeleton-shimmer { to { transform: translateX(100%); } }
+.skeleton-panel { min-height: 140px; border-radius: var(--radius-lg); }
+.skeleton-table { display: grid; gap: 0.75rem; }
+.skeleton-table-row { display: grid; grid-template-columns: repeat(5, minmax(90px, 1fr)); gap: 1rem; align-items: center; }
+.skeleton-row-cell { min-height: 28px; border-radius: var(--radius-md); }
 
-@keyframes skeleton-shimmer {
-  to {
-    transform: translateX(100%);
+/* ----- Product grid : 2 columns on all small screens (Temu style) ----- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+
+/* For tablets and above, use flexible columns */
+@media (min-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-lg);
   }
 }
 
-.skeleton-panel {
-  min-height: 140px;
-  border-radius: var(--radius-lg);
+/* Optional: adjust card content on very small screens */
+@media (max-width: 480px) {
+  .product-card .card-content {
+    padding: 0.5rem;
+  }
+  .product-card h3 {
+    font-size: 0.85rem;
+  }
+  .product-card .price {
+    font-size: 0.9rem;
+  }
+  .product-card button {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.75rem;
+  }
 }
 
-.skeleton-table {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.skeleton-table-row {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(90px, 1fr));
-  gap: 1rem;
-  align-items: center;
-}
-
-.skeleton-row-cell {
-  min-height: 28px;
-  border-radius: var(--radius-md);
-}
-
-.fade-in {
-  animation: fadeIn 0.4s ease both;
-}
-
-/* Responsive grid */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--space-lg);
-}
-
-/* Toast / Alert */
+/* ----- Other styles remain unchanged ----- */
 .alert {
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-md);
   font-size: 0.9375rem;
   font-weight: 500;
 }
-.alert-success {
-  background: #d1fae5;
-  color: #065f46;
-  border-left: 4px solid #10b981;
-}
-.alert-error {
-  background: #fee2e2;
-  color: #991b1b;
-  border-left: 4px solid #ef4444;
-}
-.alert-info {
-  background: #dbeafe;
-  color: #1e40af;
-  border-left: 4px solid #3b82f6;
-}
-.alert-warning {
-  background: #fef3c7;
-  color: #92400e;
-  border-left: 4px solid #f59e0b;
-}
+.alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+.alert-error { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+.alert-info { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+.alert-warning { background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; }
 
-/* Divider */
 .divider {
   height: 1px;
   background: var(--clr-cream-dark);
   margin: var(--space-lg) 0;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--clr-cream-dark);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--clr-muted);
-  border-radius: 3px;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--clr-cream-dark); }
+::-webkit-scrollbar-thumb { background: var(--clr-muted); border-radius: 3px; }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
 
 /* ============================================
-   Mobile‑first responsive enhancements
+   Responsive enhancements (mobile-first)
    ============================================ */
-
-/* Base mobile styles (default, no media query needed) */
 html {
-  font-size: 14px; /* smaller base on mobile */
+  font-size: 14px;
 }
-
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+  html { font-size: 16px; }
 }
 
-/* Make all images and embedded content responsive */
 img, video, iframe {
   max-width: 100%;
   height: auto;
 }
 
-/* Improve touch targets on mobile */
 button, a, .btn, .card-link {
-  min-height: 44px; /* Apple’s recommended minimum tap target size */
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Adjust container padding on mobile */
 .container {
   padding-left: var(--space-md);
   padding-right: var(--space-md);
 }
-
 @media (min-width: 640px) {
   .container {
     padding-left: var(--space-lg);
@@ -454,85 +359,40 @@ button, a, .btn, .card-link {
   }
 }
 
-/* Responsive typography for headings */
-h1 {
-  font-size: clamp(1.8rem, 6vw, 3rem);
-}
-h2 {
-  font-size: clamp(1.5rem, 5vw, 2rem);
-}
-h3 {
-  font-size: clamp(1.2rem, 4vw, 1.5rem);
-}
-p, li {
-  font-size: clamp(0.875rem, 4vw, 1rem);
-}
+h1 { font-size: clamp(1.8rem, 6vw, 3rem); }
+h2 { font-size: clamp(1.5rem, 5vw, 2rem); }
+h3 { font-size: clamp(1.2rem, 4vw, 1.5rem); }
+p, li { font-size: clamp(0.875rem, 4vw, 1rem); }
 
-/* Make all grid layouts mobile‑first */
-.product-grid {
-  display: grid;
-  grid-template-columns: 1fr; /* single column on mobile */
-  gap: var(--space-md);
-}
-
-@media (min-width: 480px) {
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 768px) {
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  }
-}
-
-/* Ensure card layouts stack nicely on mobile */
 .card {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
-/* Form inputs full width on mobile */
-.form-input, .form-group {
-  width: 100%;
-}
+.form-input, .form-group { width: 100%; }
 
-/* Tables become scrollable on small screens */
 table {
   display: block;
   overflow-x: auto;
   white-space: nowrap;
 }
 
-/* Button groups wrap */
 .btn-group {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-sm);
 }
 
-/* Fix sticky headers on mobile */
 .sticky {
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-/* Hide desktop-only elements on mobile */
-.desktop-only {
-  display: none;
-}
-.mobile-only {
-  display: block;
-}
-
+.desktop-only { display: none; }
+.mobile-only { display: block; }
 @media (min-width: 768px) {
-  .desktop-only {
-    display: block;
-  }
-  .mobile-only {
-    display: none;
-  }
+  .desktop-only { display: block; }
+  .mobile-only { display: none; }
 }
