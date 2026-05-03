@@ -11,7 +11,6 @@ export const metadata: Metadata = {
   description: "KMA Spices and Herbs delivers pure natural spices...",
   icons: {
     icon: [
-      { url: "/favicon.ico" },
       { url: "/images/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/images/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],

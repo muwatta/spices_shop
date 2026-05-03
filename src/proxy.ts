@@ -10,7 +10,6 @@ const adminEmails = (
   .map((e) => e.trim().toLowerCase())
   .filter(Boolean);
 
-console.log("Middleware admin emails:", adminEmails);
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
