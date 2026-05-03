@@ -43,6 +43,22 @@ async function uploadImage(
   return urlData.publicUrl;
 }
 
+export async function GET(request: Request) {
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
+
+  const adminClient = createAdminClient();
+  const { data, error } = await adminClient
+    .from("products")
+    .select("id, name, price")
+    .order("name");
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  return NextResponse.json(data);
+}
+
 export async function POST(request: Request) {
   const authError = await requireSuperAdmin(request);
   if (authError) return authError;

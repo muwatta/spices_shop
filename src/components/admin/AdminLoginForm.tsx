@@ -4,8 +4,6 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase();
-
 export default function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -22,49 +20,43 @@ export default function AdminLoginForm() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (blocked) return;
-
     setError("");
     setLoading(true);
 
     const normalizedEmail = email.trim().toLowerCase();
-    if (!ADMIN_EMAIL) {
-      setError("Admin login is not configured. Contact the site owner.");
+
+    // 1. Sign in with Supabase
+    const { data, error: signInError } = await supabase.auth.signInWithPassword(
+      {
+        email: normalizedEmail,
+        password,
+      },
+    );
+
+    if (signInError) {
+      setError(signInError.message);
       setLoading(false);
       return;
     }
 
-    if (normalizedEmail !== ADMIN_EMAIL) {
-      const response = await fetch("/api/admin/unauthorized", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          email: normalizedEmail,
-          action: "login_attempt",
-        }),
-      });
-      const result = await response.json();
+    // 2. Check if the signed‑in user is in admin_users
+    const { data: adminCheck, error: adminError } = await supabase
+      .from("admin_users")
+      .select("email")
+      .eq("email", data.user.email)
+      .single();
 
-      setBlocked(Boolean(result.blocked));
-      setError(
-        result.message ||
-          "Unauthorized: You are not allowed to access the admin panel.",
-      );
+    if (adminError || !adminCheck) {
+      // Not an admin – sign out and show error
+      await supabase.auth.signOut();
+      setError("Unauthorized: You are not allowed to access the admin panel.");
       setLoading(false);
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: normalizedEmail,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
-      router.push("/admin");
-      router.refresh();
-    }
+    // 3. Success – redirect to admin dashboard
+    router.push("/admin");
+    router.refresh();
   }
 
   return (
@@ -147,7 +139,7 @@ export default function AdminLoginForm() {
             />
             <button
               type="button"
-              onClick={() => setShowPassword((current) => !current)}
+              onClick={() => setShowPassword((cur) => !cur)}
               style={{
                 position: "absolute",
                 right: "0.85rem",
@@ -157,7 +149,6 @@ export default function AdminLoginForm() {
                 border: "none",
                 color: "var(--clr-saffron-dark)",
                 cursor: "pointer",
-                fontWeight: 600,
               }}
             >
               {showPassword ? "Hide" : "Show"}

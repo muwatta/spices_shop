@@ -90,7 +90,7 @@ export default function CartPage() {
       ...item,
       product: products[item.productId],
     }))
-    .filter((item) => item.product); // remove items whose product no longer exists
+    .filter((item) => item.product); 
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + (item.product?.price || 0) * item.quantity,

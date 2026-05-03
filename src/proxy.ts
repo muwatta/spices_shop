@@ -29,9 +29,21 @@ export async function proxy(request: NextRequest) {
   const isAdminLoginPath = request.nextUrl.pathname === "/admin-login";
 
   if (request.nextUrl.pathname.startsWith("/admin") && !isAdminLoginPath) {
-    if (!user || user.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+    if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin-login";
+      return NextResponse.redirect(url);
+    }
+    // Check if user exists in admin_users
+    const { data: adminRecord } = await supabase
+      .from("admin_users")
+      .select("email")
+      .eq("email", user.email)
+      .single();
+    if (!adminRecord) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin-login";
+      url.searchParams.set("unauthorized", "1");
       return NextResponse.redirect(url);
     }
   }
