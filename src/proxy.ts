@@ -1,6 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const adminEmails = (
+  process.env.NEXT_PUBLIC_ADMIN_EMAILS ||
+  process.env.NEXT_PUBLIC_ADMIN_EMAIL ||
+  ""
+)
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+console.log("Middleware admin emails:", adminEmails);
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -29,18 +40,7 @@ export async function proxy(request: NextRequest) {
   const isAdminLoginPath = request.nextUrl.pathname === "/admin-login";
 
   if (request.nextUrl.pathname.startsWith("/admin") && !isAdminLoginPath) {
-    if (!user) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/admin-login";
-      return NextResponse.redirect(url);
-    }
-    // Check if user exists in admin_users
-    const { data: adminRecord } = await supabase
-      .from("admin_users")
-      .select("email")
-      .eq("email", user.email)
-      .single();
-    if (!adminRecord) {
+    if (!user || !adminEmails.includes(user.email?.toLowerCase() ?? "")) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin-login";
       url.searchParams.set("unauthorized", "1");
