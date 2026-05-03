@@ -1,15 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const adminEmails = (
-  process.env.NEXT_PUBLIC_ADMIN_EMAILS ||
-  process.env.NEXT_PUBLIC_ADMIN_EMAIL ||
-  ""
-)
-  .split(",")
-  .map((e) => e.trim().toLowerCase())
-  .filter(Boolean);
-
+const adminEmails = ["kmafoods22@gmail.com", "abdullahmusliudeen@gmail.com"];
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -38,15 +30,18 @@ export async function proxy(request: NextRequest) {
 
   const isAdminLoginPath = request.nextUrl.pathname === "/admin-login";
 
+  // Protect admin routes
   if (request.nextUrl.pathname.startsWith("/admin") && !isAdminLoginPath) {
     if (!user || !adminEmails.includes(user.email?.toLowerCase() ?? "")) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin-login";
       url.searchParams.set("unauthorized", "1");
+      console.log("Redirecting to admin-login, user email:", user?.email);
       return NextResponse.redirect(url);
     }
   }
 
+  // Protect account routes
   if (request.nextUrl.pathname.startsWith("/account")) {
     if (!user) {
       const url = request.nextUrl.clone();
