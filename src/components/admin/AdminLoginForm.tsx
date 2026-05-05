@@ -39,7 +39,6 @@ export default function AdminLoginForm() {
       return;
     }
 
-    // 2. Check if the signed‑in user is in admin_users
     const { data: adminCheck, error: adminError } = await supabase
       .from("admin_users")
       .select("email")
