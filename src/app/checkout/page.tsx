@@ -656,38 +656,7 @@ function CheckoutContent() {
                             </label>
                           </div>
                         )}
-
-                        <div
-                          className="form-group"
-                          style={{ marginTop: "1rem" }}
-                        >
-                          <label className="form-label">
-                            Upload Payment Proof *
-                          </label>
-                          <input
-                            type="file"
-                            accept="image/*,.pdf"
-                            required
-                            onChange={(e) => {
-                              setShowConfirmation(false);
-                              setProofFile(e.target.files?.[0] ?? null);
-                            }}
-                            className="form-input"
-                            style={{
-                              padding: "0.5rem",
-                              borderRadius: "0.75rem",
-                            }}
-                          />
-                          <p
-                            style={{
-                              fontSize: "0.75rem",
-                              color: "var(--clr-muted)",
-                              marginTop: "0.25rem",
-                            }}
-                          >
-                            Upload screenshot of your transfer receipt (max 5MB)
-                          </p>
-                        </div>
+                        
                       </motion.div>
                     )}
                   </AnimatePresence>

@@ -6,35 +6,30 @@ import { createClient } from "@/lib/supabase/server";
 import type { Product, DoYouKnowItem } from "@/types";
 import SearchResults from "@/components/search/SearchResults";
 
-function sanitizeSearchQuery(query: string) {
-  return query.replace(/[^a-zA-Z0-9\s%\-_.@]/g, "").trim();
-}
-
 interface SearchPageProps {
-  searchParams?: { q?: string };
+  searchParams: Promise<{ q?: string }>;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = String(searchParams?.q || "").trim();
-  const safeQuery = sanitizeSearchQuery(query);
-  const supabase = createClient();
+  const { q } = await searchParams;
+  const query = String(q || "").trim();
 
+  const supabase = createClient();
   const products: Product[] = [];
   const guides: DoYouKnowItem[] = [];
 
-  if (query && safeQuery) {
-    const term = `%${safeQuery}%`;
-
+  if (query) {
+    // Use .ilike() chained with .or() separately — more reliable than the filter string syntax
     const { data: productData, error: productError } = await supabase
       .from("products")
       .select("*")
-      .or(`name.ilike."${term}",description.ilike."${term}"`);
+      .or(`name.ilike.%${query}%,description.ilike.%${query}%`);
 
     const { data: guideData, error: guideError } = await supabase
       .from("do_you_know_items")
       .select("*")
       .or(
-        `name.ilike."${term}",subtitle.ilike."${term}",benefits.ilike."${term}",recommendation.ilike."${term}"`,
+        `name.ilike.%${query}%,subtitle.ilike.%${query}%,benefits.ilike.%${query}%,recommendation.ilike.%${query}%`,
       );
 
     if (productError) console.error("[search] products:", productError.message);
