@@ -25,9 +25,9 @@ export default function AdminLoginForm() {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // 1. Sign in with Supabase
-    const { data, error: signInError } = await supabase.auth.signInWithPassword(
-      {
+    await supabase.auth.signOut();
+
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email: normalizedEmail,
         password,
       },
@@ -47,16 +47,13 @@ export default function AdminLoginForm() {
       .single();
 
     if (adminError || !adminCheck) {
-      // Not an admin – sign out and show error
       await supabase.auth.signOut();
       setError("Unauthorized: You are not allowed to access the admin panel.");
       setLoading(false);
       return;
     }
 
-    // 3. Success – redirect to admin dashboard
-    router.push("/admin");
-    router.refresh();
+    window.location.href = '/admin';
   }
 
   return (
