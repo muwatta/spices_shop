@@ -1,4 +1,4 @@
-# 🌶 KMA Spices & Herbs – E‑commerce Website
+# KMA Spices & Herbs – E‑commerce Website
 
 A full‑featured e‑commerce platform for a Nigerian spice business. Built with **Next.js 14 (App Router)**, **Supabase** (Auth, PostgreSQL, Storage, Realtime), **Tailwind CSS**, and deployed on **Vercel**.
 
