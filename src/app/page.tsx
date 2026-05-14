@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import HeroCarousel from "@/components/layout/HeroCarousel";
 import Link from "next/link";
 import ProductGrid from "@/components/product/ProductGrid";
 import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
@@ -36,7 +37,7 @@ export default function HomePage() {
               "linear-gradient(180deg, rgba(232, 160, 32, 0.12), rgba(253, 246, 236, 0.95))",
           }}
         >
-          <div className="container" style={{ display: "grid", gap: "2rem" }}>
+          <div className="container hero-grid">
             <div style={{ maxWidth: "720px" }}>
               <span
                 style={{
@@ -88,6 +89,8 @@ export default function HomePage() {
                 </Link>
               </div>
             </div>
+
+            <HeroCarousel />
           </div>
         </section>
 
