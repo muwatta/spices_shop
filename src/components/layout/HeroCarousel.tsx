@@ -34,7 +34,7 @@ const slides = [
 
 const transition = {
   duration: 0.9,
-  ease: [0.16, 1, 0.3, 1],
+  ease: "easeOut",
 };
 
 export default function HeroCarousel() {
