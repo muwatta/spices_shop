@@ -1,0 +1,83 @@
+.pageWrapper {
+  padding: 2rem;
+}
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.pageTitle {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+}
+.spinnerWrapper {
+  text-align: center;
+  padding: 4rem;
+}
+.emptyState {
+  padding: 2rem;
+  text-align: center;
+}
+.tableWrapper {
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.tableHeaderRow {
+  border-bottom: 2px solid var(--clr-cream-dark);
+  background: var(--clr-cream);
+}
+.tableCell {
+  padding: 0.75rem;
+}
+.tableRow {
+  border-bottom: 1px solid var(--clr-cream-dark);
+}
+.tableCellCenter {
+  padding: 0.75rem;
+  text-align: center;
+}
+.actionButton {
+  margin-right: 0.5rem;
+}
+.paginationRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+.paginationButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modalCard {
+  background: white;
+  max-width: 500px;
+  width: 90%;
+  padding: 2rem;
+}
+.modalTitle {
+  margin-bottom: 1rem;
+}
+.modalForm {
+  display: grid;
+  gap: 0.75rem;
+}
+.formActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { formatNaira } from "@/lib/utils";
 import toast, { Toaster } from "react-hot-toast";
+import styles from "./page.module.css";
 
 interface Customer {
   id: string;
@@ -22,15 +23,26 @@ interface Customer {
 export default function AdminCustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalCustomers, setTotalCustomers] = useState(0);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [editForm, setEditForm] = useState<any>({});
+  const PAGE_SIZE = 20;
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = async (requestedPage = page) => {
     setLoading(true);
-    const res = await fetch("/api/admin/customers");
+    const res = await fetch(
+      `/api/admin/customers?page=${requestedPage}&limit=${PAGE_SIZE}`,
+    );
     if (res.ok) {
       const data = await res.json();
-      setCustomers(data);
+      setCustomers(data.customers);
+      setTotalCustomers(data.totalCount);
+
+      const totalPages = Math.max(1, Math.ceil(data.totalCount / PAGE_SIZE));
+      if (requestedPage > totalPages) {
+        setPage(totalPages);
+      }
     } else {
       toast.error("Failed to load customers");
     }
@@ -38,8 +50,8 @@ export default function AdminCustomersPage() {
   };
 
   useEffect(() => {
-    fetchCustomers();
-  }, []);
+    fetchCustomers(page);
+  }, [page]);
 
   const handleDelete = async (id: string) => {
     if (
@@ -132,134 +144,125 @@ export default function AdminCustomersPage() {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.75rem" }}>
-          Customers
-        </h1>
+    <div className={styles.pageWrapper}>
+      <div className={styles.headerRow}>
+        <h1 className={styles.pageTitle}>Customers</h1>
         <button className="btn btn-primary" onClick={exportToCSV}>
           📎 Export CSV
         </button>
       </div>
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: "4rem" }}>
+        <div className={styles.spinnerWrapper}>
           <span className="spinner" />
         </div>
       ) : customers.length === 0 ? (
-        <div className="card" style={{ padding: "2rem", textAlign: "center" }}>
-          No customers found.
-        </div>
+        <div className={`card ${styles.emptyState}`}>No customers found.</div>
       ) : (
-        <div className="card" style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: "0.875rem",
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  borderBottom: "2px solid var(--clr-cream-dark)",
-                  background: "var(--clr-cream)",
-                }}
-              >
-                <th style={{ padding: "0.75rem" }}>Name</th>
-                <th style={{ padding: "0.75rem" }}>Email</th>
-                <th style={{ padding: "0.75rem" }}>Phone</th>
-                <th style={{ padding: "0.75rem" }}>Location</th>
-                <th style={{ padding: "0.75rem" }}>Orders</th>
-                <th style={{ padding: "0.75rem" }}>Total Spent</th>
-                <th style={{ padding: "0.75rem" }}>Joined</th>
-                <th style={{ padding: "0.75rem" }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {customers.map((c) => (
-                <tr
-                  key={c.id}
-                  style={{ borderBottom: "1px solid var(--clr-cream-dark)" }}
-                >
-                  <td style={{ padding: "0.75rem" }}>
-                    <strong>{c.full_name}</strong>
-                  </td>
-                  <td style={{ padding: "0.75rem" }}>{c.email}</td>
-                  <td style={{ padding: "0.75rem" }}>{c.phone || "—"}</td>
-                  <td style={{ padding: "0.75rem" }}>
-                    {[c.city, c.state].filter(Boolean).join(", ") || "—"}
-                  </td>
-                  <td style={{ padding: "0.75rem", textAlign: "center" }}>
-                    {c.orderCount}
-                  </td>
-                  <td style={{ padding: "0.75rem" }}>
-                    {formatNaira(c.totalSpent)}
-                  </td>
-                  <td style={{ padding: "0.75rem" }}>
-                    {new Date(c.created_at).toLocaleDateString()}
-                  </td>
-                  <td style={{ padding: "0.75rem" }}>
-                    <button
-                      className="btn btn-sm btn-ghost"
-                      onClick={() => handleEdit(c)}
-                      style={{ marginRight: "0.5rem" }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleDelete(c.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
+        <>
+          <div className={`card ${styles.tableWrapper}`}>
+            <table className={styles.table}>
+              <thead>
+                <tr className={styles.tableHeaderRow}>
+                  <th className={styles.tableCell}>Name</th>
+                  <th className={styles.tableCell}>Email</th>
+                  <th className={styles.tableCell}>Phone</th>
+                  <th className={styles.tableCell}>Location</th>
+                  <th className={styles.tableCell}>Orders</th>
+                  <th className={styles.tableCell}>Total Spent</th>
+                  <th className={styles.tableCell}>Joined</th>
+                  <th className={styles.tableCell}>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {customers.map((c) => (
+                  <tr key={c.id} className={styles.tableRow}>
+                    <td className={styles.tableCell}>
+                      <strong>{c.full_name}</strong>
+                    </td>
+                    <td className={styles.tableCell}>{c.email}</td>
+                    <td className={styles.tableCell}>{c.phone || "—"}</td>
+                    <td className={styles.tableCell}>
+                      {[c.city, c.state].filter(Boolean).join(", ") || "—"}
+                    </td>
+                    <td className={styles.tableCellCenter}>{c.orderCount}</td>
+                    <td className={styles.tableCell}>
+                      {formatNaira(c.totalSpent)}
+                    </td>
+                    <td className={styles.tableCell}>
+                      {new Date(c.created_at).toLocaleDateString()}
+                    </td>
+                    <td className={styles.tableCell}>
+                      <button
+                        className={`btn btn-sm btn-ghost ${styles.actionButton}`}
+                        onClick={() => handleEdit(c)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleDelete(c.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className={styles.paginationRow}>
+            <span>
+              Showing page {page} of{" "}
+              {Math.max(1, Math.ceil(totalCustomers / PAGE_SIZE))}
+            </span>
+            <div className={styles.paginationButtons}>
+              <button
+                className="btn btn-sm btn-outline"
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </button>
+              <button
+                className="btn btn-sm btn-outline"
+                onClick={() =>
+                  setPage((prev) =>
+                    Math.min(
+                      Math.max(1, Math.ceil(totalCustomers / PAGE_SIZE)),
+                      prev + 1,
+                    ),
+                  )
+                }
+                disabled={
+                  page >= Math.max(1, Math.ceil(totalCustomers / PAGE_SIZE))
+                }
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Edit Modal */}
       {editingCustomer && (
         <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
+          className={styles.modalBackdrop}
           onClick={() => setEditingCustomer(null)}
         >
           <div
-            className="card"
-            style={{
-              background: "white",
-              maxWidth: "500px",
-              width: "90%",
-              padding: "2rem",
-            }}
+            className={`card ${styles.modalCard}`}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ marginBottom: "1rem" }}>Edit Customer</h2>
-            <form
-              onSubmit={handleUpdate}
-              style={{ display: "grid", gap: "0.75rem" }}
-            >
+            <h2 className={styles.modalTitle}>Edit Customer</h2>
+            <form onSubmit={handleUpdate} className={styles.modalForm}>
               <div className="form-group">
-                <label className="form-label">Full Name</label>
+                <label htmlFor="full_name" className="form-label">
+                  Full Name
+                </label>
                 <input
+                  id="full_name"
                   className="form-input"
                   value={editForm.full_name}
                   onChange={(e) =>
@@ -269,8 +272,11 @@ export default function AdminCustomersPage() {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Email</label>
+                <label htmlFor="email" className="form-label">
+                  Email
+                </label>
                 <input
+                  id="email"
                   className="form-input"
                   type="email"
                   value={editForm.email}
@@ -281,8 +287,11 @@ export default function AdminCustomersPage() {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Phone</label>
+                <label htmlFor="phone" className="form-label">
+                  Phone
+                </label>
                 <input
+                  id="phone"
                   className="form-input"
                   value={editForm.phone}
                   onChange={(e) =>
@@ -291,8 +300,11 @@ export default function AdminCustomersPage() {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Address</label>
+                <label htmlFor="address" className="form-label">
+                  Address
+                </label>
                 <input
+                  id="address"
                   className="form-input"
                   value={editForm.address}
                   onChange={(e) =>
@@ -301,8 +313,11 @@ export default function AdminCustomersPage() {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">City</label>
+                <label htmlFor="city" className="form-label">
+                  City
+                </label>
                 <input
+                  id="city"
                   className="form-input"
                   value={editForm.city}
                   onChange={(e) =>
@@ -311,8 +326,11 @@ export default function AdminCustomersPage() {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">State</label>
+                <label htmlFor="state" className="form-label">
+                  State
+                </label>
                 <input
+                  id="state"
                   className="form-input"
                   value={editForm.state}
                   onChange={(e) =>
@@ -321,8 +339,11 @@ export default function AdminCustomersPage() {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Postal Code</label>
+                <label htmlFor="postal_code" className="form-label">
+                  Postal Code
+                </label>
                 <input
+                  id="postal_code"
                   className="form-input"
                   value={editForm.postal_code}
                   onChange={(e) =>
@@ -330,13 +351,7 @@ export default function AdminCustomersPage() {
                   }
                 />
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "0.5rem",
-                  justifyContent: "flex-end",
-                }}
-              >
+              <div className={styles.formActions}>
                 <button
                   type="button"
                   className="btn btn-outline"

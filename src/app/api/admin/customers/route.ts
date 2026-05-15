@@ -7,10 +7,19 @@ export async function GET(request: Request) {
   if (authError) return authError;
 
   const adminClient = createAdminClient();
-  const supabase = createClient();
+  const url = new URL(request.url);
+  const page = Number(url.searchParams.get("page") || "1");
+  const limit = Number(url.searchParams.get("limit") || "20");
+  const safePage = Number.isNaN(page) || page < 1 ? 1 : page;
+  const safeLimit = Number.isNaN(limit) || limit < 1 ? 20 : limit;
+  const from = (safePage - 1) * safeLimit;
+  const to = from + safeLimit - 1;
 
-  // Fetch all customers with their order aggregates
-  const { data: customers, error } = await adminClient
+  const {
+    data: customers,
+    error,
+    count,
+  } = await adminClient
     .from("customers")
     .select(
       `
@@ -26,12 +35,16 @@ export async function GET(request: Request) {
       is_admin,
       orders ( total_amount )
     `,
+      { count: "exact" },
     )
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, to);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  const totalCount = typeof count === "number" ? count : customers.length;
 
   // Calculate order count and total spent per customer
   const customersWithStats = customers.map((customer: any) => {
@@ -48,7 +61,7 @@ export async function GET(request: Request) {
     };
   });
 
-  return NextResponse.json(customersWithStats);
+  return NextResponse.json({ customers: customersWithStats, totalCount });
 }
 
 export async function DELETE(request: Request) {
