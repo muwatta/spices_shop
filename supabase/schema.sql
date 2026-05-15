@@ -10,10 +10,14 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE TABLE IF NOT EXISTS customers (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   full_name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
   phone TEXT,
   address TEXT,
+  city TEXT,
+  state TEXT,
+  postal_code TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -100,7 +104,10 @@ CREATE POLICY "products_service_write" ON products
   FOR ALL USING (auth.role() = 'service_role');
 
 CREATE POLICY "customers_own_profile" ON customers
-  FOR ALL USING (auth.uid() = id);
+  FOR ALL USING (auth.uid()::text = id::text);
+
+CREATE POLICY "customers_service_all" ON customers
+  FOR ALL USING (auth.role() = 'service_role');
 
 CREATE POLICY "orders_own" ON orders
   FOR SELECT USING (auth.uid() = customer_id);

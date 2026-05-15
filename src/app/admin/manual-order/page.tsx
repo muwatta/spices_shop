@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { formatNaira } from "@/lib/utils";
 import toast, { Toaster } from "react-hot-toast";
+import styles from "./page.module.css";
 
 interface Customer {
   id: string;
@@ -83,7 +84,10 @@ export default function ManualOrderPage() {
       setNewCustomer({ full_name: "", email: "", phone: "" });
       toast.success("Customer created");
     } else {
-      toast.error("Failed to create customer");
+      const errorData = await res.json();
+      const errorMessage = errorData.error || "Failed to create customer";
+      toast.error(errorMessage);
+      console.error("Customer creation error:", errorData);
     }
   };
 
@@ -182,59 +186,28 @@ export default function ManualOrderPage() {
   const totalCart = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "2rem",
-        }}
-      >
-        <h1
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "1.75rem",
-            margin: 0,
-          }}
-        >
-          Manual Order Creation
-        </h1>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Manual Order Creation</h1>
         {selectedCustomer && (
-          <div
-            style={{
-              background: "var(--clr-cream-dark)",
-              padding: "0.5rem 1rem",
-              borderRadius: "2rem",
-            }}
-          >
+          <div className={styles.selectedCustomerBadge}>
             👤 {selectedCustomer.full_name}
           </div>
         )}
       </div>
 
       {/* Customer selection card */}
-      <div className="card" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
-        <h2
-          style={{
-            fontSize: "1.2rem",
-            marginBottom: "1rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-          }}
-        >
-          👥 Customer
-        </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+      <div className={`card ${styles.customerCard}`}>
+        <h2 className={styles.cardTitle}>👥 Customer</h2>
+        <div className={styles.searchContainer}>
+          <div className={styles.searchInputGroup}>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Type name, email or phone"
-              className="form-input"
-              style={{ flex: 1 }}
+              className={`form-input ${styles.searchInput}`}
+              title="Search for customer by name, email, or phone"
             />
             <button className="btn btn-primary" onClick={handleSearch}>
               Search
@@ -248,29 +221,12 @@ export default function ManualOrderPage() {
           </div>
 
           {customers.length > 0 && (
-            <div
-              style={{
-                border: "1px solid var(--clr-cream-dark)",
-                borderRadius: "var(--radius-md)",
-                overflow: "hidden",
-              }}
-            >
+            <div className={styles.customerList}>
               {customers.map((c) => (
                 <div
                   key={c.id}
-                  style={{
-                    padding: "0.75rem",
-                    cursor: "pointer",
-                    borderBottom: "1px solid var(--clr-cream-dark)",
-                    transition: "background 0.2s",
-                  }}
+                  className={styles.customerItem}
                   onClick={() => selectCustomer(c)}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "var(--clr-cream)")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "transparent")
-                  }
                 >
                   <strong>{c.full_name}</strong> – {c.email}{" "}
                   {c.phone && `– ${c.phone}`}
@@ -280,14 +236,7 @@ export default function ManualOrderPage() {
           )}
 
           {selectedCustomer && (
-            <div
-              style={{
-                background: "var(--clr-cream)",
-                padding: "0.75rem",
-                borderRadius: "var(--radius-md)",
-                borderLeft: "4px solid var(--clr-saffron)",
-              }}
-            >
+            <div className={styles.selectedCustomerBox}>
               ✅ Selected: {selectedCustomer.full_name} (
               {selectedCustomer.email})
             </div>
@@ -297,50 +246,55 @@ export default function ManualOrderPage() {
 
       {/* New customer modal inline */}
       {showNewCustomerForm && (
-        <div
-          className="card"
-          style={{
-            padding: "1.5rem",
-            marginBottom: "2rem",
-            border: "1px solid var(--clr-saffron)",
-          }}
-        >
-          <h3 style={{ marginBottom: "1rem" }}>Create New Customer</h3>
-          <div style={{ display: "grid", gap: "1rem" }}>
-            <input
-              type="text"
-              placeholder="Full Name *"
-              className="form-input"
-              value={newCustomer.full_name}
-              onChange={(e) =>
-                setNewCustomer({ ...newCustomer, full_name: e.target.value })
-              }
-            />
-            <input
-              type="email"
-              placeholder="Email *"
-              className="form-input"
-              value={newCustomer.email}
-              onChange={(e) =>
-                setNewCustomer({ ...newCustomer, email: e.target.value })
-              }
-            />
-            <input
-              type="tel"
-              placeholder="Phone"
-              className="form-input"
-              value={newCustomer.phone}
-              onChange={(e) =>
-                setNewCustomer({ ...newCustomer, phone: e.target.value })
-              }
-            />
-            <div
-              style={{
-                display: "flex",
-                gap: "0.5rem",
-                justifyContent: "flex-end",
-              }}
-            >
+        <div className={`card ${styles.newCustomerCard}`}>
+          <h3 className={styles.newCustomerTitle}>Create New Customer</h3>
+          <div className={styles.newCustomerForm}>
+            <div>
+              <label htmlFor="fullName" className="form-label">
+                Full Name *
+              </label>
+              <input
+                id="fullName"
+                type="text"
+                placeholder="Full Name"
+                className="form-input"
+                value={newCustomer.full_name}
+                onChange={(e) =>
+                  setNewCustomer({ ...newCustomer, full_name: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label htmlFor="email" className="form-label">
+                Email *
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="Email"
+                className="form-input"
+                value={newCustomer.email}
+                onChange={(e) =>
+                  setNewCustomer({ ...newCustomer, email: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="form-label">
+                Phone
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                placeholder="Phone"
+                className="form-input"
+                value={newCustomer.phone}
+                onChange={(e) =>
+                  setNewCustomer({ ...newCustomer, phone: e.target.value })
+                }
+              />
+            </div>
+            <div className={styles.newCustomerActions}>
               <button
                 className="btn btn-outline"
                 onClick={() => setShowNewCustomerForm(false)}
@@ -357,45 +311,15 @@ export default function ManualOrderPage() {
 
       {/* Products & cart grid (if customer selected) */}
       {selectedCustomer && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "2rem",
-          }}
-        >
+        <div className={styles.productsCartGrid}>
           {/* Product selection */}
-          <div className="card" style={{ padding: "1.5rem" }}>
-            <h2 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>
-              🛍️ Add Products
-            </h2>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(180px,1fr))",
-                gap: "1rem",
-              }}
-            >
+          <div className={`card ${styles.productsCard}`}>
+            <h2 className={styles.productsTitle}>🛍️ Add Products</h2>
+            <div className={styles.productGrid}>
               {products.map((p) => (
-                <div
-                  key={p.id}
-                  style={{
-                    border: "1px solid var(--clr-cream-dark)",
-                    borderRadius: "var(--radius-md)",
-                    padding: "0.75rem",
-                    textAlign: "center",
-                  }}
-                >
-                  <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>
-                    {p.name}
-                  </div>
-                  <div
-                    style={{
-                      color: "var(--clr-saffron-dark)",
-                      fontWeight: 700,
-                      marginBottom: "0.5rem",
-                    }}
-                  >
+                <div key={p.id} className={styles.productCard}>
+                  <div className={styles.productName}>{p.name}</div>
+                  <div className={styles.productPrice}>
                     {formatNaira(p.price)}
                   </div>
                   <button
@@ -410,63 +334,26 @@ export default function ManualOrderPage() {
           </div>
 
           {/* Cart */}
-          <div
-            className="card"
-            style={{
-              padding: "1.5rem",
-              alignSelf: "start",
-              position: "sticky",
-              top: "2rem",
-            }}
-          >
-            <h2
-              style={{
-                fontSize: "1.2rem",
-                marginBottom: "1rem",
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
+          <div className={`card ${styles.cartCard}`}>
+            <h2 className={styles.cartHeader}>
               🛒 Cart
               {cart.length > 0 && (
-                <span
-                  style={{
-                    fontSize: "0.85rem",
-                    background: "var(--clr-saffron)",
-                    padding: "0.2rem 0.6rem",
-                    borderRadius: "2rem",
-                    color: "var(--clr-bark)",
-                  }}
-                >
+                <span className={styles.cartBadge}>
                   {cart.reduce((sum, i) => sum + i.quantity, 0)} items
                 </span>
               )}
             </h2>
             {cart.length === 0 ? (
-              <p
-                style={{
-                  color: "var(--clr-muted)",
-                  textAlign: "center",
-                  padding: "2rem 0",
-                }}
-              >
-                Cart is empty. Add products.
-              </p>
+              <p className={styles.emptyCart}>Cart is empty. Add products.</p>
             ) : (
               <>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <div className={styles.tableContainer}>
+                  <table className={styles.cartTable}>
                     <thead>
-                      <tr
-                        style={{
-                          borderBottom: "2px solid var(--clr-cream-dark)",
-                        }}
-                      >
-                        <th style={{ textAlign: "left", padding: "0.5rem 0" }}>
-                          Product
-                        </th>
-                        <th style={{ textAlign: "center" }}>Qty</th>
-                        <th style={{ textAlign: "right" }}>Price</th>
+                      <tr className={styles.tableHeadRow}>
+                        <th className={styles.tableHeadCell}>Product</th>
+                        <th className={styles.tableHeadCellCenter}>Qty</th>
+                        <th className={styles.tableHeadCellRight}>Price</th>
                         <th></th>
                       </tr>
                     </thead>
@@ -474,12 +361,10 @@ export default function ManualOrderPage() {
                       {cart.map((item) => (
                         <tr
                           key={item.product_id}
-                          style={{
-                            borderBottom: "1px solid var(--clr-cream-dark)",
-                          }}
+                          className={styles.tableBodyRow}
                         >
-                          <td style={{ padding: "0.5rem 0" }}>{item.name}</td>
-                          <td style={{ textAlign: "center" }}>
+                          <td className={styles.tableCell}>{item.name}</td>
+                          <td className={styles.tableCellCenter}>
                             <input
                               type="number"
                               value={item.quantity}
@@ -489,28 +374,19 @@ export default function ManualOrderPage() {
                                   parseInt(e.target.value) || 0,
                                 )
                               }
-                              style={{
-                                width: "60px",
-                                textAlign: "center",
-                                padding: "0.25rem",
-                                borderRadius: "var(--radius-md)",
-                                border: "1px solid var(--clr-cream-dark)",
-                              }}
+                              className={styles.quantityInput}
+                              title={`Quantity for ${item.name}`}
+                              aria-label={`Quantity for ${item.name}`}
                             />
                           </td>
-                          <td style={{ textAlign: "right" }}>
+                          <td className={styles.tableCellRight}>
                             {formatNaira(item.price * item.quantity)}
                           </td>
-                          <td style={{ textAlign: "right" }}>
+                          <td className={styles.tableCellRight}>
                             <button
                               onClick={() => updateQuantity(item.product_id, 0)}
-                              style={{
-                                background: "none",
-                                border: "none",
-                                cursor: "pointer",
-                                color: "var(--clr-chili)",
-                                fontSize: "1.2rem",
-                              }}
+                              className={styles.deleteButton}
+                              aria-label={`Remove ${item.name} from cart`}
                             >
                               ✕
                             </button>
@@ -519,21 +395,11 @@ export default function ManualOrderPage() {
                       ))}
                     </tbody>
                     <tfoot>
-                      <tr
-                        style={{
-                          borderTop: "2px solid var(--clr-cream-dark)",
-                          fontWeight: 700,
-                        }}
-                      >
-                        <td
-                          colSpan={2}
-                          style={{ textAlign: "right", paddingTop: "0.75rem" }}
-                        >
+                      <tr className={styles.tableFootRow}>
+                        <td colSpan={2} className={styles.tableFootFirstCell}>
                           Total:
                         </td>
-                        <td
-                          style={{ textAlign: "right", paddingTop: "0.75rem" }}
-                        >
+                        <td className={styles.tableFootCell}>
                           {formatNaira(totalCart)}
                         </td>
                         <td></td>
@@ -542,31 +408,38 @@ export default function ManualOrderPage() {
                   </table>
                 </div>
 
-                <div style={{ marginTop: "1.5rem" }}>
-                  <label className="form-label">Delivery Address</label>
+                <div className={styles.cartActions}>
+                  <label htmlFor="deliveryAddress" className="form-label">
+                    Delivery Address
+                  </label>
                   <textarea
+                    id="deliveryAddress"
                     className="form-input"
                     rows={2}
                     value={deliveryAddress}
                     onChange={(e) => setDeliveryAddress(e.target.value)}
                     placeholder="Full delivery address"
                   />
-                  <label className="form-label" style={{ marginTop: "1rem" }}>
+                  <label
+                    htmlFor="paymentMethod"
+                    className={`form-label ${styles.paymentLabel}`}
+                  >
                     Payment Method
                   </label>
                   <select
+                    id="paymentMethod"
                     className="form-input"
                     value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
+                    title="Select payment method"
                   >
                     <option value="cash_on_delivery">Cash on Delivery</option>
                     <option value="bank_transfer">Bank Transfer</option>
                   </select>
                   <button
-                    className="btn btn-primary btn-lg"
+                    className={`btn btn-primary btn-lg ${styles.placeOrderButton}`}
                     onClick={placeOrder}
                     disabled={loading}
-                    style={{ width: "100%", marginTop: "1.5rem" }}
                   >
                     {loading
                       ? "Placing order..."
