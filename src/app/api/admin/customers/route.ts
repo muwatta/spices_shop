@@ -32,7 +32,6 @@ export async function GET(request: Request) {
       state,
       postal_code,
       created_at,
-      is_admin,
       orders ( total_amount )
     `,
       { count: "exact" },
