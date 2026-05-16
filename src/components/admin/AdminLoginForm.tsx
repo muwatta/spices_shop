@@ -8,6 +8,7 @@ export default function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -23,36 +24,52 @@ export default function AdminLoginForm() {
     setError("");
     setLoading(true);
 
-    const normalizedEmail = email.trim().toLowerCase();
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
 
-    await supabase.auth.signOut();
-
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email: normalizedEmail,
-        password,
-      },
-    );
-
-    if (signInError) {
-      setError(signInError.message);
-      setLoading(false);
-      return;
-    }
-
-    const { data: adminCheck, error: adminError } = await supabase
-      .from("admin_users")
-      .select("email")
-      .eq("email", data.user.email)
-      .single();
-
-    if (adminError || !adminCheck) {
+      // 1. Sign out any existing session cleanly
       await supabase.auth.signOut();
-      setError("Unauthorized: You are not allowed to access the admin panel.");
-      setLoading(false);
-      return;
-    }
 
-    window.location.href = '/admin';
+      // 2. Sign in with provided credentials
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password,
+        });
+
+      if (signInError) {
+        setError(signInError.message);
+        return;
+      }
+
+      // 3. Verify user is in admin_users table
+      const { data: adminCheck, error: adminError } = await supabase
+        .from("admin_users")
+        .select("email, is_superadmin")
+        .eq("email", data.user.email)
+        .single();
+
+      if (adminError || !adminCheck) {
+        await supabase.auth.signOut();
+        setError("Access denied. This account does not have admin privileges.");
+        return;
+      }
+
+      // 4. Refresh session so middleware picks up the cookie correctly
+      const { error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError) {
+        setError("Session error. Please try again.");
+        return;
+      }
+
+      // 5. Navigate to admin dashboard
+      router.push("/admin");
+      router.refresh();
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -92,15 +109,13 @@ export default function AdminLoginForm() {
 
         {unauthorizedNotice && !error && (
           <div className="alert alert-warning" style={{ marginBottom: "1rem" }}>
-            Unauthorized admin access was detected. Please sign in with the
-            correct admin account.
+            Please sign in with your admin account to continue.
           </div>
         )}
 
         {blocked && (
           <div className="alert alert-error" style={{ marginBottom: "1rem" }}>
-            Access is temporarily blocked after repeated unauthorized attempts.
-            The developer has been notified.
+            Access temporarily blocked after repeated failed attempts.
           </div>
         )}
 
@@ -120,42 +135,68 @@ export default function AdminLoginForm() {
               className="form-input"
               type="email"
               required
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@example.com"
             />
           </div>
-          <div className="form-group" style={{ position: "relative" }}>
+
+          <div className="form-group">
             <label className="form-label">Password</label>
-            <input
-              className="form-input"
-              type={showPassword ? "text" : "password"}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((cur) => !cur)}
-              style={{
-                position: "absolute",
-                right: "0.85rem",
-                top: "50%",
-                transform: "translateY(-50%)",
-                background: "none",
-                border: "none",
-                color: "var(--clr-saffron-dark)",
-                cursor: "pointer",
-              }}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
+            <div style={{ position: "relative" }}>
+              <input
+                className="form-input"
+                type={showPassword ? "text" : "password"}
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                style={{ paddingRight: "3.5rem" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                style={{
+                  position: "absolute",
+                  right: "0.875rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "var(--clr-saffron-dark)",
+                  cursor: "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                }}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
+
           <button
             type="submit"
             className="btn btn-primary btn-lg"
             disabled={loading || blocked}
+            style={{ marginTop: "0.25rem" }}
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? (
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  justifyContent: "center",
+                }}
+              >
+                <span className="spinner" /> Signing in...
+              </span>
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
       </div>

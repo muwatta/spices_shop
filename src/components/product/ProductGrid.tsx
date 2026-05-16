@@ -1,12 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
-import ProductCard from "./ProductCard";
+import dynamic from "next/dynamic";
 import { Product } from "@/types";
+
+// Dynamically load the client-side ProductCard to keep framer-motion and
+// client-only code out of the initial server-rendered bundle.
+const ProductCard = dynamic(() => import("./ProductCard"), { ssr: false });
 
 async function getProducts(): Promise<Product[]> {
   const supabase = createClient();
   const { data } = await supabase
     .from("products")
-    .select("*")
+    .select("id, name, price, image_url, stock, description, created_at")
     .order("created_at", { ascending: false })
     .limit(12);
   return (data ?? []) as Product[];
