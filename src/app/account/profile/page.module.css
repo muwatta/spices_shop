@@ -1,0 +1,51 @@
+.container {
+  padding: 2rem;
+}
+
+.skeletonGrid {
+  display: grid;
+  gap: 1rem;
+  max-width: 560px;
+}
+
+.skeletonRow {
+  height: 56px;
+}
+
+.skeletonLarge {
+  height: 120px;
+}
+
+.skeletonAction {
+  width: 140px;
+  height: 44px;
+  border-radius: 999px;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+}
+
+.subtext {
+  color: var(--clr-muted);
+  margin-top: 0.5rem;
+}
+
+.alertWrapper {
+  margin-bottom: 1rem;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+  max-width: 560px;
+}
+
+.smallText {
+  color: var(--clr-muted);
+}

@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import PageTransition from "@/components/ui/PageTransition";
 import { Skeleton } from "@/components/ui/Skeleton";
+import styles from "./page.module.css";
 
 export default function AccountProfilePage() {
   const router = useRouter();
@@ -37,7 +38,9 @@ export default function AccountProfilePage() {
 
       const { data: customer } = await supabase
         .from("customers")
-        .select("*")
+        .select(
+          "full_name, phone, address, address_line2, city, state, postal_code, account_number",
+        )
         .eq("id", user.id)
         .single();
 
@@ -99,25 +102,19 @@ export default function AccountProfilePage() {
   if (loading) {
     return (
       <PageTransition>
-        <div className="card" style={{ padding: "2rem" }}>
-          <Skeleton
-            style={{ width: "220px", height: "28px", marginBottom: "1rem" }}
-          />
-          <Skeleton
-            style={{ width: "180px", height: "16px", marginBottom: "1rem" }}
-          />
-          <div style={{ display: "grid", gap: "1rem", maxWidth: "560px" }}>
-            <Skeleton style={{ height: "56px" }} />
-            <Skeleton style={{ height: "56px" }} />
-            <Skeleton style={{ height: "56px" }} />
-            <Skeleton style={{ height: "56px" }} />
-            <Skeleton style={{ height: "56px" }} />
-            <Skeleton style={{ height: "56px" }} />
-            <Skeleton style={{ height: "56px" }} />
-            <Skeleton style={{ height: "120px" }} />
-            <Skeleton
-              style={{ width: "140px", height: "44px", borderRadius: "999px" }}
-            />
+        <div className={`card ${styles.container}`}>
+          <Skeleton className={styles.header} />
+          <Skeleton className={styles.subtext} />
+          <div className={styles.skeletonGrid}>
+            <Skeleton className={styles.skeletonRow} />
+            <Skeleton className={styles.skeletonRow} />
+            <Skeleton className={styles.skeletonRow} />
+            <Skeleton className={styles.skeletonRow} />
+            <Skeleton className={styles.skeletonRow} />
+            <Skeleton className={styles.skeletonRow} />
+            <Skeleton className={styles.skeletonRow} />
+            <Skeleton className={styles.skeletonLarge} />
+            <Skeleton className={styles.skeletonAction} />
           </div>
         </div>
       </PageTransition>
@@ -126,37 +123,31 @@ export default function AccountProfilePage() {
 
   return (
     <PageTransition>
-      <div className="card" style={{ padding: "2rem" }}>
-        <div style={{ marginBottom: "1.5rem" }}>
-          <h1
-            style={{ fontFamily: "var(--font-display)", fontSize: "1.75rem" }}
-          >
-            Profile
-          </h1>
-          <p style={{ color: "var(--clr-muted)", marginTop: "0.5rem" }}>
+      <div className={`card ${styles.container}`}>
+        <div className={styles.header}>
+          <h1 className={styles.heading}>Profile</h1>
+          <p className={styles.subtext}>
             Update your delivery details and contact information.
           </p>
         </div>
 
         {message.text && (
-          <div
-            className={`alert alert-${message.type}`}
-            style={{ marginBottom: "1rem" }}
-          >
+          <div className={`alert alert-${message.type} ${styles.alertWrapper}`}>
             {message.text}
           </div>
         )}
 
-        <form
-          onSubmit={handleSave}
-          style={{ display: "grid", gap: "1rem", maxWidth: "560px" }}
-        >
+        <form onSubmit={handleSave} className={styles.form}>
           <div className="form-group">
-            <label className="form-label">Full Name *</label>
+            <label htmlFor="full_name" className="form-label">
+              Full Name *
+            </label>
             <input
+              id="full_name"
               className="form-input"
               type="text"
               required
+              placeholder="John Doe"
               value={profile.full_name}
               onChange={(e) =>
                 setProfile({ ...profile, full_name: e.target.value })
@@ -164,11 +155,15 @@ export default function AccountProfilePage() {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Phone Number *</label>
+            <label htmlFor="phone" className="form-label">
+              Phone Number *
+            </label>
             <input
+              id="phone"
               className="form-input"
               type="tel"
               required
+              placeholder="+234 800 000 0000"
               value={profile.phone}
               onChange={(e) =>
                 setProfile({ ...profile, phone: e.target.value })
@@ -176,46 +171,60 @@ export default function AccountProfilePage() {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Address Line 1 *</label>
+            <label htmlFor="address" className="form-label">
+              Address Line 1 *
+            </label>
             <input
+              id="address"
               className="form-input"
               type="text"
               required
+              placeholder="Street, house number"
               value={profile.address}
               onChange={(e) =>
                 setProfile({ ...profile, address: e.target.value })
               }
-              placeholder="Street, house number"
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Address Line 2 (optional)</label>
+            <label htmlFor="address_line2" className="form-label">
+              Address Line 2 (optional)
+            </label>
             <input
+              id="address_line2"
               className="form-input"
               type="text"
+              placeholder="Apartment, suite, etc."
               value={profile.address_line2}
               onChange={(e) =>
                 setProfile({ ...profile, address_line2: e.target.value })
               }
-              placeholder="Apartment, suite, etc."
             />
           </div>
           <div className="form-group">
-            <label className="form-label">City *</label>
+            <label htmlFor="city" className="form-label">
+              City *
+            </label>
             <input
+              id="city"
               className="form-input"
               type="text"
               required
+              placeholder="Lagos"
               value={profile.city}
               onChange={(e) => setProfile({ ...profile, city: e.target.value })}
             />
           </div>
           <div className="form-group">
-            <label className="form-label">State *</label>
+            <label htmlFor="state" className="form-label">
+              State *
+            </label>
             <input
+              id="state"
               className="form-input"
               type="text"
               required
+              placeholder="Abuja"
               value={profile.state}
               onChange={(e) =>
                 setProfile({ ...profile, state: e.target.value })
@@ -223,10 +232,14 @@ export default function AccountProfilePage() {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Postal Code (optional)</label>
+            <label htmlFor="postal_code" className="form-label">
+              Postal Code (optional)
+            </label>
             <input
+              id="postal_code"
               className="form-input"
               type="text"
+              placeholder="100001"
               value={profile.postal_code}
               onChange={(e) =>
                 setProfile({ ...profile, postal_code: e.target.value })
@@ -234,19 +247,20 @@ export default function AccountProfilePage() {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">
+            <label htmlFor="account_number" className="form-label">
               Account Number (optional, for faster checkout)
             </label>
             <input
+              id="account_number"
               className="form-input"
               type="text"
+              placeholder="Bank account number"
               value={profile.account_number}
               onChange={(e) =>
                 setProfile({ ...profile, account_number: e.target.value })
               }
-              placeholder="Bank account number"
             />
-            <small style={{ color: "var(--clr-muted)" }}>
+            <small className={styles.smallText}>
               Store your account number to auto‑fill payment details.
             </small>
           </div>
