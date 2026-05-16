@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const adminEmails = ["kmafoods22@gmail.com", "abdullahmusliudeen@gmail.com"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -29,41 +29,38 @@ export async function middleware(request: NextRequest) {
     error,
   } = await supabase.auth.getUser();
 
-  if (error) {
-    return supabaseResponse;
-  }
+  if (error) return supabaseResponse;
 
   const path = request.nextUrl.pathname;
 
+  // Skip auth routes — never redirect these
   const isAuthRoute =
     path.startsWith("/admin-login") ||
     path.startsWith("/login") ||
-    path.startsWith("/auth");
+    path.startsWith("/signup") ||
+    path.startsWith("/auth") ||
+    path.startsWith("/forgot-password") ||
+    path.startsWith("/reset-password");
 
-  if (isAuthRoute) {
-    return supabaseResponse;
-  }
+  if (isAuthRoute) return supabaseResponse;
 
-  const isAdminRoute = path.startsWith("/admin");
-
-  if (isAdminRoute) {
-    const email = user?.email?.toLowerCase();
-
-    if (!user || !email || !adminEmails.includes(email)) {
+  // Protect admin routes
+  if (path.startsWith("/admin")) {
+    const email = user?.email?.toLowerCase() ?? "";
+    if (!user || !adminEmails.includes(email)) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin-login";
       url.searchParams.set("unauthorized", "1");
-
       return NextResponse.redirect(url);
     }
   }
 
+  // Protect account routes
   if (path.startsWith("/account")) {
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("redirect", path);
-
       return NextResponse.redirect(url);
     }
   }
