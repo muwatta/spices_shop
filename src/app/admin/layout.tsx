@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { createClient } from "@/lib/supabase/server";
-import { getAdminEmail } from "@/lib/admin";
+import { isAdmin } from "@/lib/admin";
 import { redirect } from "next/navigation";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
@@ -22,11 +22,10 @@ export default async function AdminLayout({
     user = null;
   }
 
-  const adminEmail = await getAdminEmail();
   const userEmail = user?.email?.toLowerCase() ?? "";
-  const isAdmin = userEmail !== "" && userEmail === adminEmail;
+  const isAdminUser = userEmail !== "" && (await isAdmin(userEmail));
 
-  if (!isAdmin) {
+  if (!isAdminUser) {
     redirect("/admin-login?unauthorized=1");
   }
 

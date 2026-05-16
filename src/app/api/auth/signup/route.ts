@@ -74,6 +74,7 @@ export async function POST(request: Request) {
   if (data.user?.id) {
     await supabase.from("customers").upsert({
       id: data.user.id,
+      email,
       full_name,
       phone,
     });

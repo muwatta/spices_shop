@@ -196,12 +196,8 @@ export async function requireAdmin(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Hardcoded allowed emails (replace with database check when ready)
-  const allowedEmails = [
-    "kmafoods22@gmail.com",
-    "abdullahmusliudeen@gmail.com",
-  ];
-  if (!allowedEmails.includes(user.email ?? "")) {
+  const userEmail = user.email ?? null;
+  if (!(await isAdmin(userEmail))) {
     await recordUnauthorizedAttempt({
       email: user.email,
       action: "route_access",

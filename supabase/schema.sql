@@ -15,9 +15,11 @@ CREATE TABLE IF NOT EXISTS customers (
   email TEXT UNIQUE NOT NULL,
   phone TEXT,
   address TEXT,
+  address_line2 TEXT,
   city TEXT,
   state TEXT,
   postal_code TEXT,
+  account_number TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -81,13 +83,31 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER orders_updated_at
-  BEFORE UPDATE ON orders
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger
+    WHERE tgname = 'orders_updated_at'
+  ) THEN
+    CREATE TRIGGER orders_updated_at
+      BEFORE UPDATE ON orders
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER do_you_know_items_updated_at
-  BEFORE UPDATE ON do_you_know_items
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger
+    WHERE tgname = 'do_you_know_items_updated_at'
+  ) THEN
+    CREATE TRIGGER do_you_know_items_updated_at
+      BEFORE UPDATE ON do_you_know_items
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
 
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
@@ -97,61 +117,241 @@ ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE do_you_know_items ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "products_public_read" ON products
-  FOR SELECT USING (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'products_public_read'
+      AND polrelid = 'products'::regclass
+  ) THEN
+    CREATE POLICY products_public_read
+      ON products
+      FOR SELECT USING (true);
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "products_service_write" ON products
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'products_service_write'
+      AND polrelid = 'products'::regclass
+  ) THEN
+    CREATE POLICY products_service_write
+      ON products
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "customers_own_profile" ON customers
-  FOR ALL USING (auth.uid()::text = id::text);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'customers_own_profile'
+      AND polrelid = 'customers'::regclass
+  ) THEN
+    CREATE POLICY customers_own_profile
+      ON customers
+      FOR ALL USING (auth.uid()::text = id::text);
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "customers_service_all" ON customers
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'customers_service_all'
+      AND polrelid = 'customers'::regclass
+  ) THEN
+    CREATE POLICY customers_service_all
+      ON customers
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "orders_own" ON orders
-  FOR SELECT USING (auth.uid() = customer_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'orders_own'
+      AND polrelid = 'orders'::regclass
+  ) THEN
+    CREATE POLICY orders_own
+      ON orders
+      FOR SELECT USING (auth.uid() = customer_id);
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "orders_insert_own" ON orders
-  FOR INSERT WITH CHECK (auth.uid() = customer_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'orders_insert_own'
+      AND polrelid = 'orders'::regclass
+  ) THEN
+    CREATE POLICY orders_insert_own
+      ON orders
+      FOR INSERT WITH CHECK (auth.uid() = customer_id);
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "orders_service_all" ON orders
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'orders_service_all'
+      AND polrelid = 'orders'::regclass
+  ) THEN
+    CREATE POLICY orders_service_all
+      ON orders
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "order_items_own" ON order_items
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM orders WHERE orders.id = order_items.order_id
-        AND orders.customer_id = auth.uid()
-    )
-  );
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'order_items_own'
+      AND polrelid = 'order_items'::regclass
+  ) THEN
+    CREATE POLICY order_items_own
+      ON order_items
+      FOR SELECT USING (
+        EXISTS (
+          SELECT 1 FROM orders WHERE orders.id = order_items.order_id
+            AND orders.customer_id = auth.uid()
+        )
+      );
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "order_items_insert_own" ON order_items
-  FOR INSERT WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM orders WHERE orders.id = order_items.order_id
-        AND orders.customer_id = auth.uid()
-    )
-  );
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'order_items_insert_own'
+      AND polrelid = 'order_items'::regclass
+  ) THEN
+    CREATE POLICY order_items_insert_own
+      ON order_items
+      FOR INSERT WITH CHECK (
+        EXISTS (
+          SELECT 1 FROM orders WHERE orders.id = order_items.order_id
+            AND orders.customer_id = auth.uid()
+        )
+      );
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "order_items_service_all" ON order_items
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'order_items_service_all'
+      AND polrelid = 'order_items'::regclass
+  ) THEN
+    CREATE POLICY order_items_service_all
+      ON order_items
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "admin_settings_public_read" ON admin_settings
-  FOR SELECT USING (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'admin_settings_public_read'
+      AND polrelid = 'admin_settings'::regclass
+  ) THEN
+    CREATE POLICY admin_settings_public_read
+      ON admin_settings
+      FOR SELECT USING (true);
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "admin_settings_service_write" ON admin_settings
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'admin_settings_service_write'
+      AND polrelid = 'admin_settings'::regclass
+  ) THEN
+    CREATE POLICY admin_settings_service_write
+      ON admin_settings
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "do_you_know_items_public_read" ON do_you_know_items
-  FOR SELECT USING (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'do_you_know_items_public_read'
+      AND polrelid = 'do_you_know_items'::regclass
+  ) THEN
+    CREATE POLICY do_you_know_items_public_read
+      ON do_you_know_items
+      FOR SELECT USING (true);
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE POLICY "do_you_know_items_service_write" ON do_you_know_items
-  FOR ALL USING (auth.role() = 'service_role');
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'do_you_know_items_service_write'
+      AND polrelid = 'do_you_know_items'::regclass
+  ) THEN
+    CREATE POLICY do_you_know_items_service_write
+      ON do_you_know_items
+      FOR ALL USING (auth.role() = 'service_role');
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
 
-ALTER PUBLICATION supabase_realtime ADD TABLE orders;
-
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_publication_rel rel
+    JOIN pg_class cls ON rel.prrelid = cls.oid
+    JOIN pg_publication pub ON rel.prpubid = pub.oid
+    WHERE pub.pubname = 'supabase_realtime'
+      AND cls.relname = 'orders'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE orders;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
 
 INSERT INTO admin_settings (key, value) VALUES
   ('bank_details', '{"bank_name": "Moniepoint", "account_number": "8032423638", "account_name": "Hamza Rasheedah Muhammad"}'),

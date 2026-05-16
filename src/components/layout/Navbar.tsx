@@ -86,9 +86,11 @@ const Icon = {
 function LogoutModal({
   onConfirm,
   onCancel,
+  isLoading,
 }: {
   onConfirm: () => void;
   onCancel: () => void;
+  isLoading: boolean;
 }) {
   return (
     <div
@@ -144,6 +146,7 @@ function LogoutModal({
             onClick={onCancel}
             className="btn btn-outline"
             style={{ flex: 1 }}
+            disabled={isLoading}
           >
             Stay
           </button>
@@ -151,8 +154,9 @@ function LogoutModal({
             onClick={onConfirm}
             className="btn btn-danger"
             style={{ flex: 1 }}
+            disabled={isLoading}
           >
-            Log Out
+            {isLoading ? "Logging out..." : "Log Out"}
           </button>
         </div>
       </motion.div>
@@ -224,17 +228,26 @@ export default function Navbar(): JSX.Element {
   };
 
   async function confirmLogout() {
+    if (loggingOut) return;
+
     setLoggingOut(true);
-    useCartStore.getState().clearCart();
-    await supabase.auth.signOut();
     setShowLogoutModal(false);
-    setDropdownOpen(false);
-    setMenuOpen(false);
-    router.push("/");
-    router.refresh();
+    useCartStore.getState().clearCart();
+
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setDropdownOpen(false);
+      setMenuOpen(false);
+      setLoggingOut(false);
+      router.push("/");
+    }
   }
 
   function requestLogout() {
+    setLoggingOut(false);
     setDropdownOpen(false);
     setMenuOpen(false);
     setShowLogoutModal(true);
@@ -790,6 +803,7 @@ export default function Navbar(): JSX.Element {
           <LogoutModal
             onConfirm={confirmLogout}
             onCancel={() => setShowLogoutModal(false)}
+            isLoading={loggingOut}
           />
         )}
       </AnimatePresence>

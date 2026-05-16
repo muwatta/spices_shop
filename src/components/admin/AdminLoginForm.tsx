@@ -42,16 +42,20 @@ export default function AdminLoginForm() {
         return;
       }
 
-      // 3. Verify user is in admin_users table
-      const { data: adminCheck, error: adminError } = await supabase
-        .from("admin_users")
-        .select("email, is_superadmin")
-        .eq("email", data.user.email)
-        .single();
+      // 3. Verify this user is allowed to access admin routes
+      const response = await fetch("/api/admin/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.user?.email }),
+      });
 
-      if (adminError || !adminCheck) {
+      if (!response.ok) {
         await supabase.auth.signOut();
-        setError("Access denied. This account does not have admin privileges.");
+        const result = await response.json().catch(() => null);
+        setError(
+          result?.error ||
+            "Access denied. This account does not have admin privileges.",
+        );
         return;
       }
 
