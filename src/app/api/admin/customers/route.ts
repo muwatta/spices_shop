@@ -15,27 +15,14 @@ export async function GET(request: Request) {
   const from = (safePage - 1) * safeLimit;
   const to = from + safeLimit - 1;
 
+  // First, fetch customers with pagination
   const {
     data: customers,
     error,
     count,
   } = await adminClient
     .from("customers")
-    .select(
-      `
-      id,
-      full_name,
-      email,
-      phone,
-      address,
-      city,
-      state,
-      postal_code,
-      created_at,
-      orders ( total_amount )
-    `,
-      { count: "exact" },
-    )
+    .select("*", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, to);
 
@@ -43,13 +30,31 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const totalCount = typeof count === "number" ? count : customers.length;
+  // Then fetch orders for all these customers separately
+  const customerIds = customers.map((c: any) => c.id);
+  const { data: orders, error: ordersError } = await adminClient
+    .from("orders")
+    .select("customer_id, total_amount")
+    .in("customer_id", customerIds);
+
+  if (ordersError) {
+    return NextResponse.json({ error: ordersError.message }, { status: 500 });
+  }
+
+  // Group orders by customer_id
+  const ordersByCustomer: Record<string, any[]> = {};
+  orders?.forEach((order: any) => {
+    if (!ordersByCustomer[order.customer_id]) {
+      ordersByCustomer[order.customer_id] = [];
+    }
+    ordersByCustomer[order.customer_id].push(order);
+  });
 
   // Calculate order count and total spent per customer
   const customersWithStats = customers.map((customer: any) => {
-    const orders = customer.orders || [];
-    const orderCount = orders.length;
-    const totalSpent = orders.reduce(
+    const customerOrders = ordersByCustomer[customer.id] || [];
+    const orderCount = customerOrders.length;
+    const totalSpent = customerOrders.reduce(
       (sum: number, order: any) => sum + (order.total_amount || 0),
       0,
     );
@@ -59,6 +64,8 @@ export async function GET(request: Request) {
       totalSpent,
     };
   });
+
+  const totalCount = typeof count === "number" ? count : customers.length;
 
   return NextResponse.json({ customers: customersWithStats, totalCount });
 }
@@ -94,7 +101,6 @@ export async function DELETE(request: Request) {
   }
 
   // Also delete the user from auth (optional)
-  // Requires service role key in supabase admin client
   try {
     const { error: authError } = await adminClient.auth.admin.deleteUser(id);
     if (authError && authError.message !== "User not found") {
