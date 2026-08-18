@@ -462,7 +462,8 @@ export default function Navbar(): JSX.Element {
           position: sticky;
           top: 0;
           z-index: 100;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+          box-shadow: 0 1px 0 rgba(255,255,255,0.08);
+          height: var(--nav-height);
         }
         .nav__inner {
           display: flex;
@@ -470,7 +471,7 @@ export default function Navbar(): JSX.Element {
           justify-content: space-between;
           padding: 0.5rem 1rem;
           gap: 0.5rem;
-          max-width: 820px;
+          max-width: 1200px;
           margin: 0 auto;
         }
         .nav__brand {
@@ -478,7 +479,7 @@ export default function Navbar(): JSX.Element {
           align-items: center;
           gap: 0.5rem;
           font-weight: 700;
-          font-size: 0.875rem;
+          font-size: 1rem;
           color: var(--clr-saffron);
           text-decoration: none;
           flex-shrink: 0;
@@ -498,7 +499,7 @@ export default function Navbar(): JSX.Element {
           color: var(--clr-cream);
           cursor: pointer;
           flex-shrink: 0;
-          padding: 0.2rem;
+          padding: 0.4rem;
         }
         .nav__center { display: none; }
         .desktop-search { display: none; }
@@ -513,8 +514,8 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 50px;
-          height: 50px;
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
           border: none;
           cursor: pointer;
@@ -611,7 +612,7 @@ export default function Navbar(): JSX.Element {
         .nav__drawer {
           position: fixed;
           top: 0; left: 0; bottom: 0;
-          width: min(78vw, 300px);
+          width: min(85vw, 320px);
           background: var(--clr-bark-mid);
           z-index: 1001;
           display: flex;
@@ -712,7 +713,7 @@ export default function Navbar(): JSX.Element {
           .nav__inner { padding: 0.65rem 1.5rem; }
           .nav__brand { font-size: 0.9375rem; gap: 0.6rem; }
           .nav__logo { width: 42px !important; height: 42px !important; }
-          .nav__cart, .nav__user-btn { width: 42px; height: 42px; }
+          .nav__cart, .nav__user-btn { width: 40px; height: 40px; }
           .nav__actions { gap: 0.625rem; }
         }
 

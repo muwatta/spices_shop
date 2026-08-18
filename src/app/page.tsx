@@ -41,11 +41,8 @@ export default function HomePage() {
                 <Link href="#catalog" className="btn btn-primary">
                   Browse products
                 </Link>
-                <Link href="/do-you-know" className="btn btn-outline">
+                <Link href="/do-you-know" className="btn btn-ghost">
                   Spice tips
-                </Link>
-                <Link href="/cart" className="btn btn-ghost">
-                  View cart
                 </Link>
               </div>
             </div>

@@ -45,7 +45,7 @@ function CheckoutContent() {
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
   const [useStoredAccount, setUseStoredAccount] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
+
   const [form, setForm] = useState({
     full_name: "",
     phone: "",
@@ -153,7 +153,6 @@ function CheckoutContent() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setShowConfirmation(false);
     setForm((prev) => ({
       ...prev,
       [name]: value.replace(/<[^>]*>/g, "").trimStart(),
@@ -181,11 +180,6 @@ function CheckoutContent() {
     }
     if (paymentMethod === "bank_transfer" && !proofFile) {
       setError("Please upload your payment proof (screenshot/receipt).");
-      return;
-    }
-
-    if (!showConfirmation) {
-      setShowConfirmation(true);
       return;
     }
 
@@ -310,7 +304,7 @@ function CheckoutContent() {
               variants={staggerContainer}
               initial="initial"
               animate="animate"
-              style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem", alignItems: "start" }}
+              className="checkout-layout"
             >
               <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                 {/* Delivery Details */}
@@ -395,10 +389,7 @@ function CheckoutContent() {
                           name="payment"
                           value={method}
                           checked={paymentMethod === method}
-                          onChange={() => {
-                            setShowConfirmation(false);
-                            setPaymentMethod(method);
-                          }}
+                          onChange={() => setPaymentMethod(method)}
                           style={{ accentColor: "var(--clr-saffron)", width: "1.2rem", height: "1.2rem" }}
                         />
                         <div style={{ flex: 1 }}>
@@ -491,41 +482,6 @@ function CheckoutContent() {
                   </motion.div>
                 )}
 
-                {showConfirmation && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="card"
-                    style={{ marginBottom: "1rem", padding: "1rem", border: "1px solid var(--clr-cream-dark)" }}
-                  >
-                    <p style={{ fontWeight: 700, marginBottom: "0.75rem" }}>
-                      Review your order before confirmation
-                    </p>
-                    <div style={{ fontSize: "0.9rem", lineHeight: 1.6, color: "var(--clr-muted)" }}>
-                      <div>
-                        <strong>Delivery address:</strong>
-                        <div>{form.address_line1} {form.address_line2}</div>
-                        <div>{form.city}, {form.state} {form.postal_code}</div>
-                      </div>
-                      <div style={{ marginTop: "0.5rem" }}>
-                        <strong>Payment method:</strong>{" "}
-                        {paymentMethod === "bank_transfer" ? "Bank Transfer" : "Cash on Delivery"}
-                      </div>
-                      <div style={{ marginTop: "0.5rem" }}>
-                        <strong>Total:</strong> {formatNaira(totalPrice)}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      className="btn btn-outline w-full"
-                      onClick={() => setShowConfirmation(false)}
-                      style={{ marginTop: "1rem", borderRadius: "2rem" }}
-                    >
-                      Edit order details
-                    </button>
-                  </motion.div>
-                )}
-
                 <motion.button
                   type="submit"
                   className="btn btn-primary btn-lg w-full"
@@ -537,14 +493,12 @@ function CheckoutContent() {
                     <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", justifyContent: "center" }}>
                       <span className="spinner" /> Placing Order...
                     </span>
-                  ) : showConfirmation ? (
-                    "Confirm order"
                   ) : (
-                    "Review order"
+                    "Place Order"
                   )}
                 </motion.button>
 
-                <p style={{ fontSize: "0.75rem", color: "var(--clr-muted)", textAlign: "center", marginTop: "1rem" }}>
+                <p style={{ fontSize: "0.8125rem", color: "var(--clr-muted)", textAlign: "center", marginTop: "1rem" }}>
                   By placing an order, you agree to our terms and conditions.
                 </p>
               </motion.div>
