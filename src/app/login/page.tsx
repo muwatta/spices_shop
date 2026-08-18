@@ -13,7 +13,7 @@ import { sanitizeRedirect } from "@/lib/utils";
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
         stroke="currentColor"
@@ -24,7 +24,7 @@ function EyeIcon({ open }: { open: boolean }) {
       <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
     </svg>
   ) : (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
         stroke="currentColor"
@@ -117,56 +117,22 @@ function LoginContent() {
   return (
     <>
       <Navbar />
-      <main
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "70vh",
-          padding: "2rem var(--space-md)",
-        }}
-      >
-        <div
-          className="card"
-          style={{ width: "100%", maxWidth: "420px", padding: "2.5rem" }}
-        >
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.75rem",
-              marginBottom: "0.5rem",
-              textAlign: "center",
-            }}
-          >
-            Welcome Back
-          </h1>
-          <p
-            style={{
-              color: "var(--clr-muted)",
-              textAlign: "center",
-              marginBottom: "2rem",
-              fontSize: "0.9rem",
-            }}
-          >
-            Sign in to view your orders
-          </p>
+      <main className="auth-page">
+        <div className="card auth-card">
+          <h1 className="auth-card__title">Welcome Back</h1>
+          <p className="auth-card__subtitle">Sign in to view your orders</p>
 
           {error && (
-            <div
-              className="alert alert-error"
-              style={{ marginBottom: "1rem", fontSize: "0.875rem" }}
-            >
+            <div className="alert alert-error" style={{ marginBottom: "1rem", fontSize: "0.875rem" }}>
               {error}
             </div>
           )}
 
-          <form
-            onSubmit={handleLogin}
-            style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-          >
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div className="form-group">
-              <label className="form-label">Email</label>
+              <label className="form-label" htmlFor="login-email">Email</label>
               <input
+                id="login-email"
                 className="form-input"
                 type="email"
                 required
@@ -178,9 +144,10 @@ function LoginContent() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Password</label>
-              <div style={{ position: "relative" }}>
+              <label className="form-label" htmlFor="login-password">Password</label>
+              <div className="password-field">
                 <input
+                  id="login-password"
                   className="form-input"
                   type={showPassword ? "text" : "password"}
                   required
@@ -192,43 +159,18 @@ function LoginContent() {
                 />
                 <button
                   type="button"
+                  className="password-field__toggle"
                   onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  style={{
-                    position: "absolute",
-                    right: "0.75rem",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "var(--clr-muted)",
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "0.25rem",
-                    transition: "color 150ms ease",
-                  }}
                 >
                   <EyeIcon open={showPassword} />
                 </button>
               </div>
             </div>
 
-            <button
-              type="submit"
-              className="btn btn-primary btn-lg"
-              disabled={loading}
-              style={{ marginTop: "0.5rem" }}
-            >
+            <button type="submit" className="btn btn-primary btn-lg" disabled={loading} style={{ marginTop: "0.5rem" }}>
               {loading ? (
-                <span
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    justifyContent: "center",
-                  }}
-                >
+                <span style={{ display: "flex", alignItems: "center", gap: "0.5rem", justifyContent: "center" }}>
                   <span className="spinner" /> Signing in...
                 </span>
               ) : (
@@ -237,31 +179,11 @@ function LoginContent() {
             </button>
           </form>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: "0.75rem",
-              marginTop: "1.5rem",
-              fontSize: "0.9rem",
-              color: "var(--clr-muted)",
-            }}
-          >
-            <Link
-              href="/forgot-password"
-              style={{ color: "var(--clr-saffron-dark)", fontWeight: 600 }}
-            >
-              Forgot password?
-            </Link>
+          <div className="auth-card__footer">
+            <Link href="/forgot-password">Forgot password?</Link>
             <span>
               No account?{" "}
-              <Link
-                href={`/signup?redirect=${redirect}`}
-                style={{ color: "var(--clr-saffron-dark)", fontWeight: 600 }}
-              >
-                Create one
-              </Link>
+              <Link href={`/signup?redirect=${redirect}`}>Create one</Link>
             </span>
           </div>
         </div>

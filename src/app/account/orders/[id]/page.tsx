@@ -73,16 +73,19 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
               {isSuccess && (
                 <div
                   style={{
-                    background: "linear-gradient(135deg, #D1FAE5, #A7F3D0)",
-                    border: "1px solid #6EE7B7",
+                    background: "linear-gradient(135deg, #d1fae5, #a7f3d0)",
+                    border: "1px solid #6ee7b7",
                     borderRadius: "1.25rem",
                     padding: "2rem",
                     marginBottom: "1.5rem",
                     textAlign: "center",
                   }}
                 >
-                  <div style={{ fontSize: "3.5rem", marginBottom: "0.75rem" }}>
-                    
+                  <div style={{ marginBottom: "0.75rem" }}>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--clr-success)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                      <polyline points="22 4 12 14.01 9 11.01" />
+                    </svg>
                   </div>
                   <h2
                     style={{
@@ -345,7 +348,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       marginBottom: "1.25rem",
                     }}
                   >
-                     Items Ordered
+                      Items Ordered
                   </h2>
                   <div style={{ display: "grid", gap: "1rem" }}>
                     {(order.order_items as any[]).map((item: any) => (
@@ -500,7 +503,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       marginBottom: "1.25rem",
                     }}
                   >
-                     Order Details
+                      Order Details
                   </h2>
                   <div
                     style={{

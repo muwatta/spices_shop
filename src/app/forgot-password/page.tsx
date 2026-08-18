@@ -52,6 +52,7 @@ export default function ForgotPasswordPage() {
     <>
       <Navbar />
       <main
+        className="auth-page"
         style={{
           display: "flex",
           alignItems: "center",
@@ -61,10 +62,11 @@ export default function ForgotPasswordPage() {
         }}
       >
         <div
-          className="card"
+          className="card auth-card"
           style={{ width: "100%", maxWidth: "420px", padding: "2.5rem" }}
         >
           <h1
+            className="auth-card__title"
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "1.75rem",
@@ -75,6 +77,7 @@ export default function ForgotPasswordPage() {
             Forgot Password
           </h1>
           <p
+            className="auth-card__subtitle"
             style={{
               color: "var(--clr-muted)",
               textAlign: "center",
@@ -82,18 +85,20 @@ export default function ForgotPasswordPage() {
               fontSize: "0.9rem",
             }}
           >
-            Enter your email and we’ll send you a secure link to reset your
+            Enter your email and we'll send you a secure link to reset your
             password.
           </p>
 
           {error && (
-            <div className="alert alert-error" style={{ marginBottom: "1rem" }}>
+            <div className="alert alert-error" role="alert" aria-live="polite" style={{ marginBottom: "1rem" }}>
               {error}
             </div>
           )}
           {message && (
             <div
               className="alert alert-success"
+              role="status"
+              aria-live="polite"
               style={{ marginBottom: "1rem" }}
             >
               {message}
@@ -105,14 +110,16 @@ export default function ForgotPasswordPage() {
             style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
           >
             <div className="form-group">
-              <label className="form-label">Email</label>
+              <label className="form-label" htmlFor="forgot-email">Email</label>
               <input
                 className="form-input"
                 type="email"
+                id="forgot-email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
+                autoComplete="email"
               />
             </div>
             <button

@@ -11,7 +11,7 @@ import { sanitizeRedirect } from "@/lib/utils";
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
         stroke="currentColor"
@@ -22,7 +22,7 @@ function EyeIcon({ open }: { open: boolean }) {
       <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
     </svg>
   ) : (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
         d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
         stroke="currentColor"
@@ -131,10 +131,11 @@ function SignupContent() {
     name: string;
     autoComplete: string;
   }) => (
-    <div className="form-group">
-      <label className="form-label">{label}</label>
+    <div className="form-group password-field">
+      <label className="form-label" htmlFor={name}>{label}</label>
       <div style={{ position: "relative" }}>
         <input
+          id={name}
           className="form-input"
           type={show ? "text" : "password"}
           required
@@ -150,6 +151,7 @@ function SignupContent() {
           type="button"
           onClick={onToggle}
           aria-label={show ? "Hide password" : "Show password"}
+          className="password-field__toggle"
           style={{
             position: "absolute",
             right: "0.75rem",
@@ -174,6 +176,7 @@ function SignupContent() {
     <>
       <Navbar />
       <main
+        className="auth-page"
         style={{
           display: "flex",
           alignItems: "center",
@@ -183,10 +186,11 @@ function SignupContent() {
         }}
       >
         <div
-          className="card"
+          className="card auth-card"
           style={{ width: "100%", maxWidth: "420px", padding: "2.5rem" }}
         >
           <h1
+            className="auth-card__title"
             style={{
               fontFamily: "var(--font-display)",
               fontSize: "1.75rem",
@@ -197,6 +201,7 @@ function SignupContent() {
             Create Account
           </h1>
           <p
+            className="auth-card__subtitle"
             style={{
               color: "var(--clr-muted)",
               textAlign: "center",
@@ -229,8 +234,9 @@ function SignupContent() {
             style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
           >
             <div className="form-group">
-              <label className="form-label">Full Name</label>
+              <label className="form-label" htmlFor="full_name">Full Name</label>
               <input
+                id="full_name"
                 className="form-input"
                 type="text"
                 required
@@ -243,8 +249,9 @@ function SignupContent() {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Email</label>
+              <label className="form-label" htmlFor="email">Email</label>
               <input
+                id="email"
                 className="form-input"
                 type="email"
                 required
@@ -255,8 +262,9 @@ function SignupContent() {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Phone Number</label>
+              <label className="form-label" htmlFor="phone">Phone Number</label>
               <input
+                id="phone"
                 className="form-input"
                 type="tel"
                 value={form.phone}
@@ -328,22 +336,14 @@ function SignupContent() {
             </button>
           </form>
 
-          <p
-            style={{
-              textAlign: "center",
-              marginTop: "1.5rem",
-              fontSize: "0.9rem",
-              color: "var(--clr-muted)",
-            }}
-          >
-            Already have an account?{" "}
-            <Link
-              href={`/login?redirect=${redirect}`}
-              style={{ color: "var(--clr-saffron-dark)", fontWeight: 600 }}
-            >
-              Sign in
-            </Link>
-          </p>
+          <div className="auth-card__footer" style={{ textAlign: "center", marginTop: "1.5rem", fontSize: "0.9rem", color: "var(--clr-muted)" }}>
+            <p>
+              Already have an account?{" "}
+              <Link href={`/login?redirect=${redirect}`} className="link link--bold">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </main>
       <Footer />
