@@ -377,10 +377,10 @@ function CheckoutContent() {
                           alignItems: "center",
                           gap: "0.75rem",
                           padding: "1rem",
-                          border: `2px solid ${paymentMethod === method ? "var(--clr-saffron)" : "var(--clr-cream-dark)"}`,
-                          borderRadius: "1rem",
+                          border: `2px solid ${paymentMethod === method ? "var(--clr-terracotta)" : "var(--clr-cream-dark)"}`,
+                          borderRadius: "var(--radius-md)",
                           cursor: "pointer",
-                          background: paymentMethod === method ? "rgba(232,160,32,0.08)" : "white",
+                          background: paymentMethod === method ? "rgba(180,90,60,0.05)" : "white",
                           transition: "all 0.2s ease",
                         }}
                       >
@@ -390,7 +390,7 @@ function CheckoutContent() {
                           value={method}
                           checked={paymentMethod === method}
                           onChange={() => setPaymentMethod(method)}
-                          style={{ accentColor: "var(--clr-saffron)", width: "1.2rem", height: "1.2rem" }}
+                          style={{ accentColor: "var(--clr-terracotta)", width: "1.2rem", height: "1.2rem" }}
                         />
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 600, fontSize: "1rem" }}>
@@ -418,7 +418,7 @@ function CheckoutContent() {
                           <div><strong>{bankInfo.bank_name}</strong></div>
                           <div>Account: <strong>{bankInfo.account_number}</strong></div>
                           <div>Name: <strong>{bankInfo.account_name}</strong></div>
-                          <div style={{ marginTop: "0.75rem", fontWeight: 700, color: "var(--clr-saffron-dark)" }}>
+                          <div style={{ marginTop: "0.75rem", fontWeight: 700,                             color: "var(--clr-terracotta-dark)" }}>
                             Amount: {formatNaira(totalPrice)}
                           </div>
                         </div>

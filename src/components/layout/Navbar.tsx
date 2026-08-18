@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import AnnouncementBar from "./AnnouncementBar";
 
 const MotionNav = motion.nav;
 
@@ -230,6 +231,7 @@ export default function Navbar(): JSX.Element {
 
   return (
     <>
+      <AnnouncementBar />
       <MotionNav
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -462,7 +464,7 @@ export default function Navbar(): JSX.Element {
           position: sticky;
           top: 0;
           z-index: 100;
-          box-shadow: 0 1px 0 rgba(255,255,255,0.08);
+          box-shadow: 0 1px 0 rgba(255,255,255,0.06);
           height: var(--nav-height);
         }
         .nav__inner {
@@ -471,7 +473,7 @@ export default function Navbar(): JSX.Element {
           justify-content: space-between;
           padding: 0.5rem 1rem;
           gap: 0.5rem;
-          max-width: 1200px;
+          max-width: var(--max-width, 1200px);
           margin: 0 auto;
         }
         .nav__brand {
@@ -480,7 +482,7 @@ export default function Navbar(): JSX.Element {
           gap: 0.5rem;
           font-weight: 700;
           font-size: 1rem;
-          color: var(--clr-saffron);
+          color: var(--clr-turmeric);
           text-decoration: none;
           flex-shrink: 0;
         }
@@ -525,8 +527,8 @@ export default function Navbar(): JSX.Element {
         }
         .nav__cart:active, .nav__user-btn:active { transform: scale(0.93); }
         .nav__cart {
-          background: var(--clr-saffron);
-          color: var(--clr-bark);
+          background: var(--clr-terracotta);
+          color: var(--clr-white);
           position: relative;
         }
         .nav__badge {
@@ -546,7 +548,7 @@ export default function Navbar(): JSX.Element {
           line-height: 1;
         }
         .nav__user-btn {
-          background: rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.08);
           color: var(--clr-cream);
           font-family: var(--font-body);
         }
@@ -563,7 +565,7 @@ export default function Navbar(): JSX.Element {
           width: 100%;
           height: 100%;
           border-radius: 50%;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           font-weight: 700;
           letter-spacing: 0.06em;
           text-transform: uppercase;
@@ -574,9 +576,9 @@ export default function Navbar(): JSX.Element {
           top: calc(100% + 0.5rem);
           right: 0;
           background: #fff;
-          border-radius: 0.625rem;
-          box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-          min-width: 148px;
+          border-radius: var(--radius-md);
+          box-shadow: 0 8px 24px rgba(30,23,16,0.12);
+          min-width: 160px;
           z-index: 200;
           overflow: hidden;
         }
@@ -590,13 +592,13 @@ export default function Navbar(): JSX.Element {
           border: none;
           color: var(--clr-bark);
           text-decoration: none;
-          font-size: 0.84rem;
+          font-size: var(--text-sm);
           cursor: pointer;
           font-family: var(--font-body);
           transition: background 120ms ease;
         }
         .nav__dropdown a:hover,
-        .nav__dropdown button:hover { background: var(--clr-cream-dark); }
+        .nav__dropdown button:hover { background: var(--clr-cream); }
         .nav__dropdown-logout {
           color: var(--clr-chili) !important;
           border-top: 1px solid var(--clr-cream-dark) !important;
@@ -606,14 +608,15 @@ export default function Navbar(): JSX.Element {
         /* Drawer */
         .nav__overlay {
           position: fixed; inset: 0;
-          background: rgba(0,0,0,0.5);
+          background: rgba(18,10,6,0.5);
           z-index: 1000;
+          backdrop-filter: blur(2px);
         }
         .nav__drawer {
           position: fixed;
           top: 0; left: 0; bottom: 0;
           width: min(85vw, 320px);
-          background: var(--clr-bark-mid);
+          background: var(--clr-bark);
           z-index: 1001;
           display: flex;
           flex-direction: column;
@@ -623,13 +626,13 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.6rem 0.75rem;
-          border-bottom: 1px solid rgba(255,255,255,0.08);
+          padding: 0.75rem 1rem;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
           flex-shrink: 0;
         }
         .nav__drawer-header span {
           font-family: var(--font-display);
-          color: var(--clr-saffron);
+          color: var(--clr-turmeric);
           font-size: 0.95rem;
           font-weight: 700;
         }
@@ -637,7 +640,7 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 26px; height: 26px;
+          width: 28px; height: 28px;
           border-radius: 0;
           background: transparent;
           border: none;
@@ -647,10 +650,10 @@ export default function Navbar(): JSX.Element {
         .nav__drawer-search {
           display: flex;
           align-items: center;
-          margin: 0.6rem 0.75rem;
-          background: rgba(255,255,255,0.1);
-          border-radius: 999px;
-          padding: 0.2rem 0.55rem;
+          margin: 0.75rem 1rem;
+          background: rgba(255,255,255,0.08);
+          border-radius: var(--radius-full);
+          padding: 0.25rem 0.625rem;
           flex-shrink: 0;
         }
         .nav__drawer-search input {
@@ -658,17 +661,17 @@ export default function Navbar(): JSX.Element {
           border: none;
           background: transparent;
           color: #fff;
-          padding: 0.3rem 0.2rem;
+          padding: 0.35rem 0.25rem;
           outline: none;
-          font-size: 0.85rem;
+          font-size: var(--text-sm);
           font-family: var(--font-body);
           min-width: 0;
         }
-        .nav__drawer-search input::placeholder { color: rgba(255,255,255,0.4); }
+        .nav__drawer-search input::placeholder { color: rgba(255,255,255,0.35); }
         .nav__drawer-search button {
           background: none;
           border: none;
-          color: var(--clr-saffron);
+          color: var(--clr-turmeric);
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -678,41 +681,41 @@ export default function Navbar(): JSX.Element {
           display: flex;
           flex-direction: column;
           flex: 1;
-          padding: 0.4rem 0 0.8rem;
+          padding: 0.5rem 0 1rem;
         }
         .nav__drawer-links a,
         .nav__drawer-links button {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          color: rgba(255,255,255,0.82);
+          color: rgba(255,255,255,0.75);
           text-decoration: none;
-          font-size: 0.9rem;
+          font-size: var(--text-base);
           background: none;
           border: none;
           text-align: left;
           cursor: pointer;
-          padding: 0.65rem 0.95rem;
-          width: 70%;
+          padding: 0.7rem 1rem;
+          width: 100%;
           font-family: var(--font-body);
           transition: background 120ms ease, color 120ms ease;
         }
         .nav__drawer-links a:hover,
         .nav__drawer-links button:hover {
-          background: rgba(255,255,255,0.06);
-          color: var(--clr-saffron);
+          background: rgba(255,255,255,0.05);
+          color: var(--clr-turmeric);
         }
         .nav__drawer-logout {
           color: rgba(255,110,110,0.85) !important;
           margin-top: auto !important;
-          border-top: 1px solid rgba(255,255,255,0.07) !important;
+          border-top: 1px solid rgba(255,255,255,0.06) !important;
         }
 
         /* MD */
         @media (min-width: 768px) {
-          .nav__inner { padding: 0.65rem 1.5rem; }
+          .nav__inner { padding: 0.6rem 1.5rem; }
           .nav__brand { font-size: 0.9375rem; gap: 0.6rem; }
-          .nav__logo { width: 42px !important; height: 42px !important; }
+          .nav__logo { width: 40px !important; height: 40px !important; }
           .nav__cart, .nav__user-btn { width: 40px; height: 40px; }
           .nav__actions { gap: 0.625rem; }
         }
@@ -723,25 +726,33 @@ export default function Navbar(): JSX.Element {
           .nav__center {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 2rem;
             flex: 1;
             justify-content: center;
           }
           .nav__center a {
             text-decoration: none;
-            color: rgba(253,246,236,0.68);
-            font-size: 0.9375rem;
+            color: rgba(250,247,242,0.55);
+            font-size: var(--text-sm);
+            font-weight: 500;
             transition: color 150ms ease;
+            padding: 0.25rem 0;
+            border-bottom: 2px solid transparent;
           }
           .nav__center a:hover { color: var(--clr-cream); }
-          .nav__center a.active { color: var(--clr-saffron); font-weight: 600; }
+          .nav__center a.active {
+            color: var(--clr-turmeric);
+            font-weight: 600;
+            border-bottom-color: var(--clr-turmeric);
+          }
           .desktop-search {
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.09);
-            border-radius: 999px;
-            padding: 0.25rem 0.5rem 0.25rem 1rem;
+            background: rgba(255,255,255,0.07);
+            border-radius: var(--radius-full);
+            padding: 0.25rem 0.375rem 0.25rem 0.875rem;
             gap: 0.25rem;
+            border: 1px solid rgba(255,255,255,0.06);
           }
           .desktop-search input {
             border: none;
@@ -749,26 +760,26 @@ export default function Navbar(): JSX.Element {
             color: #fff;
             padding: 0.35rem 0;
             outline: none;
-            width: 150px;
-            font-size: 0.875rem;
+            width: 160px;
+            font-size: var(--text-sm);
             font-family: var(--font-body);
           }
-          .desktop-search input::placeholder { color: rgba(255,255,255,0.38); }
+          .desktop-search input::placeholder { color: rgba(255,255,255,0.32); }
           .nav__search-button {
             background: none;
             border: none;
-            color: var(--clr-saffron);
+            color: var(--clr-turmeric);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 0.35rem;
-            padding: 0.35rem 0.6rem;
+            padding: 0.35rem 0.625rem;
             border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 700;
+            font-size: var(--text-xs);
+            font-weight: 600;
             transition: background 150ms ease;
           }
-          .nav__search-button:hover { background: rgba(255,255,255,0.12); }
+          .nav__search-button:hover { background: rgba(255,255,255,0.1); }
         }
       `}</style>
       </MotionNav>

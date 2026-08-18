@@ -6,22 +6,50 @@ import BackToTop from "@/components/ui/BackToTop";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
-  title: "KMA Spices and Herbs – Pure Nigerian Spices",
-  description: "KMA Spices and Herbs delivers pure natural spices...",
-  icons: {
-  icon: [
-    { url: "/favicon-v2.ico", sizes: "any" },
-    { url: "/images/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-    { url: "/images/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+  title: {
+    default: "KMA Spices & Herbs - Premium Nigerian Spices",
+    template: "%s | KMA Spices & Herbs",
+  },
+  description:
+    "Premium Nigerian spices and seasonings for everyday cooking. 100% natural, freshly packed. Curry, thyme, ginger, pepper, and more. Order with bank transfer or cash on delivery.",
+  keywords: [
+    "Nigerian spices",
+    "curry powder",
+    "thyme",
+    "ginger powder",
+    "garlic powder",
+    "black pepper",
+    "paprika",
+    "turmeric",
+    "seasoning",
+    "suya spice",
+    "pepper soup spice",
+    "jollof seasoning",
+    "chicken seasoning",
   ],
-  shortcut: "/favicon.ico",
-  apple: "/images/apple-touch-icon.png",
-},
+  openGraph: {
+    title: "KMA Spices & Herbs",
+    description:
+      "Premium Nigerian spices and seasonings for everyday cooking. 100% natural, freshly packed.",
+    type: "website",
+    locale: "en_NG",
+    siteName: "KMA Spices & Herbs",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-v2.ico", sizes: "any" },
+      { url: "/images/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/images/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/images/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#1E1710",
 };
 
 export default function RootLayout({
@@ -31,29 +59,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        style={{
-          position: "relative",
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
+      <body>
         <BackToTop />
         <SpeedInsights />
-
-        <div
-          style={{
-            position: "relative",
-            zIndex: 1,
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {children}
         </div>
-
         <CartReminder />
         <Analytics />
       </body>

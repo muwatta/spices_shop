@@ -7,16 +7,36 @@ import HeroCarousel from "@/components/layout/HeroCarousel";
 import Link from "next/link";
 import ProductGrid from "@/components/product/ProductGrid";
 import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
+import CategoryCard from "@/components/ui/CategoryCard";
+import InspirationCard from "@/components/ui/InspirationCard";
 
 function HomeSkeletonGrid() {
   return (
-    <div className="skeleton-grid">
-      {Array.from({ length: 6 }).map((_, index) => (
+    <div className="product-grid">
+      {Array.from({ length: 8 }).map((_, index) => (
         <ProductCardSkeleton key={index} />
       ))}
     </div>
   );
 }
+
+const CATEGORIES = [
+  { emoji: "🌶", name: "Spices", href: "/search?q=spice", colorClass: "category-card__icon--spices" },
+  { emoji: "🌿", name: "Herbs", href: "/search?q=herb", colorClass: "category-card__icon--herbs" },
+  { emoji: "🧂", name: "Seasonings", href: "/search?q=seasoning", colorClass: "category-card__icon--seasonings" },
+  { emoji: "🔥", name: "Pepper & Heat", href: "/search?q=pepper", colorClass: "category-card__icon--peppers" },
+  { emoji: "🍲", name: "Cooking Blends", href: "/search?q=curry", colorClass: "category-card__icon--blends" },
+  { emoji: "🫒", name: "Oils & Flours", href: "/search?q=oil", colorClass: "category-card__icon--oils" },
+];
+
+const INSPIRATION_ITEMS = [
+  { emoji: "🍚", name: "Jollof Rice", href: "/search?q=jollof" },
+  { emoji: "🍗", name: "Chicken", href: "/search?q=chicken" },
+  { emoji: "🥘", name: "Pepper Soup", href: "/search?q=pepper+soup" },
+  { emoji: "🐟", name: "Grilled Fish", href: "/search?q=fish" },
+  { emoji: "🥩", name: "Suya", href: "/search?q=suya" },
+  { emoji: "🍛", name: "Curry Stew", href: "/search?q=curry" },
+];
 
 export default function HomePage() {
   return (
@@ -27,27 +47,39 @@ export default function HomePage() {
         <section className="hero-section">
           <div className="container hero-grid">
             <div className="hero-copy">
-              <span className="hero-eyebrow">KMA Spices and Herbs</span>
+              <span className="hero-eyebrow">KMA Spices &amp; Herbs</span>
               <h1 className="hero-title">
-                Premium Nigerian spices for bold flavor and natural wellness.
+                Bring Every Meal to Life.
               </h1>
               <p className="hero-description">
-                Carefully sourced spices, herbs, flours, condiments, and
-                unadulterated oils. Order securely with bank transfer or cash
-                on delivery.
+                Premium Nigerian spices and seasonings for everyday cooking.
+                Carefully sourced, freshly packed, delivered to your kitchen.
               </p>
-
               <div className="hero-actions">
                 <Link href="#catalog" className="btn btn-primary">
-                  Browse products
+                  Shop Spices
                 </Link>
-                <Link href="/do-you-know" className="btn btn-ghost">
-                  Spice tips
+                <Link href="#categories" className="btn btn-secondary">
+                  Explore Categories
                 </Link>
               </div>
             </div>
-
             <HeroCarousel />
+          </div>
+        </section>
+
+        {/* Shop by category */}
+        <section id="categories" className="categories-section">
+          <div className="container">
+            <div className="section-header">
+              <p className="section-eyebrow">Browse by category</p>
+              <h2 className="section-title">Find what your kitchen needs</h2>
+            </div>
+            <div className="category-grid">
+              {CATEGORIES.map((cat) => (
+                <CategoryCard key={cat.name} {...cat} />
+              ))}
+            </div>
           </div>
         </section>
 
@@ -60,7 +92,7 @@ export default function HomePage() {
               </svg>
             </div>
             <span className="trust-bar__label">Secure ordering</span>
-            <span className="trust-bar__description">Bank transfer &amp; cash on delivery</span>
+            <span className="trust-bar__description">Bank transfer and cash on delivery</span>
           </div>
           <div className="trust-bar__item">
             <div className="trust-bar__icon">
@@ -91,22 +123,62 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Catalog section */}
+        {/* Best sellers */}
         <section id="catalog" className="catalog-section">
           <div className="container">
-            <div className="catalog-intro">
-              <p className="catalog-eyebrow">Our products</p>
-              <h2 className="section-title">Fresh spices ready to ship.</h2>
-              <p className="catalog-text">
+            <div className="section-header">
+              <p className="section-eyebrow">Our products</p>
+              <h2 className="section-title">Fresh spices ready to ship</h2>
+              <p className="section-subtitle">
                 Browse our curated selection of premium Nigerian spices, herbs,
-                and cooking essentials. Fast checkout with bank transfer or cash
-                on delivery.
+                and cooking essentials.
               </p>
             </div>
-
             <Suspense fallback={<HomeSkeletonGrid />}>
               <ProductGrid />
             </Suspense>
+          </div>
+        </section>
+
+        {/* Cooking inspiration */}
+        <section className="inspiration-section">
+          <div className="container">
+            <div className="section-header">
+              <p className="section-eyebrow">What are you cooking?</p>
+              <h2 className="section-title">Find the right spices for your dish</h2>
+              <p className="section-subtitle">
+                From jollof to pepper soup, we have the spices that make every Nigerian meal memorable.
+              </p>
+            </div>
+            <div className="inspiration-grid">
+              {INSPIRATION_ITEMS.map((item) => (
+                <InspirationCard key={item.name} {...item} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Newsletter */}
+        <section className="newsletter-section">
+          <div className="container">
+            <div className="newsletter-box">
+              <h2 className="newsletter-box__title">Get more from your kitchen</h2>
+              <p className="newsletter-box__description">
+                Recipes, cooking ideas and occasional offers. Straight to your inbox.
+              </p>
+              <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  className="form-input"
+                  aria-label="Email for newsletter"
+                  required
+                />
+                <button type="submit" className="btn btn-primary">
+                  Subscribe
+                </button>
+              </form>
+            </div>
           </div>
         </section>
       </main>

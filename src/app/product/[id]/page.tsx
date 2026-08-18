@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AddToCartButton from "@/components/product/AddToCartButton";
@@ -11,6 +12,28 @@ export const revalidate = 60;
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = createClient();
+  const { data: product } = await supabase
+    .from("products")
+    .select("name, description, price")
+    .eq("id", id)
+    .single();
+
+  if (!product) return { title: "Product Not Found" };
+
+  return {
+    title: product.name,
+    description: product.description || `Buy ${product.name} for ${formatNaira(product.price)} - 100% natural Nigerian spice.`,
+    openGraph: {
+      title: product.name,
+      description: product.description || `Premium ${product.name} from KMA Spices & Herbs.`,
+      type: "website",
+    },
+  };
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -30,91 +53,110 @@ export default async function ProductPage({ params }: Props) {
     <>
       <Navbar />
       <main>
-        <div className="container" style={{ padding: "2rem var(--space-md)" }}>
+        <div className="container" style={{ padding: "2rem var(--space-md) var(--space-3xl)" }}>
+          {/* Breadcrumb */}
           <nav
+            aria-label="Breadcrumb"
             style={{
-              marginBottom: "1.5rem",
-              fontSize: "0.875rem",
+              marginBottom: "2rem",
+              fontSize: "var(--text-sm)",
               color: "var(--clr-muted)",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.35rem",
+              flexWrap: "wrap",
             }}
           >
-            <a href="/" style={{ color: "var(--clr-saffron-dark)" }}>
+            <a href="/" style={{ color: "var(--clr-terracotta)", fontWeight: 500 }}>
               Shop
             </a>
-            {" / "}
-            <span>{product.name}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ opacity: 0.4 }}>
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+            <span aria-current="page">{product.name}</span>
           </nav>
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: "2.5rem",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: "3rem",
               alignItems: "start",
             }}
           >
+            {/* Product image */}
             <ClientProductImage
               imageUrl={product.image_url}
               productName={product.name}
             />
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.25rem",
-              }}
-            >
-              <h1
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
-                }}
-              >
-                {product.name}
-              </h1>
+            {/* Product info */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <div>
+                <h1
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  {product.name}
+                </h1>
 
-              <div
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "2rem",
-                  fontWeight: 700,
-                  color: "var(--clr-saffron-dark)",
-                }}
-              >
-                {formatNaira(product.price)}
+                <div
+                  style={{
+                    fontSize: "1.75rem",
+                    fontWeight: 700,
+                    color: "var(--clr-bark)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  {formatNaira(product.price)}
+                </div>
               </div>
 
               {product.stock !== null && (
-                <p
+                <div
                   style={{
-                    fontSize: "0.875rem",
-                    color: outOfStock
-                      ? "var(--clr-chili)"
-                      : "var(--clr-success)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    fontSize: "var(--text-sm)",
                     fontWeight: 600,
+                    color: outOfStock ? "var(--clr-chili)" : "var(--clr-success)",
                   }}
                 >
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background: outOfStock ? "var(--clr-chili)" : "var(--clr-success)",
+                      display: "inline-block",
+                    }}
+                  />
                   {outOfStock
                     ? "Out of Stock"
-                    : `In Stock (${product.stock} available)`}
-                </p>
+                    : `In Stock \u00B7 ${product.stock} available`}
+                </div>
               )}
 
               {product.description && (
                 <div>
                   <h3
                     style={{
-                      fontSize: "0.875rem",
+                      fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
-                      letterSpacing: "0.05em",
+                      letterSpacing: "0.1em",
                       marginBottom: "0.5rem",
                       color: "var(--clr-muted)",
+                      fontFamily: "var(--font-body)",
+                      fontWeight: 700,
                     }}
                   >
-                    Description
+                    About this product
                   </h3>
-                  <p style={{ color: "var(--clr-bark-mid)", lineHeight: 1.8 }}>
+                  <p style={{ color: "var(--clr-bark-mid)", lineHeight: 1.8, fontSize: "var(--text-base)" }}>
                     {product.description}
                   </p>
                 </div>
@@ -127,12 +169,13 @@ export default async function ProductPage({ params }: Props) {
 
               <div
                 style={{
-                  background: "var(--clr-cream-dark)",
+                  background: "var(--clr-cream)",
                   borderRadius: "var(--radius-md)",
-                  padding: "1rem",
-                  fontSize: "0.875rem",
+                  padding: "1rem 1.25rem",
+                  fontSize: "var(--text-sm)",
                   color: "var(--clr-muted)",
                   lineHeight: 1.7,
+                  border: "1px solid var(--clr-cream-dark)",
                 }}
               >
                 <strong
@@ -140,11 +183,12 @@ export default async function ProductPage({ params }: Props) {
                     color: "var(--clr-bark)",
                     display: "block",
                     marginBottom: "0.25rem",
+                    fontSize: "var(--text-sm)",
                   }}
                 >
-                  Payment Options
+                  Payment &amp; Delivery
                 </strong>
-                Bank Transfer &nbsp;|&nbsp; Cash on Delivery
+                Pay via bank transfer or choose cash on delivery. We deliver nationwide across Nigeria.
               </div>
             </div>
           </div>
