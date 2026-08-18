@@ -185,7 +185,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                     <Link
                       href="/account/orders"
                       style={{
-                        color: "var(--clr-saffron-dark)",
+                        color: "var(--clr-terracotta-dark)",
                         fontSize: "0.875rem",
                       }}
                       className="no-print"
@@ -267,7 +267,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                           left: "10%",
                           width: `${progressWidth * 0.8}%`,
                           height: "4px",
-                          background: "var(--clr-saffron)",
+                          background: "var(--clr-terracotta)",
                           borderRadius: "2px",
                           zIndex: 1,
                           transition: "width 0.5s ease",
@@ -293,7 +293,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                               borderRadius: "50%",
                               background:
                                 i <= currentStep
-                                  ? "var(--clr-saffron)"
+                                  ? "var(--clr-terracotta)"
                                   : "var(--clr-cream-dark)",
                               display: "flex",
                               alignItems: "center",
@@ -486,7 +486,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                         fontFamily: "var(--font-display)",
                         fontSize: "1.4rem",
                         fontWeight: 700,
-                        color: "var(--clr-saffron-dark)",
+                        color: "var(--clr-terracotta-dark)",
                       }}
                     >
                       {formatNaira(order.total_amount)}

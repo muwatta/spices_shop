@@ -241,7 +241,7 @@ export default function AdminReportsPage() {
             style={{
               fontSize: "2rem",
               fontWeight: 700,
-              color: "var(--clr-saffron-dark)",
+              color: "var(--clr-terracotta)",
             }}
           >
             {formatNaira(stats.totalSales)}

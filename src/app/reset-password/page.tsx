@@ -149,7 +149,7 @@ function ResetPasswordContent() {
                     transform: "translateY(-50%)",
                     background: "none",
                     border: "none",
-                    color: "var(--clr-saffron-dark)",
+                    color: "var(--clr-terracotta)",
                     cursor: "pointer",
                     fontWeight: 600,
                   }}
@@ -176,7 +176,7 @@ function ResetPasswordContent() {
                     transform: "translateY(-50%)",
                     background: "none",
                     border: "none",
-                    color: "var(--clr-saffron-dark)",
+                    color: "var(--clr-terracotta)",
                     cursor: "pointer",
                     fontWeight: 600,
                   }}
@@ -210,7 +210,7 @@ function ResetPasswordContent() {
             Remembered your password?{" "}
             <a
               href="/login"
-              style={{ color: "var(--clr-saffron-dark)", fontWeight: 600 }}
+              style={{ color: "var(--clr-terracotta)", fontWeight: 600 }}
             >
               Sign in
             </a>

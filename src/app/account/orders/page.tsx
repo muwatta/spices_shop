@@ -138,7 +138,7 @@ function OrdersContent() {
                         style={{
                           fontWeight: 700,
                           fontSize: "0.875rem",
-                          color: "var(--clr-saffron-dark)",
+                          color: "var(--clr-terracotta)",
                         }}
                       >
                         #

@@ -160,7 +160,7 @@ export default function AdminDoYouKnowPage() {
           {editingItem ? "Edit guide" : "Add new guide"}
         </h2>
         {message && (
-          <div style={{ color: "var(--clr-saffron)", marginBottom: "1rem" }}>
+          <div style={{ color: "var(--clr-terracotta)", marginBottom: "1rem" }}>
             {message}
           </div>
         )}
@@ -233,7 +233,7 @@ export default function AdminDoYouKnowPage() {
               type="submit"
               disabled={saving}
               style={{
-                background: "var(--clr-saffron)",
+                background: "var(--clr-terracotta)",
                 color: "var(--clr-bark)",
                 border: "none",
                 padding: "0.9rem 1.5rem",
@@ -304,7 +304,7 @@ export default function AdminDoYouKnowPage() {
                     <button
                       onClick={() => handleEdit(item)}
                       style={{
-                        background: "var(--clr-saffron)",
+                        background: "var(--clr-terracotta)",
                         border: "none",
                         color: "var(--clr-bark)",
                         padding: "0.7rem 1rem",

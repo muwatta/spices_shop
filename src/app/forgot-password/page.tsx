@@ -142,7 +142,7 @@ export default function ForgotPasswordPage() {
             Remembered your password?{" "}
             <Link
               href="/login"
-              style={{ color: "var(--clr-saffron-dark)", fontWeight: 600 }}
+              style={{ color: "var(--clr-terracotta)", fontWeight: 600 }}
             >
               Sign in
             </Link>

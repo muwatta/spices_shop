@@ -48,7 +48,7 @@ const STAT_CARDS = (stats: Stats) => [
   {
     label: "Pending Orders",
     value: stats.pendingOrders,
-    accent: "var(--clr-saffron-dark)",
+    accent: "var(--clr-terracotta)",
     bg: "#FEF3C7",
   },
   {
@@ -379,7 +379,7 @@ export default function AdminDashboardPage() {
         }
         .dash__see-all {
           font-size: 0.85rem;
-          color: var(--clr-saffron-dark);
+          color: var(--clr-terracotta-dark);
           text-decoration: none;
           font-weight: 600;
           white-space: nowrap;
@@ -447,7 +447,7 @@ export default function AdminDashboardPage() {
         }
         .order-card__id {
           font-weight: 700;
-          color: var(--clr-saffron-dark);
+          color: var(--clr-terracotta-dark);
           text-decoration: none;
           font-size: 0.875rem;
         }
@@ -474,7 +474,7 @@ export default function AdminDashboardPage() {
           flex-wrap: wrap;
         }
         .order-card__phone {
-          color: var(--clr-saffron-dark);
+          color: var(--clr-terracotta-dark);
           text-decoration: none;
           font-weight: 500;
         }

@@ -78,7 +78,7 @@ export default function AdminOrderDetailPage() {
       <div style={{ marginBottom: "1.5rem" }}>
         <Link
           href="/admin/orders"
-          style={{ color: "var(--clr-saffron-dark)", fontSize: "0.875rem" }}
+          style={{ color: "var(--clr-terracotta)", fontSize: "0.875rem" }}
         >
            All Orders
         </Link>
@@ -269,7 +269,7 @@ export default function AdminOrderDetailPage() {
                 className="btn btn-sm"
                 style={{
                   background:
-                    order.status === s ? "var(--clr-saffron)" : "white",
+                    order.status === s ? "var(--clr-terracotta)" : "white",
                   color: "var(--clr-bark)",
                   border: "2px solid var(--clr-cream-dark)",
                   textTransform: "capitalize",
@@ -327,7 +327,7 @@ export default function AdminOrderDetailPage() {
           <span
             style={{
               fontFamily: "var(--font-display)",
-              color: "var(--clr-saffron-dark)",
+              color: "var(--clr-terracotta)",
               fontSize: "1.1rem",
             }}
           >

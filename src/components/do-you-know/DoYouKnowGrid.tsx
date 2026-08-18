@@ -67,7 +67,7 @@ export default function DoYouKnowGrid({ items }: { items: DoYouKnowItem[] }) {
                   fontSize: "0.8rem",
                   letterSpacing: "0.12em",
                   textTransform: "uppercase",
-                  color: "var(--clr-saffron)",
+                  color: "var(--clr-terracotta)",
                   fontWeight: 700,
                 }}
               >
@@ -129,7 +129,7 @@ export default function DoYouKnowGrid({ items }: { items: DoYouKnowItem[] }) {
                 <h3
                   style={{
                     margin: 0,
-                    color: "var(--clr-saffron)",
+                  color: "var(--clr-terracotta)",
                     fontSize: "0.95rem",
                     fontWeight: 700,
                     letterSpacing: "0.04em",

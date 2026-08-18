@@ -3,6 +3,8 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import CartReminder from "@/components/ui/CartReminder";
 import BackToTop from "@/components/ui/BackToTop";
+import MiniCartDrawer from "@/components/ui/MiniCartDrawer";
+import BottomNav from "@/components/layout/BottomNav";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
@@ -62,10 +64,12 @@ export default function RootLayout({
       <body>
         <BackToTop />
         <SpeedInsights />
+        <MiniCartDrawer />
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {children}
         </div>
         <CartReminder />
+        <BottomNav />
         <Analytics />
       </body>
     </html>

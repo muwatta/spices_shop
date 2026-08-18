@@ -439,7 +439,7 @@ export default function AdminProductsPage() {
                     style={{
                       fontFamily: "var(--font-display)",
                       fontWeight: 700,
-                      color: "var(--clr-saffron-dark)",
+                      color: "var(--clr-terracotta)",
                     }}
                   >
                     {formatNaira(product.price)}

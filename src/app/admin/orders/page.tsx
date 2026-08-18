@@ -420,7 +420,7 @@ export default function AdminOrdersPage() {
                         <Link
                           href={`/admin/orders/${order.id}`}
                           style={{
-                            color: "var(--clr-saffron-dark)",
+                            color: "var(--clr-terracotta)",
                             fontWeight: 700,
                           }}
                         >

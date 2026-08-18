@@ -170,7 +170,7 @@ export default function AdminLoginForm() {
                   transform: "translateY(-50%)",
                   background: "none",
                   border: "none",
-                  color: "var(--clr-saffron-dark)",
+                  color: "var(--clr-terracotta)",
                   cursor: "pointer",
                   fontSize: "0.875rem",
                   fontWeight: 600,

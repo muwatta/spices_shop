@@ -160,7 +160,7 @@ async function DoYouKnowContent() {
                 style={{
                   textTransform: "uppercase",
                   letterSpacing: "0.14em",
-                  color: "var(--clr-saffron-dark)",
+                  color: "var(--clr-terracotta)",
                   fontWeight: 700,
                   marginBottom: "0.75rem",
                   fontSize: "0.85rem",

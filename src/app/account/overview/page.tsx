@@ -104,7 +104,7 @@ export default function AccountOverviewPage() {
               style={{
                 fontSize: "2rem",
                 fontWeight: 700,
-                color: "var(--clr-saffron-dark)",
+                color: "var(--clr-terracotta)",
               }}
             >
               {stats.totalOrders}

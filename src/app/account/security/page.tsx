@@ -133,7 +133,7 @@ export default function AccountSecurityPage() {
                 transform: "translateY(-50%)",
                 background: "none",
                 border: "none",
-                color: "var(--clr-saffron-dark)",
+                color: "var(--clr-terracotta)",
                 cursor: "pointer",
                 fontWeight: 600,
               }}
@@ -166,7 +166,7 @@ export default function AccountSecurityPage() {
                 transform: "translateY(-50%)",
                 background: "none",
                 border: "none",
-                color: "var(--clr-saffron-dark)",
+                color: "var(--clr-terracotta)",
                 cursor: "pointer",
                 fontWeight: 600,
               }}

@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import AccountSidebar from "@/components/account/AccountSidebar";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -27,22 +28,10 @@ export default async function AccountLayout({
   return (
     <>
       <Navbar />
-      <main
-        style={{
-          background: "var(--clr-cream)",
-          minHeight: "calc(100vh - 120px)",
-        }}
-      >
-        <div className="container" style={{ padding: "2rem var(--space-md)" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr",
-              gap: "1.5rem",
-            }}
-          >
-            <section>{children}</section>
-          </div>
+      <main className="account-page">
+        <div className="container account-page__inner">
+          <AccountSidebar />
+          <section className="account-page__content">{children}</section>
         </div>
       </main>
       <Footer />

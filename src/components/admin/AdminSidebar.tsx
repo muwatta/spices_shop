@@ -160,7 +160,7 @@ export default function AdminSidebar() {
           font-size: 1rem;
           font-weight: 700;
           font-family: var(--font-display);
-          color: var(--clr-saffron);
+          color: var(--clr-terracotta);
           white-space: nowrap;
         }
 
@@ -229,7 +229,7 @@ export default function AdminSidebar() {
           font-size: 0.95rem;
           font-weight: 700;
           font-family: var(--font-display);
-          color: var(--clr-saffron);
+          color: var(--clr-terracotta);
         }
 
         .admin-sidebar__close {
@@ -279,15 +279,15 @@ export default function AdminSidebar() {
 
         .admin-sidebar__link:hover {
           background: rgba(232,160,32,0.14);
-          color: var(--clr-saffron);
+          color: var(--clr-terracotta);
           transform: translateX(1px);
         }
 
         .admin-sidebar__link--active {
           font-weight: 600;
-          color: var(--clr-saffron);
+          color: var(--clr-terracotta);
           background: rgba(232,160,32,0.2);
-          box-shadow: inset 4px 0 0 var(--clr-saffron);
+          box-shadow: inset 4px 0 0 var(--clr-terracotta);
         }
 
         .admin-sidebar__icon {

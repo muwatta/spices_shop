@@ -2,16 +2,19 @@
 
 import { useState } from "react";
 import { useCartStore } from "@/lib/store/cart";
+import { useMiniCartStore } from "@/lib/store/miniCart";
 import { Product } from "@/types";
 
 export default function AddToCartButton({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem);
+  const openMiniCart = useMiniCartStore((s) => s.open);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
 
   function handleAdd() {
     addItem(product.id, qty);
     setAdded(true);
+    openMiniCart(product, qty);
     setTimeout(() => setAdded(false), 2000);
   }
 
