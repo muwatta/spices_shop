@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { checkRateLimit, getRateLimitIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
 function normalizeEmail(email: unknown) {
   return typeof email === "string" ? email.trim().toLowerCase() : "";
@@ -10,6 +11,11 @@ function isValidEmail(email: string) {
 }
 
 export async function POST(request: Request) {
+  const rlId = getRateLimitIdentifier(request);
+  const rl = await checkRateLimit("reset-password", rlId);
+  const rlResp = rateLimitResponse(rl);
+  if (rlResp) return rlResp;
+
   const body = await request.json().catch(() => ({}));
   const email = normalizeEmail(body.email);
 

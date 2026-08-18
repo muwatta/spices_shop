@@ -1,14 +1,18 @@
-import { createAdminClient, createClient } from "@/lib/supabase/server";
-import { generateTransactionId } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { checkRateLimit, getRateLimitIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
 function normalizeText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
 export async function POST(request: Request) {
+  const rlId = getRateLimitIdentifier(request);
+  const rl = await checkRateLimit("checkout", rlId);
+  const rlResp = rateLimitResponse(rl);
+  if (rlResp) return rlResp;
+
   const supabase = createClient();
-  const adminSupabase = createAdminClient();
 
   const {
     data: { user },
@@ -64,6 +68,7 @@ export async function POST(request: Request) {
     );
   }
 
+  // Aggregate duplicate product IDs
   const orderQuantities = items.reduce(
     (acc: Record<string, number>, item: any) => {
       const productId = normalizeText(item.product_id);
@@ -83,162 +88,56 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: products, error: productError } = await adminSupabase
-    .from("products")
-    .select("id, price, stock")
-    .in("id", productIds);
+  // Build items array for the atomic checkout function
+  const checkoutItems = productIds.map((productId) => ({
+    product_id: productId,
+    quantity: orderQuantities[productId],
+  }));
 
-  if (productError || !products) {
-    return NextResponse.json(
-      { error: "Unable to validate products. Please try again later." },
-      { status: 500 },
-    );
-  }
-
-  const productMap = Object.fromEntries(
-    products.map((product: any) => [product.id, product]),
+  // Call the atomic checkout function — everything happens in a single DB transaction
+  const { data: order, error: checkoutError } = await supabase.rpc(
+    "process_checkout",
+    {
+      p_user_id: user.id,
+      p_full_name: full_name,
+      p_phone: phone,
+      p_address_line1: address_line1,
+      p_address_line2: address_line2 || "",
+      p_city: city,
+      p_state: state,
+      p_postal_code: postal_code || "",
+      p_account_number: account_number || "",
+      p_payment_method: payment_method,
+      p_payment_proof_url: payment_proof_url || "",
+      p_items: checkoutItems,
+    },
   );
 
-  let totalAmount = 0;
-  for (const productId of productIds) {
-    const product = productMap[productId];
-    const quantity = orderQuantities[productId];
-    if (!product) {
+  if (checkoutError) {
+    const message = checkoutError.message || "Unable to place order. Please try again.";
+    // Map common PostgreSQL error messages to user-friendly messages
+    if (message.includes("Insufficient stock")) {
+      return NextResponse.json(
+        { error: "One or more items are no longer available in the requested quantity. Please adjust your cart." },
+        { status: 400 },
+      );
+    }
+    if (message.includes("not found")) {
       return NextResponse.json(
         { error: "One or more items in your cart are no longer available." },
         { status: 400 },
       );
     }
-    if (product.stock !== null && product.stock < quantity) {
+    if (message.includes("Invalid payment method") || message.includes("payment proof")) {
       return NextResponse.json(
-        {
-          error: `Insufficient stock for ${productId}. Please adjust your cart and try again.`,
-        },
+        { error: message },
         { status: 400 },
       );
     }
-    totalAmount += product.price * quantity;
-  }
-
-  const { error: customerError } = await adminSupabase.from("customers").upsert(
-    {
-      id: user.id,
-      full_name,
-      phone,
-      address: address_line1,
-      address_line2,
-      city,
-      state,
-      postal_code: postal_code || null,
-      account_number: account_number || null,
-    },
-    { onConflict: "id" },
-  );
-
-  if (customerError) {
     return NextResponse.json(
-      {
-        error:
-          customerError.message ||
-          "Unable to save your delivery information. Please try again.",
-      },
+      { error: "Unable to place order. Please try again later." },
       { status: 500 },
     );
-  }
-
-  let order: any = null;
-  let lastInsertError: any = null;
-  const maxAttempts = 5;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const transaction_id = generateTransactionId();
-    const { data: orderData, error: orderError } = await adminSupabase
-      .from("orders")
-      .insert({
-        transaction_id,
-        customer_id: user.id,
-        status: "pending",
-        payment_method,
-        payment_proof_url,
-        total_amount: totalAmount,
-        delivery_address:
-          `${address_line1} ${address_line2 ? address_line2 + " " : ""}${city}, ${state} ${postal_code}`.trim(),
-      })
-      .select()
-      .single();
-
-    if (orderError) {
-      lastInsertError = orderError;
-      const message = orderError.message?.toLowerCase();
-      if (message?.includes("duplicate") || message?.includes("unique")) {
-        continue;
-      }
-      return NextResponse.json(
-        {
-          error:
-            orderError.message ||
-            "Unable to create order. Please try again later.",
-        },
-        { status: 500 },
-      );
-    }
-
-    order = orderData;
-    break;
-  }
-
-  if (!order) {
-    return NextResponse.json(
-      {
-        error:
-          lastInsertError?.message ||
-          "Unable to create a unique order reference. Please try again.",
-      },
-      { status: 500 },
-    );
-  }
-
-  const orderRows = productIds.map((productId) => ({
-    order_id: order.id,
-    product_id: productId,
-    quantity: orderQuantities[productId],
-    unit_price: productMap[productId].price,
-  }));
-
-  const { error: itemsError } = await adminSupabase
-    .from("order_items")
-    .insert(orderRows);
-
-  if (itemsError) {
-    return NextResponse.json(
-      {
-        error:
-          itemsError.message ||
-          "Unable to save order items. Please try again later.",
-      },
-      { status: 500 },
-    );
-  }
-
-  for (const productId of productIds) {
-    const quantity = orderQuantities[productId];
-    const product = productMap[productId];
-    if (product.stock !== null) {
-      const { error: stockError } = await adminSupabase
-        .from("products")
-        .update({ stock: product.stock - quantity })
-        .eq("id", productId);
-      if (stockError) {
-        return NextResponse.json(
-          {
-            error:
-              stockError.message ||
-              "Unable to update product availability. Please contact support.",
-          },
-          { status: 500 },
-        );
-      }
-    }
   }
 
   return NextResponse.json({ order });

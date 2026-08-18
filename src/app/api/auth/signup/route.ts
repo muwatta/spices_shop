@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { checkRateLimit, getRateLimitIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL?.trim().toLowerCase();
 const CALLBACK_PATH = "/auth/callback";
@@ -17,6 +18,11 @@ function isValidPassword(password: unknown) {
 }
 
 export async function POST(request: Request) {
+  const rlId = getRateLimitIdentifier(request);
+  const rl = await checkRateLimit("signup", rlId);
+  const rlResp = rateLimitResponse(rl);
+  if (rlResp) return rlResp;
+
   const body = await request.json().catch(() => ({}));
   const email = normalizeEmail(body.email);
   const password = typeof body.password === "string" ? body.password : "";

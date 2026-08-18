@@ -62,14 +62,7 @@ function ResetPasswordContent() {
         await fetch("/api/send-password-change-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: user.email,
-            userName:
-              user.user_metadata?.full_name ||
-              user.user_metadata?.name ||
-              "Customer",
-            returnUrl: `${window.location.origin}/login`,
-          }),
+          body: JSON.stringify({}),
         });
       }
 

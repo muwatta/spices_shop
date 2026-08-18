@@ -67,11 +67,7 @@ export default function AccountSecurityPage() {
         await fetch("/api/send-password-change-email", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            userName: fullName,
-            returnUrl: `${window.location.origin}/account/security`,
-          }),
+          body: JSON.stringify({}),
         });
       }
 

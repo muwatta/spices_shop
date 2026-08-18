@@ -233,15 +233,8 @@ function CheckoutContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: user.email,
           orderId: result.order.id,
-          items: cartItems.map((i) => ({
-            name: i.product.name,
-            quantity: i.quantity,
-            price: i.product.price,
-          })),
-          total: totalPrice,
-          paymentMethod,
+          status: "pending",
         }),
       }).catch((err) => console.error("Email failed:", err));
 
