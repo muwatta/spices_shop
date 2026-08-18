@@ -226,7 +226,7 @@ export default function AdminProductsPage() {
                   color: "var(--clr-muted)",
                 }}
               >
-                ✕
+                
               </button>
             </div>
 
@@ -363,7 +363,7 @@ export default function AdminProductsPage() {
             color: "var(--clr-muted)",
           }}
         >
-          <p style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🌶</p>
+          <p style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}></p>
           <p>No products yet. Add your first spice!</p>
         </div>
       ) : (
@@ -403,7 +403,7 @@ export default function AdminProductsPage() {
                       fontSize: "2.5rem",
                     }}
                   >
-                    🌶
+                    
                   </div>
                 )}
               </div>

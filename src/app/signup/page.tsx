@@ -300,8 +300,8 @@ function SignupContent() {
                 }}
               >
                 {form.password === form.confirmPassword
-                  ? "✓ Passwords match"
-                  : "✗ Passwords do not match"}
+                  ? "Passwords match"
+                  : "Passwords do not match"}
               </p>
             )}
 

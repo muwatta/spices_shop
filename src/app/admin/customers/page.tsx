@@ -148,7 +148,7 @@ export default function AdminCustomersPage() {
       <div className={styles.headerRow}>
         <h1 className={styles.pageTitle}>Customers</h1>
         <button className="btn btn-primary" onClick={exportToCSV}>
-          📎 Export CSV
+           Export CSV
         </button>
       </div>
 

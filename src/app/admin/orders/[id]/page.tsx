@@ -80,7 +80,7 @@ export default function AdminOrderDetailPage() {
           href="/admin/orders"
           style={{ color: "var(--clr-saffron-dark)", fontSize: "0.875rem" }}
         >
-          ← All Orders
+           All Orders
         </Link>
         <h1
           style={{
@@ -151,8 +151,8 @@ export default function AdminOrderDetailPage() {
                   }}
                 >
                   {order.payment_method === "bank_transfer"
-                    ? "🏦 Transfer"
-                    : "💵 COD"}
+                    ? " Transfer"
+                    : " COD"}
                 </span>
                 <span
                   style={{
@@ -242,7 +242,7 @@ export default function AdminOrderDetailPage() {
               className="btn whatsapp-btn btn-sm"
               style={{ marginTop: "1rem", width: "fit-content" }}
             >
-              💬 Message Customer
+               Message Customer
             </a>
           )}
         </div>
@@ -277,7 +277,7 @@ export default function AdminOrderDetailPage() {
                   opacity: order.status === s ? 1 : 0.85,
                 }}
               >
-                {order.status === s ? "✓ " : ""}
+                {order.status === s ? " " : ""}
                 {s}
               </button>
             ))}
@@ -376,7 +376,7 @@ export default function AdminOrderDetailPage() {
 
       {order.payment_method === "bank_transfer" && !proofUrl && (
         <div className="alert alert-warning" style={{ marginTop: "1.5rem" }}>
-          ⚠️ No payment proof uploaded yet.
+           No payment proof uploaded yet.
         </div>
       )}
       <style>{`

@@ -278,7 +278,9 @@ function CheckoutContent() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
             >
-              <p style={{ fontSize: "4rem", marginBottom: "1rem" }}>🛒</p>
+              <p style={{ fontSize: "4rem", marginBottom: "1rem" }}>
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              </p>
               <h2
                 style={{
                   fontFamily: "var(--font-display)",
@@ -388,7 +390,7 @@ function CheckoutContent() {
                       marginBottom: "1.5rem",
                     }}
                   >
-                    📦 Delivery Details
+                    Delivery Details
                   </h2>
                   <div
                     style={{
@@ -517,7 +519,7 @@ function CheckoutContent() {
                       marginBottom: "1.5rem",
                     }}
                   >
-                    💳 Payment Method
+                    Payment Method
                   </h2>
                   <div
                     style={{
@@ -565,8 +567,8 @@ function CheckoutContent() {
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 600, fontSize: "1rem" }}>
                             {method === "cash_on_delivery"
-                              ? "💵 Cash on Delivery"
-                              : "🏦 Bank Transfer"}
+                              ? "Cash on Delivery"
+                              : "Bank Transfer"}
                           </div>
                           <div
                             style={{
@@ -608,7 +610,7 @@ function CheckoutContent() {
                             Transfer to:
                           </strong>
                           <div>
-                            🏦 <strong>{bankInfo.bank_name}</strong>
+                            <strong>{bankInfo.bank_name}</strong>
                           </div>
                           <div>
                             Account: <strong>{bankInfo.account_number}</strong>
@@ -675,7 +677,7 @@ function CheckoutContent() {
                     marginBottom: "1.5rem",
                   }}
                 >
-                  🛒 Order Summary
+                  Order Summary
                 </h2>
                 <div
                   style={{

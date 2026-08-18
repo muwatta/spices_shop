@@ -119,7 +119,6 @@ function LogoutModal({
           boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
         }}
       >
-        <p style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>👋</p>
         <h3
           style={{
             fontFamily: "var(--font-display)",
@@ -434,13 +433,13 @@ export default function Navbar(): JSX.Element {
 
                 <nav className="nav__drawer-links">
                   <Link href="/" onClick={() => setMenuOpen(false)}>
-                    🏠 Shop
+                    Shop
                   </Link>
                   <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>
-                    💡 Tips
+                    Tips
                   </Link>
                   <Link href="/cart" onClick={() => setMenuOpen(false)}>
-                    🛒 Cart {cartCount > 0 && `(${cartCount})`}
+                    Cart {cartCount > 0 && `(${cartCount})`}
                   </Link>
                   {user ? (
                     <>
@@ -448,30 +447,30 @@ export default function Navbar(): JSX.Element {
                         href="/account/overview"
                         onClick={() => setMenuOpen(false)}
                       >
-                        📊 Overview
+                        Overview
                       </Link>
                       <Link
                         href="/account/orders"
                         onClick={() => setMenuOpen(false)}
                       >
-                        📦 Orders
+                        Orders
                       </Link>
                       <Link
                         href="/account/profile"
                         onClick={() => setMenuOpen(false)}
                       >
-                        👤 Profile
+                        Profile
                       </Link>
                       <button
                         onClick={requestLogout}
                         className="nav__drawer-logout"
                       >
-                        🚪 Logout
+                        Logout
                       </button>
                     </>
                   ) : (
                     <Link href="/login" onClick={() => setMenuOpen(false)}>
-                      🔐 Login
+                      Login
                     </Link>
                   )}
                 </nav>

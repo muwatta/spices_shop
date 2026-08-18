@@ -42,7 +42,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
         onClick={handleAdd}
         style={{ width: '100%' }}
       >
-        {added ? '✓ Added to Cart!' : '🛒 Add to Cart'}
+        {added ? 'Added to Cart!' : 'Add to Cart'}
       </button>
     </div>
   );

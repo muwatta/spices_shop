@@ -65,7 +65,13 @@ export default function CartReminder() {
           <div
             style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}
           >
-            <span style={{ fontSize: "2rem" }}>🛒</span>
+            <div style={{ flexShrink: 0 }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--clr-saffron)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+            </div>
             <div>
               <strong style={{ color: "var(--clr-saffron)" }}>
                 Still thinking?

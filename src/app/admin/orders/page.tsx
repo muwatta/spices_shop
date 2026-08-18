@@ -473,8 +473,8 @@ export default function AdminOrdersPage() {
                       style={{ padding: "0.875rem 1rem" }}
                     >
                       {order.payment_method === "bank_transfer"
-                        ? "🏦 Transfer"
-                        : "💵 COD"}
+                        ? " Transfer"
+                        : " COD"}
                       {order.payment_proof_url && (
                         <span
                           style={{
@@ -483,7 +483,7 @@ export default function AdminOrdersPage() {
                             fontSize: "0.75rem",
                           }}
                         >
-                          ✓
+                          
                         </span>
                       )}
                     </td>

@@ -96,8 +96,8 @@ export default async function ProductPage({ params }: Props) {
                   }}
                 >
                   {outOfStock
-                    ? "✗ Out of Stock"
-                    : `✓ In Stock (${product.stock} available)`}
+                    ? "Out of Stock"
+                    : `In Stock (${product.stock} available)`}
                 </p>
               )}
 
@@ -144,7 +144,7 @@ export default async function ProductPage({ params }: Props) {
                 >
                   Payment Options
                 </strong>
-                🏦 Bank Transfer &nbsp;|&nbsp; 💵 Cash on Delivery
+                Bank Transfer &nbsp;|&nbsp; Cash on Delivery
               </div>
             </div>
           </div>

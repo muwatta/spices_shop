@@ -191,14 +191,14 @@ export default function ManualOrderPage() {
         <h1 className={styles.title}>Manual Order Creation</h1>
         {selectedCustomer && (
           <div className={styles.selectedCustomerBadge}>
-            👤 {selectedCustomer.full_name}
+             {selectedCustomer.full_name}
           </div>
         )}
       </div>
 
       {/* Customer selection card */}
       <div className={`card ${styles.customerCard}`}>
-        <h2 className={styles.cardTitle}>👥 Customer</h2>
+        <h2 className={styles.cardTitle}> Customer</h2>
         <div className={styles.searchContainer}>
           <div className={styles.searchInputGroup}>
             <input
@@ -237,7 +237,7 @@ export default function ManualOrderPage() {
 
           {selectedCustomer && (
             <div className={styles.selectedCustomerBox}>
-              ✅ Selected: {selectedCustomer.full_name} (
+               Selected: {selectedCustomer.full_name} (
               {selectedCustomer.email})
             </div>
           )}
@@ -314,7 +314,7 @@ export default function ManualOrderPage() {
         <div className={styles.productsCartGrid}>
           {/* Product selection */}
           <div className={`card ${styles.productsCard}`}>
-            <h2 className={styles.productsTitle}>🛍️ Add Products</h2>
+            <h2 className={styles.productsTitle}> Add Products</h2>
             <div className={styles.productGrid}>
               {products.map((p) => (
                 <div key={p.id} className={styles.productCard}>
@@ -336,7 +336,7 @@ export default function ManualOrderPage() {
           {/* Cart */}
           <div className={`card ${styles.cartCard}`}>
             <h2 className={styles.cartHeader}>
-              🛒 Cart
+               Cart
               {cart.length > 0 && (
                 <span className={styles.cartBadge}>
                   {cart.reduce((sum, i) => sum + i.quantity, 0)} items
@@ -388,7 +388,7 @@ export default function ManualOrderPage() {
                               className={styles.deleteButton}
                               aria-label={`Remove ${item.name} from cart`}
                             >
-                              ✕
+                              
                             </button>
                           </td>
                         </tr>

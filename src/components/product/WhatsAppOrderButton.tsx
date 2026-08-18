@@ -30,7 +30,7 @@ export default function WhatsAppOrderButton({ product }: { product: Product }) {
       onClick={handleWhatsApp}
       style={{ width: "100%" }}
     >
-      💬 Order via WhatsApp
+      Order via WhatsApp
     </button>
   );
 }

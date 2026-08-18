@@ -11,7 +11,7 @@ export default function PrintReceiptButton({
       className={`btn btn-outline ${className ?? ""}`}
       style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
     >
-      🖨️ Print Receipt
+      Print Receipt
     </button>
   );
 }

@@ -82,7 +82,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                   }}
                 >
                   <div style={{ fontSize: "3.5rem", marginBottom: "0.75rem" }}>
-                    🎉
+                    
                   </div>
                   <h2
                     style={{
@@ -187,7 +187,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       }}
                       className="no-print"
                     >
-                      ← My Orders
+                       My Orders
                     </Link>
                     <h1
                       style={{
@@ -308,7 +308,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                                   : "none",
                             }}
                           >
-                            {i < currentStep ? "✓" : i + 1}
+                            {i < currentStep ? "" : i + 1}
                           </div>
                           <span
                             style={{
@@ -345,7 +345,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       marginBottom: "1.25rem",
                     }}
                   >
-                    🛍️ Items Ordered
+                     Items Ordered
                   </h2>
                   <div style={{ display: "grid", gap: "1rem" }}>
                     {(order.order_items as any[]).map((item: any) => (
@@ -390,7 +390,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                                 fontSize: "2rem",
                               }}
                             >
-                              🌶
+                              
                             </div>
                           )}
                         </div>
@@ -500,7 +500,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       marginBottom: "1.25rem",
                     }}
                   >
-                    📋 Order Details
+                     Order Details
                   </h2>
                   <div
                     style={{
@@ -512,26 +512,26 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                   >
                     {[
                       {
-                        label: "📅 Date",
+                        label: " Date",
                         value: new Date(order.created_at).toLocaleDateString(
                           "en-NG",
                           { day: "numeric", month: "long", year: "numeric" },
                         ),
                       },
                       {
-                        label: "💳 Payment",
+                        label: " Payment",
                         value:
                           order.payment_method === "bank_transfer"
-                            ? "🏦 Bank Transfer"
-                            : "💵 Cash on Delivery",
+                            ? " Bank Transfer"
+                            : " Cash on Delivery",
                       },
-                      { label: "📍 Delivery", value: order.delivery_address },
+                      { label: " Delivery", value: order.delivery_address },
                       {
-                        label: "👤 Customer",
+                        label: " Customer",
                         value: (order.customers as any)?.full_name,
                       },
                       {
-                        label: "📞 Phone",
+                        label: " Phone",
                         value: (order.customers as any)?.phone,
                       },
                     ]

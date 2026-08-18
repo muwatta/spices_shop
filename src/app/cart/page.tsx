@@ -409,7 +409,9 @@ export default function CartPage() {
                 background: "rgba(255,255,255,0.98)",
               }}
             >
-              <p style={{ fontSize: "3rem", marginBottom: "1rem" }}>🛒</p>
+              <p style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              </p>
               <h2
                 style={{
                   fontFamily: "var(--font-display)",
@@ -654,7 +656,7 @@ export default function CartPage() {
                           fontSize: "2rem",
                         }}
                       >
-                        🌶
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
                       </div>
                     )}
                   </div>
@@ -821,7 +823,7 @@ export default function CartPage() {
                     className="btn btn-lg whatsapp-btn"
                     onClick={handleWhatsAppOrder}
                   >
-                    💬 Order via WhatsApp
+                    Order via WhatsApp
                   </button>
                 )}
                 <button

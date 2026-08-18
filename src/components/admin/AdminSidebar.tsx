@@ -3,16 +3,24 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
+import {
+  LayoutDashboard,
+  Package,
+  Leaf,
+  BookOpen,
+  BarChart3,
+  Users,
+  FileText,
+} from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/admin", label: "Dashboard", icon: "📊" },
-  { href: "/admin/orders", label: "Orders", icon: "📦" },
-  { href: "/admin/products", label: "Products", icon: "🌶" },
-  { href: "/admin/do-you-know", label: "Do You Know", icon: "📘" },
-  { href: "/admin/reports", label: "Reports", icon: "📈" },
-  { href: "/admin/customers", label: "Customers", icon: "👥" },
-  { href: "/admin/manual-order", label: "Manual Order", icon: "📝" },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/orders", label: "Orders", icon: Package },
+  { href: "/admin/products", label: "Products", icon: Leaf },
+  { href: "/admin/do-you-know", label: "Do You Know", icon: BookOpen },
+  { href: "/admin/reports", label: "Reports", icon: BarChart3 },
+  { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/manual-order", label: "Manual Order", icon: FileText },
 ];
 
 
@@ -52,7 +60,7 @@ export default function AdminSidebar() {
           </svg>
         </button>
 
-        <span className="admin-topbar__title">🌶 KMA Admin</span>
+        <span className="admin-topbar__title">KMA Admin</span>
 
         <Link href="/" className="admin-topbar__shop">
           View Shop
@@ -65,7 +73,6 @@ export default function AdminSidebar() {
       <aside className={`admin-sidebar ${open ? "admin-sidebar--open" : ""}`}>
         <div className="admin-sidebar__header">
           <div className="admin-sidebar__brand">
-            <span>🌶</span>
             <span>KMA Admin</span>
           </div>
 
@@ -101,7 +108,7 @@ export default function AdminSidebar() {
                   isActive ? "admin-sidebar__link--active" : ""
                 }`}
               >
-                <span className="admin-sidebar__icon">{item.icon}</span>
+                <span className="admin-sidebar__icon"><item.icon size={18} /></span>
                 <span className="admin-sidebar__label">{item.label}</span>
               </Link>
             );
@@ -110,7 +117,7 @@ export default function AdminSidebar() {
 
         <div className="admin-sidebar__footer">
           <Link href="/" className="admin-sidebar__back">
-            ← View Shop
+             View Shop
           </Link>
         </div>
       </aside>
@@ -290,7 +297,7 @@ export default function AdminSidebar() {
           justify-content: center;
           text-align: center;
           flex-shrink: 0;
-          font-size: 1rem;
+          opacity: 0.85;
         }
 
         .admin-sidebar__footer {

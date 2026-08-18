@@ -69,7 +69,7 @@ function OrdersContent() {
 
       {orders.length === 0 ? (
         <div style={{ textAlign: "center", padding: "3rem" }}>
-          <p style={{ fontSize: "3rem", marginBottom: "1rem" }}>📦</p>
+          <p style={{ fontSize: "3rem", marginBottom: "1rem" }}></p>
           <p style={{ color: "var(--clr-muted)", marginBottom: "1.5rem" }}>
             You have no orders yet.
           </p>
@@ -169,8 +169,8 @@ function OrdersContent() {
                       style={{ padding: "0.875rem 1rem", whiteSpace: "nowrap" }}
                     >
                       {order.payment_method === "bank_transfer"
-                        ? "🏦 Transfer"
-                        : "💵 COD"}
+                        ? " Transfer"
+                        : " COD"}
                     </td>
                     <td style={{ padding: "0.875rem 1rem" }}>
                       <span className={`badge badge-${order.status}`}>
@@ -183,7 +183,7 @@ function OrdersContent() {
                         href={`/account/orders/${order.id}`}
                         className="btn btn-ghost btn-sm"
                       >
-                        View →
+                        View 
                       </Link>
                     </td>
                   </tr>

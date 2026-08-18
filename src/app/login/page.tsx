@@ -86,7 +86,7 @@ function LoginContent() {
       .single();
 
     const firstName = customer?.full_name?.split(" ")[0] || "there";
-    toast.success(`Welcome back, ${firstName}! 🎉`);
+    toast.success(`Welcome back, ${firstName}!`);
 
     if (!customer?.phone || !customer?.address) {
       toast(
