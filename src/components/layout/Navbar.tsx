@@ -93,68 +93,25 @@ function LogoutModal({
   isLoading: boolean;
 }) {
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.55)",
-        zIndex: 2000,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "1rem",
-      }}
-    >
+    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Confirm logout">
       <motion.div
         initial={{ opacity: 0, scale: 0.92 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.92 }}
-        style={{
-          background: "white",
-          borderRadius: "1.25rem",
-          padding: "2rem",
-          maxWidth: "360px",
-          width: "100%",
-          textAlign: "center",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
-        }}
+        className="modal-content"
+        style={{ maxWidth: 360, textAlign: "center" }}
       >
-        <h3
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "1.25rem",
-            marginBottom: "0.5rem",
-            color: "var(--clr-bark)",
-          }}
-        >
+        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", marginBottom: "0.5rem", color: "var(--clr-bark)" }}>
           Leaving so soon?
         </h3>
-        <p
-          style={{
-            color: "var(--clr-muted)",
-            fontSize: "0.9rem",
-            marginBottom: "1.5rem",
-          }}
-        >
+        <p style={{ color: "var(--clr-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
           Are you sure you want to log out?
         </p>
-        <div
-          style={{ display: "flex", gap: "0.75rem", justifyContent: "center" }}
-        >
-          <button
-            onClick={onCancel}
-            className="btn btn-outline"
-            style={{ flex: 1 }}
-            disabled={isLoading}
-          >
+        <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center" }}>
+          <button onClick={onCancel} className="btn btn-outline" style={{ flex: 1 }} disabled={isLoading}>
             Stay
           </button>
-          <button
-            onClick={onConfirm}
-            className="btn btn-danger"
-            style={{ flex: 1 }}
-            disabled={isLoading}
-          >
+          <button onClick={onConfirm} className="btn btn-danger" style={{ flex: 1 }} disabled={isLoading}>
             {isLoading ? "Logging out..." : "Log Out"}
           </button>
         </div>
@@ -180,6 +137,25 @@ export default function Navbar(): JSX.Element {
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => setMounted(true), []);
+
+  // Lock body scroll and handle ESC key when drawer/modal is open
+  useEffect(() => {
+    if (menuOpen || showLogoutModal) {
+      document.body.style.overflow = "hidden";
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          if (showLogoutModal) setShowLogoutModal(false);
+          else setMenuOpen(false);
+        }
+      };
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.body.style.overflow = "";
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+    document.body.style.overflow = "";
+  }, [menuOpen, showLogoutModal]);
   const cartCount = mounted ? totalItems() : 0;
 
   useEffect(() => {
@@ -635,7 +611,7 @@ export default function Navbar(): JSX.Element {
         .nav__drawer {
           position: fixed;
           top: 0; left: 0; bottom: 0;
-          width: min(70vw, 156px);
+          width: min(78vw, 300px);
           background: var(--clr-bark-mid);
           z-index: 1001;
           display: flex;

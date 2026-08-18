@@ -28,32 +28,16 @@ export default function ProductCard({ product }: Props) {
 
   return (
     <motion.article
-      className="card"
+      className="card product-card"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -6 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        background: "white",
-        borderRadius: "1rem",
-        overflow: "hidden",
-        transition: "box-shadow 0.25s ease, transform 0.25s ease",
-        boxShadow: "var(--shadow-sm)",
-        border: "1px solid var(--clr-cream-dark)",
-      }}
+      style={{ border: "1px solid var(--clr-cream-dark)" }}
     >
       {/* Image container */}
-      <Link href={`/product/${product.id}`} style={{ position: "relative", display: "block", overflow: "hidden" }}>
-        <div
-          style={{
-            position: "relative",
-            aspectRatio: "4/3",
-            background: "var(--clr-cream-dark)",
-            overflow: "hidden",
-          }}
-        >
+      <Link href={`/product/${product.id}`} className="product-card__image-link">
+        <div className="product-card__image-wrapper">
           {product.image_url && !imgError ? (
             <Image
               src={product.image_url}
@@ -61,26 +45,12 @@ export default function ProductCard({ product }: Props) {
               fill
               loading="lazy"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              style={{
-                objectFit: "cover",
-                transition: "transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1)",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              className="product-card__image"
               onError={() => setImgError(true)}
             />
           ) : (
-            <div
-              style={{
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "var(--clr-cream-dark)",
-              }}
-            >
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--clr-muted)" strokeWidth="1.5">
+            <div className="product-card__fallback">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--clr-muted)" strokeWidth="1.5" aria-hidden="true">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z" />
               </svg>
             </div>
@@ -88,38 +58,12 @@ export default function ProductCard({ product }: Props) {
 
           {/* Stock badges */}
           {isOutOfStock && (
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                background: "rgba(0,0,0,0.6)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "white",
-                fontWeight: 700,
-                fontSize: "0.85rem",
-                backdropFilter: "blur(2px)",
-              }}
-            >
+            <div className="product-card__out-of-stock" role="status">
               Out of Stock
             </div>
           )}
           {lowStock && !isOutOfStock && (
-            <div
-              style={{
-                position: "absolute",
-                top: "0.75rem",
-                right: "0.75rem",
-                background: "var(--clr-warning)",
-                color: "var(--clr-bark)",
-                padding: "0.25rem 0.6rem",
-                borderRadius: "2rem",
-                fontSize: "0.7rem",
-                fontWeight: 700,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              }}
-            >
+            <div className="product-card__low-stock" role="status">
               Only {product.stock} left
             </div>
           )}
@@ -127,91 +71,32 @@ export default function ProductCard({ product }: Props) {
       </Link>
 
       {/* Content */}
-      <div
-        style={{
-          padding: "1rem",
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.35rem",
-        }}
-      >
-        <Link href={`/product/${product.id}`} style={{ textDecoration: "none" }}>
-          <h3
-            style={{
-              fontSize: "1rem",
-              fontWeight: 600,
-              lineHeight: 1.3,
-              color: "var(--clr-bark)",
-              marginBottom: "0.15rem",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            {product.name}
-          </h3>
+      <div className="product-card__content">
+        <Link href={`/product/${product.id}`} className="product-card__name">
+          {product.name}
         </Link>
 
         {product.description && (
-          <p
-            style={{
-              fontSize: "0.75rem",
-              color: "var(--clr-muted)",
-              lineHeight: 1.5,
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-              marginTop: "0.1rem",
-            }}
-          >
+          <p className="product-card__description">
             {product.description}
           </p>
         )}
 
-        <div
-          style={{
-            marginTop: "auto",
-            display: "flex",
-            alignItems: "baseline",
-            justifyContent: "space-between",
-            paddingTop: "0.75rem",
-            borderTop: "1px solid var(--clr-cream-dark)",
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.2rem",
-              fontWeight: 700,
-              color: "var(--clr-saffron-dark)",
-            }}
-          >
+        <div className="product-card__footer">
+          <span className="product-card__price">
             {formatNaira(product.price)}
           </span>
 
           <button
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm product-card__add-btn"
             onClick={handleAdd}
             disabled={isOutOfStock}
-            style={{
-              transition: "all 0.2s ease",
-              borderRadius: "2rem",
-              padding: "0.45rem 1rem",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.35rem",
-            }}
           >
             {added ? (
               "Added"
             ) : (
               <>
-                <span style={{ fontSize: "1.1rem" }}>+</span> Cart
+                <span aria-hidden="true">+</span> Cart
               </>
             )}
           </button>

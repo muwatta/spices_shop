@@ -11,6 +11,8 @@ import {
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Skeleton } from "@/components/ui/Skeleton";
+import QuantitySelector from "@/components/ui/QuantitySelector";
+import EmptyState from "@/components/ui/EmptyState";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -90,7 +92,7 @@ export default function CartPage() {
       ...item,
       product: products[item.productId],
     }))
-    .filter((item) => item.product); 
+    .filter((item) => item.product);
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + (item.product?.price || 0) * item.quantity,
@@ -168,41 +170,12 @@ export default function CartPage() {
       <>
         <Navbar />
         <main>
-          <div
-            className="container"
-            style={{ padding: "4rem 0", minHeight: "60vh" }}
-          >
-            <div
-              style={{
-                display: "grid",
-                gap: "1.5rem",
-                maxWidth: "720px",
-                margin: "0 auto",
-              }}
-            >
-              <Skeleton
-                style={{ width: "40%", height: "22px", margin: "0 auto" }}
-              />
-              <div
-                style={{
-                  display: "grid",
-                  gap: "1rem",
-                }}
-              >
+          <div className="container" style={{ padding: "4rem 0", minHeight: "60vh" }}>
+            <div style={{ display: "grid", gap: "1.5rem", maxWidth: "720px", margin: "0 auto" }}>
+              <Skeleton style={{ width: "40%", height: "22px", margin: "0 auto" }} />
+              <div style={{ display: "grid", gap: "1rem" }}>
                 {Array.from({ length: 3 }).map((_, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "80px 1fr",
-                      gap: "1rem",
-                      alignItems: "center",
-                      padding: "1rem",
-                      background: "white",
-                      borderRadius: "1rem",
-                      boxShadow: "0 20px 40px rgba(0,0,0,0.06)",
-                    }}
-                  >
+                  <div key={index} className="card cart-item">
                     <Skeleton style={{ width: "80px", height: "80px" }} />
                     <div style={{ display: "grid", gap: "0.6rem" }}>
                       <Skeleton style={{ width: "70%", height: "18px" }} />
@@ -225,78 +198,26 @@ export default function CartPage() {
       <>
         <Navbar />
         <main>
-          <div
-            className="container"
-            style={{ padding: "2rem var(--space-md)" }}
-          >
-            <h1
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "2rem",
-                marginBottom: "1rem",
-              }}
-            >
-              Your Cart
-            </h1>
-            <p style={{ color: "var(--clr-muted)", marginBottom: "2rem" }}>
-              Track your current cart activity and recent order progress even
-              when your basket is empty.
-            </p>
+          <div className="container" style={{ padding: "2rem var(--space-md)" }}>
+            <div className="page-header">
+              <h1 className="page-header__title">Your Cart</h1>
+              <p className="page-header__subtitle">
+                Track your current cart activity and recent order progress even when your basket is empty.
+              </p>
+            </div>
 
-            <div
-              className="card"
-              style={{
-                padding: "1.5rem",
-                marginBottom: "2rem",
-                display: "grid",
-                gap: "1.25rem",
-              }}
-            >
-              <div
-                style={{
-                  display: "grid",
-                  gap: "1rem",
-                  gridTemplateColumns: "1fr 1fr",
-                  alignItems: "stretch",
-                }}
-              >
+            <div className="card" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
+              <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
                 <div style={{ display: "grid", gap: "0.75rem" }}>
-                  <h2
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "1.1rem",
-                      margin: 0,
-                    }}
-                  >
+                  <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.1rem", margin: 0 }}>
                     Current cart activity
                   </h2>
                   {currentCartActivity.map((item) => (
-                    <div
-                      key={item.title}
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "0.25rem",
-                        padding: "0.95rem 1rem",
-                        borderRadius: "1rem",
-                        background: "rgba(255,255,255,0.92)",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: "0.9rem",
-                          fontWeight: 700,
-                          color: "var(--clr-bark)",
-                        }}
-                      >
+                    <div key={item.title} style={{ display: "flex", flexDirection: "column", gap: "0.25rem", padding: "0.95rem 1rem", borderRadius: "1rem", background: "rgba(255,255,255,0.92)" }}>
+                      <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--clr-bark)" }}>
                         {item.title}
                       </span>
-                      <span
-                        style={{
-                          color: "var(--clr-muted)",
-                          fontSize: "0.9rem",
-                        }}
-                      >
+                      <span style={{ color: "var(--clr-muted)", fontSize: "0.9rem" }}>
                         {item.description}
                       </span>
                     </div>
@@ -304,96 +225,37 @@ export default function CartPage() {
                 </div>
 
                 <div style={{ display: "grid", gap: "0.75rem" }}>
-                  <h2
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "1.1rem",
-                      margin: 0,
-                    }}
-                  >
+                  <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.1rem", margin: 0 }}>
                     Recent order history
                   </h2>
                   {historyLoaded ? (
                     orderHistory.length > 0 ? (
                       orderHistory.map((order) => (
-                        <div
-                          key={order.id}
-                          style={{
-                            padding: "0.95rem 1rem",
-                            borderRadius: "1rem",
-                            background: "rgba(255,255,255,0.92)",
-                            border: "1px solid rgba(0,0,0,0.06)",
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              gap: "1rem",
-                              alignItems: "center",
-                            }}
-                          >
+                        <div key={order.id} style={{ padding: "0.95rem 1rem", borderRadius: "1rem", background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.06)" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "center" }}>
                             <strong style={{ fontSize: "0.95rem" }}>
                               Order #{order.id.slice(0, 8).toUpperCase()}
                             </strong>
-                            <span
-                              style={{
-                                fontSize: "0.8rem",
-                                fontWeight: 700,
-                                color:
-                                  order.status === "delivered"
-                                    ? "var(--clr-success)"
-                                    : order.status === "cancelled"
-                                      ? "var(--clr-chili)"
-                                      : "var(--clr-saffron)",
-                              }}
-                            >
+                            <span className={`status status--${order.status}`}>
                               {order.status}
                             </span>
                           </div>
-                          <p
-                            style={{
-                              margin: "0.4rem 0 0",
-                              color: "var(--clr-muted)",
-                              fontSize: "0.9rem",
-                            }}
-                          >
-                            {getOrderStatusLabel(order.status)} •{" "}
+                          <p style={{ margin: "0.4rem 0 0", color: "var(--clr-muted)", fontSize: "0.9rem" }}>
+                            {getOrderStatusLabel(order.status)} &middot;{" "}
                             {new Date(order.created_at).toLocaleDateString()}
                           </p>
-                          <p
-                            style={{
-                              margin: "0.5rem 0 0",
-                              fontWeight: 700,
-                              color: "var(--clr-bark)",
-                            }}
-                          >
+                          <p style={{ margin: "0.5rem 0 0", fontWeight: 700, color: "var(--clr-bark)" }}>
                             {formatNaira(order.total_amount)}
                           </p>
                         </div>
                       ))
                     ) : (
-                      <div
-                        style={{
-                          padding: "0.95rem 1rem",
-                          borderRadius: "1rem",
-                          background: "rgba(255,255,255,0.92)",
-                          color: "var(--clr-muted)",
-                        }}
-                      >
-                        No recent orders yet. Your activity will appear here
-                        once you place an order.
+                      <div style={{ padding: "0.95rem 1rem", borderRadius: "1rem", background: "rgba(255,255,255,0.92)", color: "var(--clr-muted)" }}>
+                        No recent orders yet. Your activity will appear here once you place an order.
                       </div>
                     )
                   ) : (
-                    <div
-                      style={{
-                        padding: "0.95rem 1rem",
-                        borderRadius: "1rem",
-                        background: "rgba(255,255,255,0.92)",
-                        color: "var(--clr-muted)",
-                      }}
-                    >
+                    <div style={{ padding: "0.95rem 1rem", borderRadius: "1rem", background: "rgba(255,255,255,0.92)", color: "var(--clr-muted)" }}>
                       Loading order activity...
                     </div>
                   )}
@@ -401,32 +263,17 @@ export default function CartPage() {
               </div>
             </div>
 
-            <div
-              style={{
-                textAlign: "center",
-                padding: "3rem 1rem",
-                borderRadius: "1rem",
-                background: "rgba(255,255,255,0.98)",
-              }}
-            >
-              <p style={{ fontSize: "3rem", marginBottom: "1rem" }}>
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-              </p>
-              <h2
-                style={{
-                  fontFamily: "var(--font-display)",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                Your cart is empty
-              </h2>
-              <p style={{ color: "var(--clr-muted)", marginBottom: "1.5rem" }}>
-                Add a few spices to get started. Your recent order activity is
-                shown above.
-              </p>
-              <Link href="/" className="btn btn-primary">
-                Browse Spices
-              </Link>
+            <div className="card" style={{ padding: "3rem 1rem", textAlign: "center" }}>
+              <EmptyState
+                icon={
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                  </svg>
+                }
+                title="Your cart is empty"
+                description="Add a few spices to get started. Your recent order activity is shown above."
+                action={<Link href="/" className="btn btn-primary">Browse Spices</Link>}
+              />
             </div>
           </div>
         </main>
@@ -440,71 +287,25 @@ export default function CartPage() {
       <Navbar />
       <main>
         <div className="container" style={{ padding: "2rem var(--space-md)" }}>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "2rem",
-              marginBottom: "1rem",
-            }}
-          >
-            Your Cart
-          </h1>
-          <p style={{ color: "var(--clr-muted)", marginBottom: "2rem" }}>
-            Track current cart activity and recent order progress so you always
-            know what’s happening.
-          </p>
+          <div className="page-header">
+            <h1 className="page-header__title">Your Cart</h1>
+            <p className="page-header__subtitle">
+              Track current cart activity and recent order progress so you always know what&apos;s happening.
+            </p>
+          </div>
 
-          <div
-            className="card"
-            style={{
-              padding: "1.5rem",
-              marginBottom: "2rem",
-              display: "grid",
-              gap: "1.25rem",
-            }}
-          >
-            <div
-              style={{
-                display: "grid",
-                gap: "1rem",
-                gridTemplateColumns: "1fr 1fr",
-                alignItems: "stretch",
-              }}
-            >
+          <div className="card" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
+            <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
               <div style={{ display: "grid", gap: "0.75rem" }}>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.1rem",
-                    margin: 0,
-                  }}
-                >
+                <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.1rem", margin: 0 }}>
                   Current cart activity
                 </h2>
                 {currentCartActivity.map((item) => (
-                  <div
-                    key={item.title}
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.25rem",
-                      padding: "0.95rem 1rem",
-                      borderRadius: "1rem",
-                      background: "rgba(255,255,255,0.92)",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: "0.9rem",
-                        fontWeight: 700,
-                        color: "var(--clr-bark)",
-                      }}
-                    >
+                  <div key={item.title} style={{ display: "flex", flexDirection: "column", gap: "0.25rem", padding: "0.95rem 1rem", borderRadius: "1rem", background: "rgba(255,255,255,0.92)" }}>
+                    <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--clr-bark)" }}>
                       {item.title}
                     </span>
-                    <span
-                      style={{ color: "var(--clr-muted)", fontSize: "0.9rem" }}
-                    >
+                    <span style={{ color: "var(--clr-muted)", fontSize: "0.9rem" }}>
                       {item.description}
                     </span>
                   </div>
@@ -512,96 +313,37 @@ export default function CartPage() {
               </div>
 
               <div style={{ display: "grid", gap: "0.75rem" }}>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.1rem",
-                    margin: 0,
-                  }}
-                >
+                <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.1rem", margin: 0 }}>
                   Recent order history
                 </h2>
                 {historyLoaded ? (
                   orderHistory.length > 0 ? (
                     orderHistory.map((order) => (
-                      <div
-                        key={order.id}
-                        style={{
-                          padding: "0.95rem 1rem",
-                          borderRadius: "1rem",
-                          background: "rgba(255,255,255,0.92)",
-                          border: "1px solid rgba(0,0,0,0.06)",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            gap: "1rem",
-                            alignItems: "center",
-                          }}
-                        >
+                      <div key={order.id} style={{ padding: "0.95rem 1rem", borderRadius: "1rem", background: "rgba(255,255,255,0.92)", border: "1px solid rgba(0,0,0,0.06)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", alignItems: "center" }}>
                           <strong style={{ fontSize: "0.95rem" }}>
                             Order #{order.id.slice(0, 8).toUpperCase()}
                           </strong>
-                          <span
-                            style={{
-                              fontSize: "0.8rem",
-                              fontWeight: 700,
-                              color:
-                                order.status === "delivered"
-                                  ? "var(--clr-success)"
-                                  : order.status === "cancelled"
-                                    ? "var(--clr-chili)"
-                                    : "var(--clr-saffron)",
-                            }}
-                          >
+                          <span className={`status status--${order.status}`}>
                             {order.status}
                           </span>
                         </div>
-                        <p
-                          style={{
-                            margin: "0.4rem 0 0",
-                            color: "var(--clr-muted)",
-                            fontSize: "0.9rem",
-                          }}
-                        >
-                          {getOrderStatusLabel(order.status)} •{" "}
+                        <p style={{ margin: "0.4rem 0 0", color: "var(--clr-muted)", fontSize: "0.9rem" }}>
+                          {getOrderStatusLabel(order.status)} &middot;{" "}
                           {new Date(order.created_at).toLocaleDateString()}
                         </p>
-                        <p
-                          style={{
-                            margin: "0.5rem 0 0",
-                            fontWeight: 700,
-                            color: "var(--clr-bark)",
-                          }}
-                        >
+                        <p style={{ margin: "0.5rem 0 0", fontWeight: 700, color: "var(--clr-bark)" }}>
                           {formatNaira(order.total_amount)}
                         </p>
                       </div>
                     ))
                   ) : (
-                    <div
-                      style={{
-                        padding: "0.95rem 1rem",
-                        borderRadius: "1rem",
-                        background: "rgba(255,255,255,0.92)",
-                        color: "var(--clr-muted)",
-                      }}
-                    >
-                      No recent orders yet. Your activity will appear here once
-                      you place an order.
+                    <div style={{ padding: "0.95rem 1rem", borderRadius: "1rem", background: "rgba(255,255,255,0.92)", color: "var(--clr-muted)" }}>
+                      No recent orders yet. Your activity will appear here once you place an order.
                     </div>
                   )
                 ) : (
-                  <div
-                    style={{
-                      padding: "0.95rem 1rem",
-                      borderRadius: "1rem",
-                      background: "rgba(255,255,255,0.92)",
-                      color: "var(--clr-muted)",
-                    }}
-                  >
+                  <div style={{ padding: "0.95rem 1rem", borderRadius: "1rem", background: "rgba(255,255,255,0.92)", color: "var(--clr-muted)" }}>
                     Loading order activity...
                   </div>
                 )}
@@ -609,34 +351,11 @@ export default function CartPage() {
             </div>
           </div>
 
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr", gap: "2rem" }}
-          >
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-            >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "2rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {cartItems.map(({ product, quantity }) => (
-                <div
-                  key={product.id}
-                  className="card"
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "auto 1fr auto",
-                    gap: "1.25rem",
-                    alignItems: "center",
-                    padding: "1rem",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      background: "var(--clr-cream-dark)",
-                      borderRadius: "var(--radius-md)",
-                      overflow: "hidden",
-                      position: "relative",
-                    }}
-                  >
+                <div key={product.id} className="card cart-item">
+                  <div className="cart-item__image">
                     {product.image_url ? (
                       <Image
                         src={product.image_url}
@@ -646,108 +365,31 @@ export default function CartPage() {
                         style={{ objectFit: "cover" }}
                       />
                     ) : (
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "2rem",
-                        }}
-                      >
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                          <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" />
+                          <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                          <line x1="9" y1="9" x2="9.01" y2="9" />
+                          <line x1="15" y1="9" x2="15.01" y2="9" />
+                        </svg>
                       </div>
                     )}
                   </div>
                   <div>
-                    <Link href={`/product/${product.id}`}>
-                      <h3 style={{ fontSize: "1rem", marginBottom: "0.25rem" }}>
-                        {product.name}
-                      </h3>
+                    <Link href={`/product/${product.id}`} className="cart-item__name">
+                      <h3 style={{ fontSize: "1rem", marginBottom: "0.25rem" }}>{product.name}</h3>
                     </Link>
-                    <p
-                      style={{
-                        color: "var(--clr-saffron-dark)",
-                        fontWeight: 700,
-                        fontFamily: "var(--font-display)",
-                      }}
-                    >
-                      {formatNaira(product.price * quantity)}
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "0.8125rem",
-                        color: "var(--clr-muted)",
-                      }}
-                    >
-                      {formatNaira(product.price)} each
-                    </p>
+                    <p className="cart-item__price">{formatNaira(product.price * quantity)}</p>
+                    <p className="cart-item__unit">{formatNaira(product.price)} each</p>
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-end",
-                      gap: "0.5rem",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        border: "2px solid var(--clr-cream-dark)",
-                        borderRadius: "var(--radius-md)",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <button
-                        onClick={() => updateQuantity(product.id, quantity - 1)}
-                        style={{
-                          padding: "0.3rem 0.75rem",
-                          background: "var(--clr-cream-dark)",
-                          border: "none",
-                          cursor: "pointer",
-                          fontWeight: 600,
-                        }}
-                      >
-                        −
-                      </button>
-                      <span
-                        style={{
-                          padding: "0.3rem 0.75rem",
-                          fontWeight: 600,
-                          background: "white",
-                          minWidth: "2.5rem",
-                          textAlign: "center",
-                        }}
-                      >
-                        {quantity}
-                      </span>
-                      <button
-                        onClick={() => updateQuantity(product.id, quantity + 1)}
-                        style={{
-                          padding: "0.3rem 0.75rem",
-                          background: "var(--clr-cream-dark)",
-                          border: "none",
-                          cursor: "pointer",
-                          fontWeight: 600,
-                        }}
-                      >
-                        +
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => removeItem(product.id)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "var(--clr-chili)",
-                        fontSize: "0.8125rem",
-                        cursor: "pointer",
-                        fontWeight: 500,
-                      }}
-                    >
+                  <div className="cart-item__actions" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.5rem" }}>
+                    <QuantitySelector
+                      quantity={quantity}
+                      onQuantityChange={(q) => updateQuantity(product.id, q)}
+                      min={1}
+                      max={product.stock || 99}
+                    />
+                    <button onClick={() => removeItem(product.id)} className="cart-item__remove">
                       Remove
                     </button>
                   </div>
@@ -755,89 +397,33 @@ export default function CartPage() {
               ))}
             </div>
 
-            <div
-              className="card"
-              style={{ padding: "1.5rem", alignSelf: "start" }}
-            >
-              <h2
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "1.25rem",
-                  marginBottom: "1.25rem",
-                }}
-              >
-                Order Summary
-              </h2>
+            <div className="card order-summary" style={{ alignSelf: "start" }}>
+              <h2 className="order-summary__title">Order Summary</h2>
               {cartItems.map(({ product, quantity }) => (
-                <div
-                  key={product.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "0.5rem",
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  <span style={{ color: "var(--clr-muted)" }}>
-                    {product.name} × {quantity}
+                <div key={product.id} className="order-summary__line">
+                  <span className="order-summary__line-label">
+                    {product.name} &times; {quantity}
                   </span>
                   <span>{formatNaira(product.price * quantity)}</span>
                 </div>
               ))}
               <div className="divider" />
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontWeight: 700,
-                  fontSize: "1.1rem",
-                  marginBottom: "1.5rem",
-                }}
-              >
+              <div className="order-summary__total" style={{ marginBottom: "1.5rem" }}>
                 <span>Total</span>
-                <span
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    color: "var(--clr-saffron-dark)",
-                  }}
-                >
+                <span className="order-summary__total-value">
                   {formatNaira(totalPrice)}
                 </span>
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.75rem",
-                }}
-              >
-                <Link
-                  href="/checkout"
-                  className="btn btn-primary btn-lg"
-                  style={{ textAlign: "center", display: "block" }}
-                >
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <Link href="/checkout" className="btn btn-primary btn-lg w-full" style={{ textAlign: "center" }}>
                   Proceed to Checkout
                 </Link>
                 {phone && (
-                  <button
-                    className="btn btn-lg whatsapp-btn"
-                    onClick={handleWhatsAppOrder}
-                  >
+                  <button className="btn btn-lg whatsapp-btn w-full" onClick={handleWhatsAppOrder}>
                     Order via WhatsApp
                   </button>
                 )}
-                <button
-                  onClick={clearCart}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "var(--clr-muted)",
-                    fontSize: "0.875rem",
-                    cursor: "pointer",
-                    textAlign: "center",
-                    marginTop: "0.25rem",
-                  }}
-                >
+                <button onClick={clearCart} className="btn btn-ghost btn-sm w-full" style={{ justifyContent: "center" }}>
                   Clear cart
                 </button>
               </div>
