@@ -9,6 +9,7 @@ import ProductGrid from "@/components/product/ProductGrid";
 import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 import CategoryCard from "@/components/ui/CategoryCard";
 import InspirationCard from "@/components/ui/InspirationCard";
+import NewsletterForm from "@/components/ui/NewsletterForm";
 
 function HomeSkeletonGrid() {
   return (
@@ -166,18 +167,7 @@ export default function HomePage() {
               <p className="newsletter-box__description">
                 Recipes, cooking ideas and occasional offers. Straight to your inbox.
               </p>
-              <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
-                <input
-                  type="email"
-                  placeholder="Your email address"
-                  className="form-input"
-                  aria-label="Email for newsletter"
-                  required
-                />
-                <button type="submit" className="btn btn-primary">
-                  Subscribe
-                </button>
-              </form>
+              <NewsletterForm />
             </div>
           </div>
         </section>
