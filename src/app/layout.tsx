@@ -3,8 +3,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import CartReminder from "@/components/ui/CartReminder";
 import BackToTop from "@/components/ui/BackToTop";
-import MiniCartDrawer from "@/components/ui/MiniCartDrawer";
-import BottomNav from "@/components/layout/BottomNav";
+import ClientWidgets from "@/components/layout/ClientWidgets";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
@@ -43,7 +42,7 @@ export const metadata: Metadata = {
       { url: "/images/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/images/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
-    shortcut: "/favicon.ico",
+    shortcut: "/favicon-v2.ico",
     apple: "/images/apple-touch-icon.png",
   },
 };
@@ -64,12 +63,11 @@ export default function RootLayout({
       <body>
         <BackToTop />
         <SpeedInsights />
-        <MiniCartDrawer />
+        <ClientWidgets />
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {children}
         </div>
         <CartReminder />
-        <BottomNav />
         <Analytics />
       </body>
     </html>
