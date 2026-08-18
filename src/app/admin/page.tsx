@@ -36,35 +36,30 @@ const STAT_CARDS = (stats: Stats) => [
   {
     label: "Total Sales",
     value: formatNaira(stats.totalSales),
-    icon: "",
     accent: "var(--clr-success)",
     bg: "#D1FAE5",
   },
   {
     label: "Total Orders",
     value: stats.totalOrders,
-    icon: "",
     accent: "#2563EB",
     bg: "#DBEAFE",
   },
   {
     label: "Pending Orders",
     value: stats.pendingOrders,
-    icon: "",
     accent: "var(--clr-saffron-dark)",
     bg: "#FEF3C7",
   },
   {
     label: "Total Products",
     value: stats.productCount,
-    icon: "",
     accent: "var(--clr-bark)",
     bg: "var(--clr-cream-dark)",
   },
   {
     label: "Low Stock",
     value: stats.lowStockCount,
-    icon: "",
     accent: "var(--clr-chili)",
     bg: "#FEE2E2",
   },
@@ -139,9 +134,7 @@ export default function AdminDashboardPage() {
                 <div
                   className="stat-card__icon"
                   style={{ background: card.bg }}
-                >
-                  {card.icon}
-                </div>
+                />
                 <div className="stat-card__body">
                   <div
                     className="stat-card__value"
@@ -159,7 +152,7 @@ export default function AdminDashboardPage() {
             <div className="dash__section-header">
               <h2 className="dash__section-title">Recent Orders</h2>
               <Link href="/admin/orders" className="dash__see-all">
-                View all 
+                View all
               </Link>
             </div>
 
@@ -187,7 +180,7 @@ export default function AdminDashboardPage() {
                                 style={{ objectFit: "cover" }}
                               />
                             ) : (
-                              <span style={{ fontSize: "1.25rem" }}></span>
+                              <span className="order-card__product-tag">No image</span>
                             )}
                           </div>
                         ))}
@@ -221,7 +214,7 @@ export default function AdminDashboardPage() {
                         </div>
 
                         <div className="order-card__meta">
-                          <span> {customer?.full_name ?? "—"}</span>
+                          <span>{customer?.full_name ?? "—"}</span>
                           {customer?.phone && (
                             <a
                               href={`tel:${customer.phone}`}
@@ -234,15 +227,15 @@ export default function AdminDashboardPage() {
 
                         {order.delivery_address && (
                           <div className="order-card__address">
-                             {order.delivery_address}
+                              {order.delivery_address}
                           </div>
                         )}
 
                         <div className="order-card__footer">
                           <span>
                             {order.payment_method === "bank_transfer"
-                              ? " Transfer"
-                              : " COD"}
+                              ? "Transfer"
+                              : "COD"}
                           </span>
                           <span className="order-card__date">
                             {new Date(order.created_at).toLocaleDateString(
@@ -274,7 +267,7 @@ export default function AdminDashboardPage() {
                             rel="noopener noreferrer"
                             className="btn btn-sm whatsapp-btn"
                           >
-                            
+                            WhatsApp
                           </a>
                         )}
                       </div>

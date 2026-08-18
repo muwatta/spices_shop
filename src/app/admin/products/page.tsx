@@ -179,6 +179,8 @@ export default function AdminProductsPage() {
       {/* Product form modal */}
       {showForm && (
         <div
+          role="dialog"
+          aria-modal="true"
           style={{
             position: "fixed",
             inset: 0,
@@ -218,6 +220,7 @@ export default function AdminProductsPage() {
               </h2>
               <button
                 onClick={() => setShowForm(false)}
+                aria-label="Close dialog"
                 style={{
                   background: "none",
                   border: "none",
@@ -226,7 +229,7 @@ export default function AdminProductsPage() {
                   color: "var(--clr-muted)",
                 }}
               >
-                
+                &times;
               </button>
             </div>
 
@@ -363,7 +366,7 @@ export default function AdminProductsPage() {
             color: "var(--clr-muted)",
           }}
         >
-          <p style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}></p>
+          <p style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>No products</p>
           <p>No products yet. Add your first spice!</p>
         </div>
       ) : (
@@ -403,7 +406,7 @@ export default function AdminProductsPage() {
                       fontSize: "2.5rem",
                     }}
                   >
-                    
+                    No image
                   </div>
                 )}
               </div>

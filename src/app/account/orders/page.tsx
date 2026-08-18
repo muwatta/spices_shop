@@ -92,6 +92,7 @@ function OrdersContent() {
                 fontSize: "0.9rem",
               }}
             >
+              <caption className="sr-only">Order History</caption>
               <thead>
                 <tr
                   style={{
@@ -169,8 +170,8 @@ function OrdersContent() {
                       style={{ padding: "0.875rem 1rem", whiteSpace: "nowrap" }}
                     >
                       {order.payment_method === "bank_transfer"
-                        ? " Transfer"
-                        : " COD"}
+                        ? "Transfer"
+                        : "COD"}
                     </td>
                     <td style={{ padding: "0.875rem 1rem" }}>
                       <span className={`badge badge-${order.status}`}>
@@ -183,7 +184,7 @@ function OrdersContent() {
                         href={`/account/orders/${order.id}`}
                         className="btn btn-ghost btn-sm"
                       >
-                        View 
+                        View
                       </Link>
                     </td>
                   </tr>

@@ -390,10 +390,13 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                fontSize: "2rem",
                               }}
                             >
-                              
+                              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--clr-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                              </svg>
                             </div>
                           )}
                         </div>
@@ -515,26 +518,26 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                   >
                     {[
                       {
-                        label: " Date",
+                        label: "Date",
                         value: new Date(order.created_at).toLocaleDateString(
                           "en-NG",
                           { day: "numeric", month: "long", year: "numeric" },
                         ),
                       },
                       {
-                        label: " Payment",
+                        label: "Payment",
                         value:
                           order.payment_method === "bank_transfer"
-                            ? " Bank Transfer"
-                            : " Cash on Delivery",
+                            ? "Bank Transfer"
+                            : "Cash on Delivery",
                       },
-                      { label: " Delivery", value: order.delivery_address },
+                      { label: "Delivery", value: order.delivery_address },
                       {
-                        label: " Customer",
+                        label: "Customer",
                         value: (order.customers as any)?.full_name,
                       },
                       {
-                        label: " Phone",
+                        label: "Phone",
                         value: (order.customers as any)?.phone,
                       },
                     ]
