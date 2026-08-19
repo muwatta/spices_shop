@@ -62,7 +62,7 @@ export default function AdminSidebar() {
 
         <span className="admin-topbar__title">KMA Admin</span>
 
-        <Link href="/" className="admin-topbar__shop">
+        <Link href="/shop" className="admin-topbar__shop">
           View Shop
         </Link>
       </header>
@@ -116,7 +116,7 @@ export default function AdminSidebar() {
         </nav>
 
         <div className="admin-sidebar__footer">
-          <Link href="/" className="admin-sidebar__back">
+          <Link href="/shop" className="admin-sidebar__back">
              View Shop
           </Link>
         </div>

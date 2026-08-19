@@ -141,7 +141,7 @@ export default function CartPage() {
               }
               title="Your cart is empty"
               description="Browse our collection of premium spices and add your favorites."
-              action={<Link href="/" className="btn btn-primary btn-lg">Start Shopping</Link>}
+              action={<Link href="/shop" className="btn btn-primary btn-lg">Start Shopping</Link>}
             />
           </div>
         </main>

@@ -73,7 +73,7 @@ function OrdersContent() {
           <p style={{ color: "var(--clr-muted)", marginBottom: "1.5rem" }}>
             You have no orders yet.
           </p>
-          <Link href="/" className="btn btn-primary">
+          <Link href="/shop" className="btn btn-primary">
             Start Shopping
           </Link>
         </div>

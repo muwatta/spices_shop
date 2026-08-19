@@ -91,7 +91,7 @@ export default async function ProductPage({ params }: Props) {
               flexWrap: "wrap",
             }}
           >
-            <a href="/" style={{ color: "var(--clr-terracotta)", fontWeight: 500 }}>
+            <a href="/shop" style={{ color: "var(--clr-terracotta)", fontWeight: 500 }}>
               Shop
             </a>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ opacity: 0.4 }}>

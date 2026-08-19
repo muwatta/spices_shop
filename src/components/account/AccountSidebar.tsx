@@ -40,7 +40,7 @@ export default function AccountSidebar() {
 
         <div className="account-sidebar__divider" />
 
-        <Link href="/" className="account-sidebar__link">
+        <Link href="/shop" className="account-sidebar__link">
           <span className="account-sidebar__icon">
             <LogOut size={18} />
           </span>

@@ -273,7 +273,7 @@ function CheckoutContent() {
                 </svg>
               }
               title="Your cart is empty"
-              action={<Link href="/" className="btn btn-primary">Continue Shopping</Link>}
+              action={<Link href="/shop" className="btn btn-primary">Continue Shopping</Link>}
             />
           </div>
         </main>

@@ -121,7 +121,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                   >
                     <PrintReceiptButton />
                     <Link
-                      href="/"
+                      href="/shop"
                       className="btn btn-outline"
                       style={{ borderColor: "#065F46", color: "#065F46" }}
                     >
@@ -600,7 +600,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                 <Link href="/account/orders" className="btn btn-outline">
                   View All Orders
                 </Link>
-                <Link href="/" className="btn btn-ghost">
+                <Link href="/shop" className="btn btn-ghost">
                   Continue Shopping
                 </Link>
               </div>

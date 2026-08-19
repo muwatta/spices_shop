@@ -79,11 +79,11 @@ export default function Footer() {
         <div>
           <h4 className="footer__heading">Shop</h4>
           <ul className="footer__links">
-            <li><Link href="/#catalog">All Products</Link></li>
-            <li><Link href="/search?q=spice">Spices</Link></li>
-            <li><Link href="/search?q=seasoning">Seasonings</Link></li>
-            <li><Link href="/search?q=pepper">Peppers</Link></li>
-            <li><Link href="/search?q=herb">Herbs</Link></li>
+            <li><Link href="/shop">All Products</Link></li>
+            <li><Link href="/shop?category=spices">Spices</Link></li>
+            <li><Link href="/shop?category=seasonings">Seasonings</Link></li>
+            <li><Link href="/shop?category=peppers">Peppers</Link></li>
+            <li><Link href="/shop?category=herbs">Herbs</Link></li>
           </ul>
         </div>
 

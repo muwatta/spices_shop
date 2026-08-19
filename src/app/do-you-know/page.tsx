@@ -193,7 +193,7 @@ async function DoYouKnowContent() {
             nutrition, and convenience to every meal.
           </p>
           <Link
-            href="/"
+            href="/shop"
             className="btn btn-outline"
             style={{ marginTop: "0.2rem", width: "max-content" }}
           >
