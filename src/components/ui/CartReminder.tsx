@@ -14,7 +14,6 @@ export default function CartReminder() {
       if (idleTimer) clearTimeout(idleTimer);
       idleTimer = setTimeout(
         () => {
-          // Only show if cart has items and user not already on cart page
           const cart = localStorage.getItem("spice-cart");
           const cartItems = cart
             ? JSON.parse(cart).state?.items?.length || 0
