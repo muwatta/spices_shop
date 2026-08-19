@@ -6,7 +6,7 @@ async function getProducts(): Promise<Product[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, price, image_url, stock, description, created_at, category, status, low_stock_threshold")
+    .select("id, name, price, image_url, images, stock, description, created_at, category, status, low_stock_threshold")
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(12);
@@ -14,7 +14,7 @@ async function getProducts(): Promise<Product[]> {
   if (error) {
     const { data: fallback } = await supabase
       .from("products")
-      .select("id, name, price, image_url, stock, description, created_at, status, low_stock_threshold")
+      .select("id, name, price, image_url, images, stock, description, created_at, status, low_stock_threshold")
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(12);

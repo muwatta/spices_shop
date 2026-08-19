@@ -18,8 +18,6 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 const OUTPUT_DIR = path.join(process.cwd(), "output", "products");
 const BUCKET = "product-images";
 
-// Map of slug -> display name (must match product names in the DB exactly)
-// Update this list with your actual product names
 const SLUG_TO_NAME: Record<string, string> = {
   "ceylon-cinnamon-sticks": "Ceylon Cinnamon Sticks",
   "whole-cloves": "Whole Cloves",

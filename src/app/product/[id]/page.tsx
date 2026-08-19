@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = createClient();
   const { data: product } = await supabase
     .from("products")
-    .select("name, description, price, image_url")
+    .select("name, description, price, image_url, images")
     .eq("id", id)
     .single();
 
@@ -67,7 +67,7 @@ export default async function ProductPage({ params }: Props) {
   if (!product) {
     const { data: fallback } = await supabase
       .from("products")
-      .select("id, name, description, price, image_url, stock, created_at")
+      .select("id, name, description, price, image_url, images, stock, created_at")
       .eq("id", id)
       .single();
     product = fallback as any;
@@ -174,6 +174,7 @@ export default async function ProductPage({ params }: Props) {
             {/* Product image */}
             <ProductGallery
               imageUrl={product.image_url}
+              images={product.images ?? []}
               productName={product.name}
               category={product.category}
             />

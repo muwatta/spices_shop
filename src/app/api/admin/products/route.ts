@@ -64,7 +64,7 @@ export async function GET(request: Request) {
 
   let query = adminClient
     .from("products")
-    .select("id, name, price, image_url, stock, category, status, low_stock_threshold, created_at, description", { count: "exact" });
+    .select("id, name, price, image_url, images, stock, category, status, low_stock_threshold, created_at, description", { count: "exact" });
 
   if (search) {
     query = query.ilike("name", `%${search}%`);
@@ -114,6 +114,16 @@ export async function POST(request: Request) {
     image_url = await uploadImage(adminClient, body.image);
   }
 
+  // Handle additional gallery images (images_0, images_1, ...)
+  const additionalImages: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    const file = body[`images_${i}`];
+    if (file && file instanceof File && file.size > 0) {
+      const url = await uploadImage(adminClient, file);
+      additionalImages.push(url);
+    }
+  }
+
   const payload: Record<string, any> = {
     name,
     description: body.description ? String(body.description).trim() : null,
@@ -134,6 +144,7 @@ export async function POST(request: Request) {
   };
 
   if (image_url) payload.image_url = image_url;
+  if (additionalImages.length > 0) payload.images = additionalImages;
 
   const { error } = await adminClient.from("products").insert(payload);
   if (error) {
@@ -165,6 +176,16 @@ export async function PUT(request: Request) {
     image_url = await uploadImage(adminClient, body.image);
   }
 
+  // Handle additional gallery images
+  const additionalImages: string[] = [];
+  for (let i = 0; i < 10; i++) {
+    const file = body[`images_${i}`];
+    if (file && file instanceof File && file.size > 0) {
+      const url = await uploadImage(adminClient, file);
+      additionalImages.push(url);
+    }
+  }
+
   const payload: Record<string, any> = {
     name,
     description: body.description ? String(body.description).trim() : null,
@@ -184,6 +205,18 @@ export async function PUT(request: Request) {
     payload.low_stock_threshold = parseInt(String(body.low_stock_threshold), 10);
   }
   if (image_url !== undefined) payload.image_url = image_url;
+
+  // Handle images replacement (sent as JSON string of URLs to keep)
+  if (body.images_json) {
+    try {
+      payload.images = JSON.parse(String(body.images_json));
+    } catch {}
+  }
+  if (additionalImages.length > 0) {
+    // Merge new uploads with existing kept images
+    const existing = payload.images ?? [];
+    payload.images = [...existing, ...additionalImages];
+  }
 
   const { error } = await adminClient
     .from("products")

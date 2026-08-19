@@ -29,7 +29,7 @@ async function getProducts(
 
   let query = supabase
     .from("products")
-    .select("id, name, price, image_url, stock, description, created_at, category, status, low_stock_threshold", { count: "exact" })
+    .select("id, name, price, image_url, images, stock, description, created_at, category, status, low_stock_threshold", { count: "exact" })
     .eq("status", "active");
 
   if (search) {
@@ -63,7 +63,7 @@ async function getProducts(
   if (error) {
     const fallback = supabase
       .from("products")
-      .select("id, name, price, image_url, stock, description, created_at, status, low_stock_threshold", { count: "exact" })
+      .select("id, name, price, image_url, images, stock, description, created_at, status, low_stock_threshold", { count: "exact" })
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .range(from, to);

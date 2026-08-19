@@ -42,6 +42,7 @@ export default function AdminProductsPage() {
     low_stock_threshold: "5",
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<(File | null)[]>([null, null, null, null, null]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState<{
@@ -115,6 +116,7 @@ export default function AdminProductsPage() {
       low_stock_threshold: String(product.low_stock_threshold ?? 5),
     });
     setImageFile(null);
+    setGalleryFiles([null, null, null, null, null]);
     setError("");
     setMessage(null);
     setShowForm(true);
@@ -136,6 +138,9 @@ export default function AdminProductsPage() {
       formData.append("status", form.status);
       formData.append("low_stock_threshold", form.low_stock_threshold);
       if (imageFile) formData.append("image", imageFile);
+      galleryFiles.forEach((file, idx) => {
+        if (file) formData.append(`images_${idx}`, file);
+      });
       if (editingProduct) formData.append("id", editingProduct.id);
 
       const response = await fetch("/api/admin/products", {
@@ -458,6 +463,50 @@ export default function AdminProductsPage() {
                 {imageFile && (
                   <div style={{ marginTop: "0.5rem", position: "relative", aspectRatio: "4/3", maxWidth: 200, borderRadius: "var(--radius-md)", overflow: "hidden", background: "var(--clr-cream-dark)" }}>
                     <Image src={URL.createObjectURL(imageFile)} alt="Preview" fill style={{ objectFit: "cover" }} />
+                  </div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Gallery Images (up to 5)</label>
+                <p style={{ fontSize: "0.8rem", color: "var(--clr-muted)", marginBottom: "0.5rem" }}>
+                  Additional images shown in the product detail page carousel.
+                </p>
+                {editingProduct?.images && editingProduct.images.length > 0 && (
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.5rem" }}>
+                    {editingProduct.images.map((img, idx) => (
+                      <div key={idx} style={{ position: "relative", width: 60, height: 60, borderRadius: "var(--radius-md)", overflow: "hidden", background: "var(--clr-cream-dark)" }}>
+                        <Image src={img} alt={`Gallery ${idx + 1}`} fill style={{ objectFit: "cover" }} />
+                      </div>
+                    ))}
+                    <span style={{ fontSize: "0.75rem", color: "var(--clr-muted)", alignSelf: "center" }}>
+                      {editingProduct.images.length} existing
+                    </span>
+                  </div>
+                )}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {[0, 1, 2, 3, 4].map((idx) => (
+                    <input
+                      key={idx}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const newFiles = [...galleryFiles];
+                        newFiles[idx] = e.target.files?.[0] ?? null;
+                        setGalleryFiles(newFiles);
+                      }}
+                      className="form-input"
+                      style={{ padding: "0.5rem", fontSize: "0.8rem" }}
+                    />
+                  ))}
+                </div>
+                {galleryFiles.some((f) => f !== null) && (
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
+                    {galleryFiles.filter(Boolean).map((file, idx) => (
+                      <div key={idx} style={{ position: "relative", width: 60, height: 60, borderRadius: "var(--radius-md)", overflow: "hidden", background: "var(--clr-cream-dark)" }}>
+                        <Image src={URL.createObjectURL(file!)} alt={`New ${idx + 1}`} fill style={{ objectFit: "cover" }} />
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
