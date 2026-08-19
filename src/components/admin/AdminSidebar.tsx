@@ -14,17 +14,33 @@ import {
   Menu,
   X,
   ExternalLink,
+  Settings,
 } from "lucide-react";
 import Image from "next/image";
 
-const NAV_ITEMS = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/orders", label: "Orders", icon: Package },
-  { href: "/admin/products", label: "Products", icon: Leaf },
-  { href: "/admin/do-you-know", label: "Do You Know", icon: BookOpen },
-  { href: "/admin/reports", label: "Reports", icon: BarChart3 },
-  { href: "/admin/customers", label: "Customers", icon: Users },
-  { href: "/admin/manual-order", label: "Manual Order", icon: FileText },
+const NAV_SECTIONS = [
+  {
+    label: "Overview",
+    items: [
+      { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Manage",
+    items: [
+      { href: "/admin/orders", label: "Orders", icon: Package },
+      { href: "/admin/products", label: "Products", icon: Leaf },
+      { href: "/admin/manual-order", label: "Manual Order", icon: FileText },
+      { href: "/admin/customers", label: "Customers", icon: Users },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { href: "/admin/do-you-know", label: "Do You Know", icon: BookOpen },
+      { href: "/admin/reports", label: "Reports", icon: BarChart3 },
+    ],
+  },
 ];
 
 export default function AdminSidebar() {
@@ -65,8 +81,8 @@ export default function AdminSidebar() {
 
       <aside className={`admin-sidebar ${open ? "admin-sidebar--open" : ""}`}>
         <div className="admin-sidebar__header">
-          <Link href="/admin" className="admin-sidebar__brand">
-            <Image src="/images/logo.jpg" alt="KMA" width={28} height={28} style={{ borderRadius: "var(--radius-md)" }} />
+          <Link href="/admin" className="admin-sidebar__brand" onClick={() => setOpen(false)}>
+            <Image src="/images/logo.jpg" alt="KMA" width={30} height={30} style={{ borderRadius: "var(--radius-md)" }} />
             <span>KMA Admin</span>
           </Link>
           <button
@@ -79,29 +95,34 @@ export default function AdminSidebar() {
         </div>
 
         <nav className="admin-sidebar__nav">
-          {NAV_ITEMS.map((item) => {
-            const isActive =
-              item.href === "/admin"
-                ? pathname === "/admin"
-                : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className={`admin-sidebar__link ${isActive ? "admin-sidebar__link--active" : ""}`}
-              >
-                <span className="admin-sidebar__icon">
-                  <item.icon size={18} />
-                </span>
-                <span className="admin-sidebar__label">{item.label}</span>
-              </Link>
-            );
-          })}
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.label}>
+              <div className="admin-sidebar__section-label">{section.label}</div>
+              {section.items.map((item) => {
+                const isActive =
+                  item.href === "/admin"
+                    ? pathname === "/admin"
+                    : pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={`admin-sidebar__link ${isActive ? "admin-sidebar__link--active" : ""}`}
+                  >
+                    <span className="admin-sidebar__icon">
+                      <item.icon size={18} />
+                    </span>
+                    <span className="admin-sidebar__label">{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         <div className="admin-sidebar__footer">
-          <Link href="/shop" className="admin-sidebar__back">
+          <Link href="/shop" className="admin-sidebar__back" onClick={() => setOpen(false)}>
             <ExternalLink size={14} />
             View Shop
           </Link>

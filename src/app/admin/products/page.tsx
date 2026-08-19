@@ -257,53 +257,39 @@ export default function AdminProductsPage() {
 
   return (
     <div style={{ padding: "1rem" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1.5rem",
-          flexWrap: "wrap",
-          gap: "0.75rem",
-        }}
-      >
-        <div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", margin: 0 }}>
-            Products
-          </h1>
-          {data && (
-            <p style={{ fontSize: "0.85rem", color: "var(--clr-muted)", margin: "0.25rem 0 0" }}>
-              {data.total} total · {data.totalPages} page{data.totalPages !== 1 ? "s" : ""}
-            </p>
-          )}
+      <div className="admin-products-header">
+        <div className="admin-products-header__top">
+          <div>
+            <h1 className="admin-products-header__title">
+              Products
+            </h1>
+            {data && (
+              <p className="admin-products-header__sub">
+                {data.total} total · {data.totalPages} page{data.totalPages !== 1 ? "s" : ""}
+              </p>
+            )}
+          </div>
+          <div className="admin-products-actions">
+            <button className="btn btn-primary" onClick={openCreate}>
+              + Add Product
+            </button>
+          </div>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>
-          + Add Product
-        </button>
       </div>
 
       {/* Filters */}
-      <div
-        style={{
-          display: "flex",
-          gap: "0.75rem",
-          marginBottom: "1.25rem",
-          flexWrap: "wrap",
-        }}
-      >
+      <div className="admin-products-filter">
         <input
           type="text"
           placeholder="Search products..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="form-input"
-          style={{ flex: "1 1 200px", maxWidth: 320 }}
         />
         <select
           className="form-input"
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
-          style={{ width: 150 }}
         >
           <option value="">All Categories</option>
           {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
@@ -316,7 +302,6 @@ export default function AdminProductsPage() {
           className="form-input"
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          style={{ width: 150 }}
         >
           <option value="">All Statuses</option>
           {Object.entries(PRODUCT_STATUS_LABELS).map(([key, label]) => (
@@ -329,14 +314,8 @@ export default function AdminProductsPage() {
 
       {message && (
         <div
-          style={{
-            marginBottom: "1rem",
-            padding: "0.75rem 1rem",
-            borderRadius: "var(--radius-md)",
-            background: message.type === "success" ? "rgba(45,122,79,0.12)" : "rgba(192,57,43,0.12)",
-            color: message.type === "success" ? "var(--clr-success)" : "var(--clr-chili)",
-            fontSize: "0.875rem",
-          }}
+          className={`alert ${message.type === "success" ? "alert-success" : "alert-error"}`}
+          style={{ marginBottom: "1rem" }}
         >
           {message.text}
         </div>
@@ -344,18 +323,7 @@ export default function AdminProductsPage() {
 
       {/* Bulk actions bar */}
       {selected.size > 0 && (
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.75rem",
-          padding: "0.75rem 1rem",
-          marginBottom: "1rem",
-          background: "var(--clr-bark)",
-          color: "#fff",
-          borderRadius: "var(--radius-md)",
-          fontSize: "0.875rem",
-          flexWrap: "wrap",
-        }}>
+        <div className="admin-products-bulk">
           <span style={{ fontWeight: 600 }}>{selected.size} selected</span>
           <button className="btn btn-sm" style={{ background: "var(--clr-success)", color: "#fff", border: "none" }} onClick={bulkSetActive}>
             Set Active
@@ -371,35 +339,13 @@ export default function AdminProductsPage() {
 
       {/* Product form modal */}
       {showForm && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 200,
-            padding: "1rem",
-          }}
-        >
-          <div
-            className="card"
-            style={{
-              width: "100%",
-              maxWidth: 520,
-              padding: "1.5rem",
-              maxHeight: "90vh",
-              overflowY: "auto",
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
-              <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", margin: 0 }}>
+        <div className="admin-form-overlay" role="dialog" aria-modal="true">
+          <div className="admin-form-panel">
+            <div className="admin-form-header">
+              <h2>
                 {editingProduct ? "Edit Product" : "New Product"}
               </h2>
-              <button onClick={() => setShowForm(false)} aria-label="Close" style={{ background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "var(--clr-muted)" }}>
+              <button className="admin-form-close" onClick={() => setShowForm(false)} aria-label="Close">
                 &times;
               </button>
             </div>
@@ -421,7 +367,7 @@ export default function AdminProductsPage() {
                 <textarea className="form-input" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Describe the spice..." style={{ resize: "vertical" }} />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.875rem" }}>
+              <div className="admin-form-grid">
                 <div className="form-group">
                   <label className="form-label">Price (₦) *</label>
                   <input className="form-input" type="number" required min="1" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="2500" />
@@ -511,8 +457,8 @@ export default function AdminProductsPage() {
                 )}
               </div>
 
-              <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
-                <button type="submit" className="btn btn-primary" disabled={saving} style={{ flex: 1 }}>
+              <div className="admin-form-actions">
+                <button type="submit" className="btn btn-primary" disabled={saving}>
                   {saving ? "Saving..." : editingProduct ? "Save Changes" : "Create Product"}
                 </button>
                 <button type="button" className="btn btn-outline" onClick={() => setShowForm(false)}>

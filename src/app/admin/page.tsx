@@ -12,6 +12,9 @@ import {
   AlertTriangle,
   Banknote,
   CreditCard,
+  Plus,
+  RefreshCw,
+  ExternalLink,
 } from "lucide-react";
 
 interface Stats {
@@ -69,52 +72,62 @@ export default function AdminDashboardPage() {
   });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    async function loadStats() {
-      setLoading(true);
-      try {
-        const response = await fetch("/api/admin/dashboard", { signal: controller.signal });
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error || "Failed to load");
-        setStats({
-          totalOrders: payload.totalOrders ?? 0,
-          totalSales: payload.totalSales ?? 0,
-          pendingOrders: payload.pendingOrders ?? 0,
-          totalProducts: payload.totalProducts ?? 0,
-          activeProducts: payload.activeProducts ?? 0,
-          lowStock: payload.lowStock ?? 0,
-          pendingCod: payload.pendingCod ?? 0,
-          pendingTransfers: payload.pendingTransfers ?? 0,
-        });
-        setRecentOrders(payload.recentOrders ?? []);
-      } catch (e: any) {
-        if (e.name !== "AbortError") setError(e.message || "Failed to load dashboard");
-      } finally {
-        setLoading(false);
-      }
+  async function loadStats() {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await fetch("/api/admin/dashboard");
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Failed to load");
+      setStats({
+        totalOrders: payload.totalOrders ?? 0,
+        totalSales: payload.totalSales ?? 0,
+        pendingOrders: payload.pendingOrders ?? 0,
+        totalProducts: payload.totalProducts ?? 0,
+        activeProducts: payload.activeProducts ?? 0,
+        lowStock: payload.lowStock ?? 0,
+        pendingCod: payload.pendingCod ?? 0,
+        pendingTransfers: payload.pendingTransfers ?? 0,
+      });
+      setRecentOrders(payload.recentOrders ?? []);
+    } catch (e: any) {
+      setError(e.message || "Failed to load dashboard");
+    } finally {
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
     loadStats();
-    return () => controller.abort();
   }, []);
 
   const cards = buildStatCards(stats);
 
   return (
     <div className="dash">
-      <div className="dash__header">
-        <div>
+      {/* Welcome banner */}
+      <div className="dash-welcome">
+        <div className="dash-welcome__text">
           <h1 className="dash__title">Dashboard</h1>
-          <p className="dash__sub">Sales, inventory and order overview</p>
+          <p className="dash__sub">Welcome back. Here is your store overview.</p>
         </div>
-        <div className="dash__actions">
-          <Link href="/admin/orders" className="btn btn-primary btn-sm">Orders</Link>
-          <Link href="/admin/products" className="btn btn-outline btn-sm">Products</Link>
-          <Link href="/admin/reports" className="btn btn-outline btn-sm">Reports</Link>
+        <div className="dash-welcome__actions">
+          <button onClick={loadStats} className="btn btn-outline btn-sm" disabled={loading}>
+            <RefreshCw size={14} className={loading ? "spin" : ""} />
+            Refresh
+          </button>
+          <Link href="/admin/products" className="btn btn-primary btn-sm">
+            <Plus size={14} />
+            Add Product
+          </Link>
+          <Link href="/shop" className="btn btn-outline btn-sm" target="_blank">
+            <ExternalLink size={14} />
+            View Shop
+          </Link>
         </div>
       </div>
 
-      {loading ? (
+      {loading && recentOrders.length === 0 ? (
         <div className="admin-loading">
           <span className="spinner" />
         </div>
@@ -122,7 +135,7 @@ export default function AdminDashboardPage() {
         <div className="admin-empty">
           <p className="admin-empty__title">Failed to load dashboard</p>
           <p>{error}</p>
-          <button className="btn btn-outline btn-sm" style={{ marginTop: "1rem" }} onClick={() => window.location.reload()}>
+          <button className="btn btn-outline btn-sm" style={{ marginTop: "1rem" }} onClick={loadStats}>
             Retry
           </button>
         </div>
@@ -165,7 +178,7 @@ export default function AdminDashboardPage() {
                             {item.products?.image_url ? (
                               <Image src={item.products.image_url} alt={item.products.name ?? "Product"} fill style={{ objectFit: "cover" }} />
                             ) : (
-                              <span style={{ fontSize: "0.7rem", color: "var(--clr-muted)" }}>N/A</span>
+                              <Package size={14} style={{ color: "var(--clr-muted)" }} />
                             )}
                           </div>
                         ))}
