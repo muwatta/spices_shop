@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -14,7 +14,6 @@ import {
   Menu,
   X,
   ExternalLink,
-  Settings,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -47,6 +46,8 @@ export default function AdminSidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  const close = useCallback(() => setOpen(false), []);
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -58,38 +59,43 @@ export default function AdminSidebar() {
     };
   }, [open]);
 
+  // Close sidebar on route change
+  useEffect(() => {
+    close();
+  }, [pathname, close]);
+
   return (
     <>
       <header className="admin-topbar">
-        <button
-          className="admin-topbar__hamburger"
-          onClick={() => setOpen(true)}
-          aria-label="Open menu"
-          aria-expanded={open}
-        >
-          <Menu size={22} />
-        </button>
-
-        <span className="admin-topbar__title">KMA Admin</span>
-
+        <div className="admin-topbar__left">
+          <button
+            className="admin-topbar__hamburger"
+            onClick={() => setOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={open}
+          >
+            <Menu size={20} />
+          </button>
+          <span className="admin-topbar__title">KMA Admin</span>
+        </div>
         <Link href="/shop" className="admin-topbar__shop">
           View Shop
         </Link>
       </header>
 
-      {open && <div className="admin-overlay" onClick={() => setOpen(false)} />}
+      <div
+        className={`admin-overlay ${open ? "" : "admin-overlay--hidden"}`}
+        onClick={close}
+        aria-hidden="true"
+      />
 
-      <aside className={`admin-sidebar ${open ? "admin-sidebar--open" : ""}`}>
+      <aside className={`admin-sidebar ${open ? "admin-sidebar--open" : ""}`} aria-label="Admin navigation">
         <div className="admin-sidebar__header">
-          <Link href="/admin" className="admin-sidebar__brand" onClick={() => setOpen(false)}>
-            <Image src="/images/logo.jpg" alt="KMA" width={30} height={30} style={{ borderRadius: "var(--radius-md)" }} />
+          <Link href="/admin" className="admin-sidebar__brand" onClick={close}>
+            <Image src="/images/logo.jpg" alt="KMA" width={32} height={32} style={{ borderRadius: "var(--radius-md)" }} />
             <span>KMA Admin</span>
           </Link>
-          <button
-            className="admin-sidebar__close"
-            onClick={() => setOpen(false)}
-            aria-label="Close menu"
-          >
+          <button className="admin-sidebar__close" onClick={close} aria-label="Close menu">
             <X size={18} />
           </button>
         </div>
@@ -107,7 +113,7 @@ export default function AdminSidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setOpen(false)}
+                    onClick={close}
                     className={`admin-sidebar__link ${isActive ? "admin-sidebar__link--active" : ""}`}
                   >
                     <span className="admin-sidebar__icon">
@@ -122,9 +128,9 @@ export default function AdminSidebar() {
         </nav>
 
         <div className="admin-sidebar__footer">
-          <Link href="/shop" className="admin-sidebar__back" onClick={() => setOpen(false)}>
+          <Link href="/shop" className="admin-sidebar__back" onClick={close}>
             <ExternalLink size={14} />
-            View Shop
+            View Store
           </Link>
         </div>
       </aside>
