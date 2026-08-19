@@ -6,7 +6,7 @@ async function getProducts(): Promise<Product[]> {
   const supabase = createClient();
   const { data } = await supabase
     .from("products")
-    .select("id, name, price, image_url, stock, description, created_at")
+    .select("id, name, price, image_url, stock, description, created_at, category")
     .order("created_at", { ascending: false })
     .limit(12);
   return (data ?? []) as Product[];

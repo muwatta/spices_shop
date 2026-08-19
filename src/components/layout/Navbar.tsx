@@ -262,7 +262,7 @@ export default function Navbar(): JSX.Element {
 
           {/* Desktop center links */}
           <div className="nav__center">
-            <Link href="/" className={pathname === "/" ? "active" : ""}>
+            <Link href="/shop" className={pathname === "/shop" || pathname === "/" ? "active" : ""}>
               Shop
             </Link>
             <Link
@@ -410,7 +410,7 @@ export default function Navbar(): JSX.Element {
                 </form>
 
                 <nav className="nav__drawer-links">
-                  <Link href="/" onClick={() => setMenuOpen(false)}>
+                  <Link href="/shop" onClick={() => setMenuOpen(false)}>
                     Shop
                   </Link>
                   <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>

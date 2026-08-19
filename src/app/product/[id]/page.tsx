@@ -5,7 +5,9 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AddToCartButton from "@/components/product/AddToCartButton";
 import WhatsAppOrderButton from "@/components/product/WhatsAppOrderButton";
+import ProductCard from "@/components/product/ProductCard";
 import { formatNaira } from "@/lib/utils";
+import { CATEGORY_LABELS, type ProductCategory } from "@/types";
 import ClientProductImage from "./ClientProductImage";
 
 export const revalidate = 60;
@@ -48,6 +50,28 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   const outOfStock = product.stock !== null && product.stock === 0;
+
+  // Fetch related products (same category, excluding current)
+  let relatedProducts: any[] = [];
+  if (product.category) {
+    const { data } = await supabase
+      .from("products")
+      .select("id, name, price, image_url, stock, description, created_at, category")
+      .eq("category", product.category)
+      .neq("id", product.id)
+      .limit(4);
+    relatedProducts = data ?? [];
+  }
+  // If not enough related by category, fill with other products
+  if (relatedProducts.length < 4) {
+    const existingIds = [product.id, ...relatedProducts.map((p) => p.id)];
+    const { data } = await supabase
+      .from("products")
+      .select("id, name, price, image_url, stock, description, created_at, category")
+      .not("id", "in", `(${existingIds.join(",")})`)
+      .limit(4 - relatedProducts.length);
+    relatedProducts = [...relatedProducts, ...(data ?? [])];
+  }
 
   return (
     <>
@@ -93,15 +117,34 @@ export default async function ProductPage({ params }: Props) {
             {/* Product info */}
             <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               <div>
-                <h1
+              <h1
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+                  marginBottom: "0.75rem",
+                }}
+              >
+                {product.name}
+              </h1>
+
+              {product.category && (
+                <div
                   style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
-                    marginBottom: "0.75rem",
+                    display: "inline-flex",
+                    alignSelf: "flex-start",
+                    padding: "0.25rem 0.75rem",
+                    background: "rgba(180, 90, 60, 0.08)",
+                    borderRadius: "var(--radius-full)",
+                    fontSize: "var(--text-xs)",
+                    fontWeight: 600,
+                    color: "var(--clr-terracotta)",
+                    textTransform: "capitalize",
+                    marginBottom: "0.5rem",
                   }}
                 >
-                  {product.name}
-                </h1>
+                  {CATEGORY_LABELS[product.category as ProductCategory] || product.category}
+                </div>
+              )}
 
                 <div
                   style={{
@@ -194,6 +237,24 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </div>
       </main>
+
+      {/* Related products */}
+      {relatedProducts.length > 0 && (
+        <section className="catalog-section" style={{ background: "var(--clr-cream)", padding: "var(--space-3xl) var(--space-md)" }}>
+          <div className="container">
+            <div className="section-header">
+              <p className="section-eyebrow">You may also like</p>
+              <h2 className="section-title">Related products</h2>
+            </div>
+            <div className="product-grid">
+              {relatedProducts.map((rp) => (
+                <ProductCard key={rp.id} product={rp} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <Footer />
     </>
   );

@@ -1,5 +1,17 @@
 export type OrderStatus = "pending" | "confirmed" | "delivered" | "cancelled";
 export type PaymentMethod = "bank_transfer" | "cash_on_delivery";
+export type ProductCategory = "spices" | "herbs" | "seasonings" | "blends" | "peppers" | "oils" | "flours" | "other";
+
+export const CATEGORY_LABELS: Record<ProductCategory, string> = {
+  spices: "Spices",
+  herbs: "Herbs",
+  seasonings: "Seasonings",
+  blends: "Blends",
+  peppers: "Peppers",
+  oils: "Oils",
+  flours: "Flours",
+  other: "Other",
+};
 
 export interface Product {
   id: string;
@@ -9,6 +21,7 @@ export interface Product {
   image_url: string | null;
   stock: number | null;
   created_at: string;
+  category: ProductCategory | null;
 }
 
 export interface DoYouKnowItem {

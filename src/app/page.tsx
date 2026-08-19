@@ -57,10 +57,10 @@ export default function HomePage() {
                 Carefully sourced, freshly packed, delivered to your kitchen.
               </p>
               <div className="hero-actions">
-                <Link href="#catalog" className="btn btn-primary">
+                <Link href="/shop" className="btn btn-primary">
                   Shop Spices
                 </Link>
-                <Link href="#categories" className="btn btn-secondary">
+                <Link href="/shop" className="btn btn-secondary">
                   Explore Categories
                 </Link>
               </div>
@@ -134,6 +134,9 @@ export default function HomePage() {
                 Browse our curated selection of premium Nigerian spices, herbs,
                 and cooking essentials.
               </p>
+              <Link href="/shop" className="section-link">
+                View all products
+              </Link>
             </div>
             <Suspense fallback={<HomeSkeletonGrid />}>
               <ProductGrid />
