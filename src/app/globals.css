@@ -709,6 +709,21 @@ a,
   margin: 0 auto;
 }
 
+.section-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--clr-terracotta);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+.section-link:hover {
+  color: var(--clr-terracotta-dark);
+}
+
 .catalog-section {
   padding: var(--space-4xl) 0;
 }
