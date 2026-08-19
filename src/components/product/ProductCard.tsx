@@ -28,7 +28,7 @@ export default function ProductCard({ product, index = 0 }: Props) {
       e.preventDefault();
       e.stopPropagation();
       if (isOutOfStock) return;
-      addItem(product.id, qty);
+      addItem(product.id, qty, product.stock);
       setAdded(true);
       openMiniCart(product as Product, qty);
       setTimeout(() => setAdded(false), 2000);

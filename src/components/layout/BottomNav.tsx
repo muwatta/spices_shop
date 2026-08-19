@@ -7,8 +7,8 @@ import { useCartStore } from "@/lib/store/cart";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/search", label: "Shop", icon: Leaf },
-  { href: "/search?q=", label: "Search", icon: Search },
+  { href: "/shop", label: "Shop", icon: Leaf },
+  { href: "/shop", label: "Search", icon: Search },
   { href: "/cart", label: "Cart", icon: ShoppingBag, badge: true },
   { href: "/account", label: "Account", icon: User },
 ];

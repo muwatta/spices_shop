@@ -7,7 +7,11 @@ export async function GET(request: Request) {
   if (authError) return authError;
 
   const { searchParams } = new URL(request.url);
-  const query = searchParams.get("q") || "";
+  const rawQuery = searchParams.get("q") || "";
+  const query = rawQuery.replace(/[^a-zA-Z0-9\s@._-]/g, "").trim();
+  if (!query || query.length < 2) {
+    return NextResponse.json([]);
+  }
   const adminClient = createAdminClient();
 
   const { data, error } = await adminClient

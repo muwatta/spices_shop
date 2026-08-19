@@ -61,10 +61,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <a href="#main-content" className="skip-to-content">
+          Skip to main content
+        </a>
         <BackToTop />
         <SpeedInsights />
         <ClientWidgets />
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <div id="main-content" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {children}
         </div>
         <CartReminder />

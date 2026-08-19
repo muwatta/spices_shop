@@ -1,11 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { checkRateLimit, getRateLimitIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
 function isValidPassword(password: unknown) {
   return typeof password === "string" && password.length >= 6;
 }
 
 export async function POST(request: Request) {
+  const rlId = getRateLimitIdentifier(request);
+  const rl = await checkRateLimit("update-password", rlId);
+  const rlResp = rateLimitResponse(rl);
+  if (rlResp) return rlResp;
+
   const body = await request.json().catch(() => ({}));
   const password = typeof body.password === "string" ? body.password : "";
 

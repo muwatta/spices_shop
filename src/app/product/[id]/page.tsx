@@ -8,6 +8,7 @@ import WhatsAppOrderButton from "@/components/product/WhatsAppOrderButton";
 import ProductCard from "@/components/product/ProductCard";
 import { formatNaira } from "@/lib/utils";
 import { CATEGORY_LABELS, type ProductCategory } from "@/types";
+import Link from "next/link";
 import ClientProductImage from "./ClientProductImage";
 
 export const revalidate = 60;
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = createClient();
   const { data: product } = await supabase
     .from("products")
-    .select("name, description, price")
+    .select("name, description, price, image_url")
     .eq("id", id)
     .single();
 
@@ -47,6 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: product.name,
       description: product.description || `Premium ${product.name} from KMA Spices & Herbs.`,
       type: "website",
+      images: product.image_url ? [product.image_url] : [],
     },
   };
 }
@@ -105,9 +107,9 @@ export default async function ProductPage({ params }: Props) {
               flexWrap: "wrap",
             }}
           >
-            <a href="/shop" style={{ color: "var(--clr-terracotta)", fontWeight: 500 }}>
+            <Link href="/shop" style={{ color: "var(--clr-terracotta)", fontWeight: 500 }}>
               Shop
-            </a>
+            </Link>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ opacity: 0.4 }}>
               <polyline points="9 18 15 12 9 6" />
             </svg>

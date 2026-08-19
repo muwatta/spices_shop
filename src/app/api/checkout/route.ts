@@ -27,7 +27,15 @@ export async function POST(request: Request) {
     );
   }
 
-  const body = await request.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid request format." },
+      { status: 400 },
+    );
+  }
   const full_name = normalizeText(body.full_name);
   const phone = normalizeText(body.phone);
   const address_line1 = normalizeText(body.address_line1);
@@ -38,7 +46,7 @@ export async function POST(request: Request) {
   const account_number = normalizeText(body.account_number);
   const payment_method = normalizeText(body.payment_method);
   const payment_proof_url = normalizeText(body.payment_proof_url) || null;
-  const items = Array.isArray(body.items) ? body.items : [];
+  const items = Array.isArray(body.items) ? body.items.slice(0, 50) : [];
 
   if (!full_name || !phone || !address_line1 || !city || !state) {
     return NextResponse.json(

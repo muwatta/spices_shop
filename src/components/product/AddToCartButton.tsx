@@ -15,7 +15,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
   const maxStock = product.stock || 99;
 
   const handleAdd = useCallback(() => {
-    addItem(product.id, qty);
+    addItem(product.id, qty, product.stock);
     setAdded(true);
     openMiniCart(product, qty);
     setTimeout(() => setAdded(false), 2000);

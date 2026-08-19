@@ -9,6 +9,8 @@ const RATE_LIMITS: Record<string, { maxRequests: number; windowSeconds: number }
   "reset-password":          { maxRequests: 3,   windowSeconds: 300 },     // 3 per 5 min
   "signup":                  { maxRequests: 5,   windowSeconds: 600 },     // 5 per 10 min
   "checkout":                { maxRequests: 10,  windowSeconds: 600 },     // 10 per 10 min
+  "update-password":         { maxRequests: 5,   windowSeconds: 300 },     // 5 per 5 min
+  "newsletter":              { maxRequests: 3,   windowSeconds: 300 },     // 3 per 5 min
 };
 
 type RateLimitResult = { allowed: true } | { allowed: false; retryAfter: number };

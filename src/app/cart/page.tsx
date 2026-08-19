@@ -28,7 +28,7 @@ interface Product {
 }
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, clearCart } = useCartStore();
+  const { items, removeItem, updateQuantity, clearCart, syncStock } = useCartStore();
   const supabase = createClient();
   const [products, setProducts] = useState<Record<string, Product>>({});
   const [loading, setLoading] = useState(true);
@@ -52,6 +52,9 @@ export default function CartPage() {
           productMap[p.id] = p;
         });
         setProducts(productMap);
+        syncStock(
+          Object.fromEntries(data.map((p) => [p.id, p.stock]))
+        );
       }
       setLoading(false);
     }
@@ -242,6 +245,9 @@ export default function CartPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                 <Link href="/checkout" className="btn btn-primary btn-lg w-full" style={{ textAlign: "center" }}>
                   Proceed to Checkout
+                </Link>
+                <Link href="/shop" className="btn btn-outline btn-lg w-full" style={{ textAlign: "center" }}>
+                  Continue Shopping
                 </Link>
                 {phone && (
                   <button className="btn btn-lg whatsapp-btn w-full" onClick={handleWhatsAppOrder}>

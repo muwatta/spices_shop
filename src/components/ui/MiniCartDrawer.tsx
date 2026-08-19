@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X, ShoppingBag, ArrowRight } from "lucide-react";
@@ -8,32 +8,75 @@ import { useMiniCartStore } from "@/lib/store/miniCart";
 import { useCartStore } from "@/lib/store/cart";
 import { formatNaira } from "@/lib/utils";
 
+const AUTO_CLOSE_MS = 8000;
+
 export default function MiniCartDrawer() {
   const { isOpen, product, quantity, close } = useMiniCartStore();
   const totalItems = useCartStore((s) => s.totalItems());
   const drawerRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
-    const timer = setTimeout(close, 5000);
+    const timer = setTimeout(close, AUTO_CLOSE_MS);
     return () => clearTimeout(timer);
   }, [isOpen, close]);
 
   useEffect(() => {
     if (isOpen) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
       document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => {
+        const closeBtn = drawerRef.current?.querySelector<HTMLButtonElement>(
+          ".mini-cart-drawer__close",
+        );
+        closeBtn?.focus();
+      });
     } else {
       document.body.style.overflow = "";
+      previousFocusRef.current?.focus();
     }
     return () => {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Escape") {
+        close();
+        return;
+      }
+      if (e.key === "Tab" && drawerRef.current) {
+        const focusable = drawerRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    },
+    [close],
+  );
+
   if (!isOpen || !product) return null;
 
   return (
-    <div className="mini-cart-overlay" onClick={close} role="dialog" aria-label="Added to cart">
+    <div
+      className="mini-cart-overlay"
+      onClick={close}
+      onKeyDown={handleKeyDown}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Added to cart"
+    >
       <div
         ref={drawerRef}
         className="mini-cart-drawer"
