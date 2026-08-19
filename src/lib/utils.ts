@@ -6,6 +6,26 @@ export function formatNaira(amount: number): string {
   }).format(amount);
 }
 
+const FREE_DELIVERY_THRESHOLD = 15000;
+const DELIVERY_FEE = 1500;
+
+export function calculateDeliveryFee(subtotal: number): number {
+  return subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+}
+
+export function getDeliveryInfo(subtotal: number): {
+  fee: number;
+  free: boolean;
+  remaining: number;
+} {
+  const fee = calculateDeliveryFee(subtotal);
+  return {
+    fee,
+    free: fee === 0,
+    remaining: subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : FREE_DELIVERY_THRESHOLD - subtotal,
+  };
+}
+
 export function sanitizeRedirect(
   redirect: string | null | undefined,
   fallback = "/account",

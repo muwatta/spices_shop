@@ -10,6 +10,7 @@ import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 import CategoryCard from "@/components/ui/CategoryCard";
 import InspirationCard from "@/components/ui/InspirationCard";
 import NewsletterForm from "@/components/ui/NewsletterForm";
+import WhatsAppHeroButton from "@/components/ui/WhatsAppHeroButton";
 
 function HomeSkeletonGrid() {
   return (
@@ -22,12 +23,12 @@ function HomeSkeletonGrid() {
 }
 
 const CATEGORIES = [
-  { emoji: "🌶", name: "Spices", href: "/search?q=spice", colorClass: "category-card__icon--spices" },
-  { emoji: "🌿", name: "Herbs", href: "/search?q=herb", colorClass: "category-card__icon--herbs" },
-  { emoji: "🧂", name: "Seasonings", href: "/search?q=seasoning", colorClass: "category-card__icon--seasonings" },
-  { emoji: "🔥", name: "Pepper & Heat", href: "/search?q=pepper", colorClass: "category-card__icon--peppers" },
-  { emoji: "🍲", name: "Cooking Blends", href: "/search?q=curry", colorClass: "category-card__icon--blends" },
-  { emoji: "🫒", name: "Oils & Flours", href: "/search?q=oil", colorClass: "category-card__icon--oils" },
+  { emoji: "🌶", name: "Spices", href: "/shop?category=spices", colorClass: "category-card__icon--spices" },
+  { emoji: "🌿", name: "Herbs", href: "/shop?category=herbs", colorClass: "category-card__icon--herbs" },
+  { emoji: "🧂", name: "Seasonings", href: "/shop?category=seasonings", colorClass: "category-card__icon--seasonings" },
+  { emoji: "🔥", name: "Pepper & Heat", href: "/shop?category=peppers", colorClass: "category-card__icon--peppers" },
+  { emoji: "🍲", name: "Cooking Blends", href: "/shop?category=blends", colorClass: "category-card__icon--blends" },
+  { emoji: "🫒", name: "Oils & Flours", href: "/shop?category=oils", colorClass: "category-card__icon--oils" },
 ];
 
 const INSPIRATION_ITEMS = [
@@ -60,9 +61,7 @@ export default function HomePage() {
                 <Link href="/shop" className="btn btn-primary">
                   Shop Spices
                 </Link>
-                <Link href="/shop" className="btn btn-secondary">
-                  Explore Categories
-                </Link>
+                <WhatsAppHeroButton />
               </div>
             </div>
             <HeroCarousel />

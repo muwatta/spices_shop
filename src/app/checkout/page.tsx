@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/store/cart";
 import { createClient } from "@/lib/supabase/client";
-import { formatNaira } from "@/lib/utils";
+import { formatNaira, getDeliveryInfo } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import EmptyState from "@/components/ui/EmptyState";
@@ -103,6 +103,9 @@ function CheckoutContent() {
     (sum, item) => sum + (item.product?.price || 0) * item.quantity,
     0,
   );
+
+  const delivery = getDeliveryInfo(totalPrice);
+  const grandTotal = totalPrice + delivery.fee;
 
   const isFormValid = useMemo(() => {
     return (
@@ -419,7 +422,7 @@ function CheckoutContent() {
                           <div>Account: <strong>{bankInfo.account_number}</strong></div>
                           <div>Name: <strong>{bankInfo.account_name}</strong></div>
                           <div style={{ marginTop: "0.75rem", fontWeight: 700,                             color: "var(--clr-terracotta-dark)" }}>
-                            Amount: {formatNaira(totalPrice)}
+                            Amount: {formatNaira(grandTotal)}
                           </div>
                         </div>
 
@@ -470,10 +473,25 @@ function CheckoutContent() {
                     </div>
                   ))}
                 </div>
+                <div className="order-summary__line">
+                  <span className="order-summary__line-label">Delivery</span>
+                  <span>
+                    {delivery.free ? (
+                      <span style={{ color: "var(--clr-success)", fontWeight: 600 }}>Free</span>
+                    ) : (
+                      formatNaira(delivery.fee)
+                    )}
+                  </span>
+                </div>
                 <div className="divider" style={{ margin: "0.75rem 0" }} />
+                {!delivery.free && delivery.remaining > 0 && (
+                  <p style={{ fontSize: "0.8rem", color: "var(--clr-muted)", marginBottom: "0.75rem" }}>
+                    Add {formatNaira(delivery.remaining)} more for free delivery
+                  </p>
+                )}
                 <div className="order-summary__total" style={{ marginBottom: "1.5rem" }}>
                   <span>Total</span>
-                  <span className="order-summary__total-value">{formatNaira(totalPrice)}</span>
+                  <span className="order-summary__total-value">{formatNaira(grandTotal)}</span>
                 </div>
 
                 {error && (

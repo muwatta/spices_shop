@@ -7,6 +7,7 @@ import {
   formatNaira,
   buildWhatsAppUrl,
   buildOrderWhatsAppMessage,
+  getDeliveryInfo,
 } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -70,6 +71,8 @@ export default function CartPage() {
   );
 
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const delivery = getDeliveryInfo(totalPrice);
+  const grandTotal = totalPrice + delivery.fee;
 
   function handleWhatsAppOrder() {
     if (!phone) {
@@ -83,7 +86,7 @@ export default function CartPage() {
     const summary = cartItems
       .map((item) => `${item.product.name} x${item.quantity}`)
       .join("\n");
-    if (!window.confirm(`Order via WhatsApp:\n\n${summary}\n\nTotal: ${formatNaira(totalPrice)}\n\nContinue?`)) {
+    if (!window.confirm(`Order via WhatsApp:\n\n${summary}\n\nTotal: ${formatNaira(grandTotal)}\n\nContinue?`)) {
       return;
     }
     const message = buildOrderWhatsAppMessage(
@@ -92,7 +95,7 @@ export default function CartPage() {
         quantity: i.quantity,
         price: i.product.price,
       })),
-      totalPrice,
+      grandTotal,
     );
     window.open(buildWhatsAppUrl(phone, message), "_blank");
   }
@@ -214,11 +217,26 @@ export default function CartPage() {
                   <span>{formatNaira(product.price * quantity)}</span>
                 </div>
               ))}
+              <div className="order-summary__line">
+                <span className="order-summary__line-label">Delivery</span>
+                <span>
+                  {delivery.free ? (
+                    <span style={{ color: "var(--clr-success)", fontWeight: 600 }}>Free</span>
+                  ) : (
+                    formatNaira(delivery.fee)
+                  )}
+                </span>
+              </div>
               <div className="divider" />
+              {!delivery.free && delivery.remaining > 0 && (
+                <p style={{ fontSize: "0.8rem", color: "var(--clr-muted)", marginBottom: "0.75rem" }}>
+                  Add {formatNaira(delivery.remaining)} more for free delivery
+                </p>
+              )}
               <div className="order-summary__total" style={{ marginBottom: "1.5rem" }}>
                 <span>Total</span>
                 <span className="order-summary__total-value">
-                  {formatNaira(totalPrice)}
+                  {formatNaira(grandTotal)}
                 </span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
