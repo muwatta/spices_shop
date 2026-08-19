@@ -17,6 +17,7 @@ export default function AdminProductsPage() {
     description: "",
     price: "",
     stock: "",
+    category: "",
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -41,7 +42,7 @@ export default function AdminProductsPage() {
 
   function openCreate() {
     setEditingProduct(null);
-    setForm({ name: "", description: "", price: "", stock: "" });
+    setForm({ name: "", description: "", price: "", stock: "", category: "" });
     setImageFile(null);
     setError("");
     setMessage(null);
@@ -55,6 +56,7 @@ export default function AdminProductsPage() {
       description: product.description ?? "",
       price: String(product.price),
       stock: product.stock !== null ? String(product.stock) : "",
+      category: product.category ?? "",
     });
     setImageFile(null);
     setError("");
@@ -74,6 +76,7 @@ export default function AdminProductsPage() {
       formData.append("description", form.description);
       formData.append("price", form.price);
       formData.append("stock", form.stock);
+      formData.append("category", form.category);
       if (imageFile) {
         formData.append("image", imageFile);
       }
@@ -303,6 +306,26 @@ export default function AdminProductsPage() {
                     placeholder="Leave blank = unlimited"
                   />
                 </div>
+                <div className="form-group">
+                  <label className="form-label">Category</label>
+                  <select
+                    className="form-input"
+                    value={form.category}
+                    onChange={(e) =>
+                      setForm({ ...form, category: e.target.value })
+                    }
+                  >
+                    <option value="">Uncategorized</option>
+                    <option value="spices">Spices</option>
+                    <option value="herbs">Herbs</option>
+                    <option value="seasonings">Seasonings</option>
+                    <option value="blends">Blends</option>
+                    <option value="peppers">Peppers</option>
+                    <option value="oils">Oils</option>
+                    <option value="flours">Flours</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
               </div>
               <div className="form-group">
                 <label className="form-label">Product Image</label>
@@ -414,6 +437,23 @@ export default function AdminProductsPage() {
                 <h3 style={{ fontSize: "1rem", marginBottom: "0.25rem" }}>
                   {product.name}
                 </h3>
+                {(product as any).category && (
+                  <span
+                    style={{
+                      display: "inline-block",
+                      padding: "0.125rem 0.5rem",
+                      background: "rgba(180, 90, 60, 0.08)",
+                      borderRadius: "var(--radius-full)",
+                      fontSize: "0.7rem",
+                      fontWeight: 600,
+                      color: "var(--clr-terracotta)",
+                      textTransform: "capitalize",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {(product as any).category}
+                  </span>
+                )}
                 <p
                   style={{
                     fontSize: "0.8125rem",

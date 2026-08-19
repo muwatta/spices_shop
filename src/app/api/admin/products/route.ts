@@ -16,6 +16,7 @@ async function parseForm(request: Request) {
     description: formData.get("description") as string | null,
     price: formData.get("price") as string | null,
     stock: formData.get("stock") as string | null,
+    category: formData.get("category") as string | null,
     image: formData.get("image") as File | null,
   };
 
@@ -88,6 +89,10 @@ export async function POST(request: Request) {
       body.stock !== null && String(body.stock).trim() !== ""
         ? parseInt(String(body.stock), 10)
         : null,
+    category:
+      body.category !== null && String(body.category).trim() !== ""
+        ? String(body.category).trim()
+        : null,
   };
 
   if (image_url) payload.image_url = image_url;
@@ -129,6 +134,10 @@ export async function PUT(request: Request) {
     stock:
       body.stock !== null && String(body.stock).trim() !== ""
         ? parseInt(String(body.stock), 10)
+        : null,
+    category:
+      body.category !== null && String(body.category).trim() !== ""
+        ? String(body.category).trim()
         : null,
   };
 
