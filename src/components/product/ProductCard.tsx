@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Product, CATEGORY_LABELS, ProductCategory } from "@/types";
 import { formatNaira } from "@/lib/utils";
+import { getFallbackImage } from "@/lib/fallback-images";
 import { useCartStore } from "@/lib/store/cart";
 import { useMiniCartStore } from "@/lib/store/miniCart";
 import { useState, useCallback } from "react";
@@ -49,7 +50,7 @@ export default function ProductCard({ product, index = 0 }: Props) {
       <Link href={`/product/${product.id}`} className="product-card__image-link">
         <div className="product-card__image-wrapper">
           <ProductImage
-            src={product.image_url}
+            src={product.image_url || getFallbackImage(product.name)}
             alt={product.name}
             category={product.category}
             className="product-card__image"

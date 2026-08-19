@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { ProductCategory } from "@/types";
+import { getFallbackImage } from "@/lib/fallback-images";
 import { X, ZoomIn, ChevronLeft, ChevronRight } from "lucide-react";
 
 const CATEGORY_STYLES: Record<string, { bg: string; fg: string }> = {
@@ -30,9 +31,10 @@ export default function ProductGallery({
   productName,
   category,
 }: ProductGalleryProps) {
-  // Build full image list: primary image first, then additional images
+  // Build full image list: primary image first, then additional images, with fallback
+  const fallback = getFallbackImage(productName);
   const allImages = [
-    ...(imageUrl ? [imageUrl] : []),
+    ...(imageUrl ? [imageUrl] : [fallback]),
     ...images.filter((img) => img && img !== imageUrl),
   ];
   const hasMultiple = allImages.length > 1;

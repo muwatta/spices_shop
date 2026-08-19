@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatNaira } from "@/lib/utils";
+import { getFallbackImage } from "@/lib/fallback-images";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -178,7 +179,7 @@ export default function AdminDashboardPage() {
                             {item.products?.image_url ? (
                               <Image src={item.products.image_url} alt={item.products.name ?? "Product"} fill style={{ objectFit: "cover" }} />
                             ) : (
-                              <Package size={14} style={{ color: "var(--clr-muted)" }} />
+                              <Image src={getFallbackImage(item.products?.name ?? "")} alt={item.products?.name ?? "Product"} fill style={{ objectFit: "cover" }} />
                             )}
                           </div>
                         ))}
