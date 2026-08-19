@@ -32,12 +32,12 @@ const CATEGORIES = [
 ];
 
 const INSPIRATION_ITEMS = [
-  { emoji: "🍚", name: "Jollof Rice", href: "/search?q=jollof" },
-  { emoji: "🍗", name: "Chicken", href: "/search?q=chicken" },
-  { emoji: "🥘", name: "Pepper Soup", href: "/search?q=pepper+soup" },
-  { emoji: "🐟", name: "Grilled Fish", href: "/search?q=fish" },
-  { emoji: "🥩", name: "Suya", href: "/search?q=suya" },
-  { emoji: "🍛", name: "Curry Stew", href: "/search?q=curry" },
+  { emoji: "🍚", name: "Jollof Rice", href: "/shop?category=seasonings" },
+  { emoji: "🍗", name: "Chicken", href: "/shop?category=seasonings" },
+  { emoji: "🥘", name: "Pepper Soup", href: "/shop?category=peppers" },
+  { emoji: "🐟", name: "Grilled Fish", href: "/shop?category=seasonings" },
+  { emoji: "🥩", name: "Suya", href: "/shop?category=spices" },
+  { emoji: "🍛", name: "Curry Stew", href: "/shop?category=blends" },
 ];
 
 export default function HomePage() {
