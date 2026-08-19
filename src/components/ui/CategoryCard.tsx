@@ -1,21 +1,30 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface Props {
-  emoji: string;
   name: string;
-  count?: string;
+  description: string;
+  image: string;
   href: string;
-  colorClass?: string;
 }
 
-export default function CategoryCard({ emoji, name, count, href, colorClass }: Props) {
+export default function CategoryCard({ name, description, image, href }: Props) {
   return (
     <Link href={href} className="category-card">
-      <div className={`category-card__icon ${colorClass || "category-card__icon--spices"}`}>
-        <span aria-hidden="true">{emoji}</span>
+      <div className="category-card__image">
+        <Image
+          src={image}
+          alt={name}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 960px) 33vw, 20vw"
+          style={{ objectFit: "cover" }}
+        />
+        <div className="category-card__overlay" />
       </div>
-      <span className="category-card__name">{name}</span>
-      {count && <span className="category-card__count">{count}</span>}
+      <div className="category-card__content">
+        <span className="category-card__name">{name}</span>
+        <span className="category-card__description">{description}</span>
+      </div>
     </Link>
   );
 }

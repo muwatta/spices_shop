@@ -19,11 +19,20 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const guides: DoYouKnowItem[] = [];
 
   if (query) {
-    // Use .ilike() chained with .or() separately — more reliable than the filter string syntax
     const { data: productData, error: productError } = await supabase
       .from("products")
       .select("*")
       .or(`name.ilike.%${query}%,description.ilike.%${query}%`);
+
+    if (productError) {
+      const { data: fallbackData } = await supabase
+        .from("products")
+        .select("id, name, description, price, image_url, stock, created_at")
+        .or(`name.ilike.%${query}%,description.ilike.%${query}%`);
+      if (fallbackData) products.push(...(fallbackData as Product[]));
+    } else if (productData) {
+      products.push(...(productData as Product[]));
+    }
 
     const { data: guideData, error: guideError } = await supabase
       .from("do_you_know_items")
@@ -32,10 +41,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         `name.ilike.%${query}%,subtitle.ilike.%${query}%,benefits.ilike.%${query}%,recommendation.ilike.%${query}%`,
       );
 
-    if (productError) console.error("[search] products:", productError.message);
     if (guideError) console.error("[search] guides:", guideError.message);
-
-    if (productData) products.push(...(productData as Product[]));
     if (guideData) guides.push(...(guideData as DoYouKnowItem[]));
   }
 

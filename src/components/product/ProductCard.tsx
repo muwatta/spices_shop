@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Product, CATEGORY_LABELS, ProductCategory } from "@/types";
 import { formatNaira } from "@/lib/utils";
 import { useCartStore } from "@/lib/store/cart";
@@ -18,7 +17,6 @@ export default function ProductCard({ product, index = 0 }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const { open: openMiniCart } = useMiniCartStore();
   const [added, setAdded] = useState(false);
-  const [qty, setQty] = useState(1);
 
   const isOutOfStock = product.stock !== null && product.stock === 0;
   const isLowStock = product.stock !== null && product.stock > 0 && product.stock <= 5;
@@ -28,31 +26,16 @@ export default function ProductCard({ product, index = 0 }: Props) {
       e.preventDefault();
       e.stopPropagation();
       if (isOutOfStock) return;
-      addItem(product.id, qty, product.stock);
+      addItem(product.id, 1, product.stock);
       setAdded(true);
-      openMiniCart(product as Product, qty);
+      openMiniCart(product as Product, 1);
       setTimeout(() => setAdded(false), 2000);
     },
-    [addItem, openMiniCart, product, qty, isOutOfStock],
-  );
-
-  const handleQtyChange = useCallback(
-    (delta: number) => (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setQty((q) => Math.max(1, Math.min(q + delta, product.stock || 99)));
-    },
-    [product.stock],
+    [addItem, openMiniCart, product, isOutOfStock],
   );
 
   return (
-    <motion.article
-      className="product-card"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut", delay: Math.min(index * 0.05, 0.3) }}
-    >
-      {/* Image */}
+    <article className="product-card">
       <Link href={`/product/${product.id}`} className="product-card__image-link">
         <div className="product-card__image-wrapper">
           <ProductImage
@@ -62,17 +45,15 @@ export default function ProductCard({ product, index = 0 }: Props) {
             className="product-card__image"
           />
 
-          {/* Category badge */}
           {product.category && (
             <span className="product-card__category-badge">
               {CATEGORY_LABELS[product.category as ProductCategory] || product.category}
             </span>
           )}
 
-          {/* Stock overlays */}
           {isOutOfStock && (
             <div className="product-card__out-of-stock" role="status">
-              Out of Stock
+              Sold Out
             </div>
           )}
           {isLowStock && !isOutOfStock && (
@@ -83,7 +64,6 @@ export default function ProductCard({ product, index = 0 }: Props) {
         </div>
       </Link>
 
-      {/* Content */}
       <div className="product-card__content">
         <Link href={`/product/${product.id}`} className="product-card__name" tabIndex={-1}>
           {product.name}
@@ -104,42 +84,21 @@ export default function ProductCard({ product, index = 0 }: Props) {
               Added
             </span>
           ) : (
-            <div className="product-card__quick-add">
-              <div className="product-card__qty" role="group" aria-label="Quantity">
-                <button
-                  className="product-card__qty-btn"
-                  onClick={handleQtyChange(-1)}
-                  disabled={qty <= 1}
-                  aria-label="Decrease quantity"
-                >
-                  −
-                </button>
-                <span className="product-card__qty-value" aria-live="polite">{qty}</span>
-                <button
-                  className="product-card__qty-btn"
-                  onClick={handleQtyChange(1)}
-                  disabled={qty >= (product.stock || 99)}
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
-              </div>
-              <button
-                className="btn btn-primary btn-sm product-card__add-btn"
-                onClick={handleAdd}
-                aria-label={`Add ${qty} ${product.name} to cart`}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M6 6h15l-2 9H8L6 4H3" />
-                  <circle cx="9" cy="20" r="1.5" fill="currentColor" />
-                  <circle cx="18" cy="20" r="1.5" fill="currentColor" />
-                </svg>
-                Add
-              </button>
-            </div>
+            <button
+              className="btn btn-primary btn-sm product-card__add-btn"
+              onClick={handleAdd}
+              aria-label={`Add ${product.name} to cart`}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6 6h15l-2 9H8L6 4H3" />
+                <circle cx="9" cy="20" r="1.5" fill="currentColor" />
+                <circle cx="18" cy="20" r="1.5" fill="currentColor" />
+              </svg>
+              Add
+            </button>
           )}
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }

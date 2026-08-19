@@ -4,11 +4,21 @@ import ProductCard from "./ProductCard";
 
 async function getProducts(): Promise<Product[]> {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("products")
     .select("id, name, price, image_url, stock, description, created_at, category")
     .order("created_at", { ascending: false })
     .limit(12);
+
+  if (error) {
+    const { data: fallback } = await supabase
+      .from("products")
+      .select("id, name, price, image_url, stock, description, created_at")
+      .order("created_at", { ascending: false })
+      .limit(12);
+    return (fallback ?? []) as Product[];
+  }
+
   return (data ?? []) as Product[];
 }
 
@@ -17,15 +27,12 @@ export default async function ProductGrid() {
 
   if (products.length === 0) {
     return (
-      <div className="empty-state">
-        <div className="empty-state__icon">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z" />
-          </svg>
-        </div>
-        <h3 className="empty-state__title">No products yet</h3>
-        <p className="empty-state__description">
-          Add your spices in the admin panel to show them here.
+      <div style={{ textAlign: "center", padding: "4rem 1rem", color: "var(--clr-muted)" }}>
+        <p style={{ fontSize: "var(--text-lg)", fontWeight: 600, color: "var(--clr-bark)", marginBottom: "0.5rem" }}>
+          Our collection is being prepared
+        </p>
+        <p style={{ fontSize: "var(--text-sm)" }}>
+          Check back soon for our full range of premium Nigerian spices.
         </p>
       </div>
     );
@@ -33,8 +40,8 @@ export default async function ProductGrid() {
 
   return (
     <div className="product-grid">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {products.map((product, index) => (
+        <ProductCard key={product.id} product={product} index={index} />
       ))}
     </div>
   );

@@ -3,14 +3,11 @@ export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import HeroCarousel from "@/components/layout/HeroCarousel";
 import Link from "next/link";
 import ProductGrid from "@/components/product/ProductGrid";
 import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 import CategoryCard from "@/components/ui/CategoryCard";
-import InspirationCard from "@/components/ui/InspirationCard";
 import NewsletterForm from "@/components/ui/NewsletterForm";
-import WhatsAppHeroButton from "@/components/ui/WhatsAppHeroButton";
 
 function HomeSkeletonGrid() {
   return (
@@ -23,21 +20,63 @@ function HomeSkeletonGrid() {
 }
 
 const CATEGORIES = [
-  { emoji: "🌶", name: "Spices", href: "/shop?category=spices", colorClass: "category-card__icon--spices" },
-  { emoji: "🌿", name: "Herbs", href: "/shop?category=herbs", colorClass: "category-card__icon--herbs" },
-  { emoji: "🧂", name: "Seasonings", href: "/shop?category=seasonings", colorClass: "category-card__icon--seasonings" },
-  { emoji: "🔥", name: "Pepper & Heat", href: "/shop?category=peppers", colorClass: "category-card__icon--peppers" },
-  { emoji: "🍲", name: "Cooking Blends", href: "/shop?category=blends", colorClass: "category-card__icon--blends" },
-  { emoji: "🫒", name: "Oils & Flours", href: "/shop?category=oils", colorClass: "category-card__icon--oils" },
+  {
+    name: "Spices",
+    description: "Bold flavour for everyday cooking",
+    image: "/images/cardamom.jpg",
+    href: "/shop?category=spices",
+  },
+  {
+    name: "Herbs",
+    description: "Fresh aromatic depth",
+    image: "/images/kma_leaf.jpg",
+    href: "/shop?category=herbs",
+  },
+  {
+    name: "Seasonings",
+    description: "Balanced blends for your favourite dishes",
+    image: "/images/curry_mix1.jpg",
+    href: "/shop?category=seasonings",
+  },
+  {
+    name: "Peppers & Heat",
+    description: "Bring the heat",
+    image: "/images/dry_okra.jpg",
+    href: "/shop?category=peppers",
+  },
+  {
+    name: "Cooking Blends",
+    description: "Ready-made flavour combinations",
+    image: "/images/curry_mix.png",
+    href: "/shop?category=blends",
+  },
 ];
 
-const INSPIRATION_ITEMS = [
-  { emoji: "🍚", name: "Jollof Rice", href: "/shop?category=seasonings" },
-  { emoji: "🍗", name: "Chicken", href: "/shop?category=seasonings" },
-  { emoji: "🥘", name: "Pepper Soup", href: "/shop?category=peppers" },
-  { emoji: "🐟", name: "Grilled Fish", href: "/shop?category=seasonings" },
-  { emoji: "🥩", name: "Suya", href: "/shop?category=spices" },
-  { emoji: "🍛", name: "Curry Stew", href: "/shop?category=blends" },
+const COOKING_BUNDLES = [
+  {
+    name: "Jollof Night",
+    products: "Jollof Seasoning, Curry, Thyme, Ginger",
+    image: "/images/curry_mix1.jpg",
+    href: "/shop?category=seasonings",
+  },
+  {
+    name: "Chicken & Grill",
+    products: "Chicken Seasoning, Thyme, Black Pepper",
+    image: "/images/ginger_powder.jpg",
+    href: "/shop?category=spices",
+  },
+  {
+    name: "Pepper Soup",
+    products: "Pepper Soup Spice, Ginger, Garlic",
+    image: "/images/garlic_powder.jpg",
+    href: "/shop?category=spices",
+  },
+  {
+    name: "Everyday Essentials",
+    products: "Curry, Thyme, Ginger, Garlic",
+    image: "/images/mixed_spices.png",
+    href: "/shop",
+  },
 ];
 
 export default function HomePage() {
@@ -45,34 +84,42 @@ export default function HomePage() {
     <>
       <Navbar />
       <main>
-        {/* Hero section */}
+        {/* Hero */}
         <section className="hero-section">
           <div className="container hero-grid">
             <div className="hero-copy">
               <span className="hero-eyebrow">KMA Spices &amp; Herbs</span>
               <h1 className="hero-title">
-                Bring Every Meal to Life.
+                Premium Nigerian Spices
               </h1>
               <p className="hero-description">
-                Premium Nigerian spices and seasonings for everyday cooking.
-                Carefully sourced, freshly packed, delivered to your kitchen.
+                Carefully sourced, freshly packed. The authentic flavours that make
+                every Nigerian meal memorable.
               </p>
               <div className="hero-actions">
-                <Link href="/shop" className="btn btn-primary">
-                  Shop Spices
+                <Link href="/shop" className="btn btn-primary btn-lg">
+                  Shop All Spices
                 </Link>
-                <WhatsAppHeroButton />
+                <Link href="#categories" className="btn btn-outline btn-lg">
+                  Browse Categories
+                </Link>
               </div>
             </div>
-            <HeroCarousel />
+            <div className="hero-image">
+              <img
+                src="/images/mixed_spices_1.jpg"
+                alt="KMA spice collection"
+                className="hero-image__img"
+              />
+            </div>
           </div>
         </section>
 
-        {/* Shop by category */}
-        <section id="categories" className="categories-section">
+        {/* Shop by Category */}
+        <section id="categories" className="section-padding">
           <div className="container">
             <div className="section-header">
-              <p className="section-eyebrow">Browse by category</p>
+              <p className="section-eyebrow">Shop by category</p>
               <h2 className="section-title">Find what your kitchen needs</h2>
             </div>
             <div className="category-grid">
@@ -83,7 +130,59 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Trust signals */}
+        {/* Featured Products */}
+        <section className="section-padding section-padding--alt">
+          <div className="container">
+            <div className="section-header">
+              <p className="section-eyebrow">Our products</p>
+              <h2 className="section-title">Fresh spices ready to ship</h2>
+              <p className="section-subtitle">
+                Browse our curated selection of premium Nigerian spices, herbs,
+                and cooking essentials.
+              </p>
+              <Link href="/shop" className="section-link">
+                View all products
+              </Link>
+            </div>
+            <Suspense fallback={<HomeSkeletonGrid />}>
+              <ProductGrid />
+            </Suspense>
+          </div>
+        </section>
+
+        {/* Cook by Need */}
+        <section className="section-padding">
+          <div className="container">
+            <div className="section-header">
+              <p className="section-eyebrow">Cook by need</p>
+              <h2 className="section-title">Spices for every dish</h2>
+              <p className="section-subtitle">
+                From jollof to pepper soup, we have the spices that make every Nigerian meal memorable.
+              </p>
+            </div>
+            <div className="cooking-grid">
+              {COOKING_BUNDLES.map((bundle) => (
+                <Link key={bundle.name} href={bundle.href} className="cooking-card">
+                  <div className="cooking-card__image">
+                    <img src={bundle.image} alt={bundle.name} />
+                  </div>
+                  <div className="cooking-card__content">
+                    <h3 className="cooking-card__name">{bundle.name}</h3>
+                    <p className="cooking-card__products">{bundle.products}</p>
+                    <span className="cooking-card__cta">
+                      Shop now
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Trust Signals */}
         <section className="trust-bar container">
           <div className="trust-bar__item">
             <div className="trust-bar__icon">
@@ -120,44 +219,6 @@ export default function HomePage() {
             </div>
             <span className="trust-bar__label">WhatsApp orders</span>
             <span className="trust-bar__description">Order directly via chat</span>
-          </div>
-        </section>
-
-        {/* Best sellers */}
-        <section id="catalog" className="catalog-section">
-          <div className="container">
-            <div className="section-header">
-              <p className="section-eyebrow">Our products</p>
-              <h2 className="section-title">Fresh spices ready to ship</h2>
-              <p className="section-subtitle">
-                Browse our curated selection of premium Nigerian spices, herbs,
-                and cooking essentials.
-              </p>
-              <Link href="/shop" className="section-link">
-                View all products
-              </Link>
-            </div>
-            <Suspense fallback={<HomeSkeletonGrid />}>
-              <ProductGrid />
-            </Suspense>
-          </div>
-        </section>
-
-        {/* Cooking inspiration */}
-        <section className="inspiration-section">
-          <div className="container">
-            <div className="section-header">
-              <p className="section-eyebrow">What are you cooking?</p>
-              <h2 className="section-title">Find the right spices for your dish</h2>
-              <p className="section-subtitle">
-                From jollof to pepper soup, we have the spices that make every Nigerian meal memorable.
-              </p>
-            </div>
-            <div className="inspiration-grid">
-              {INSPIRATION_ITEMS.map((item) => (
-                <InspirationCard key={item.name} {...item} />
-              ))}
-            </div>
           </div>
         </section>
 

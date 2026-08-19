@@ -63,15 +63,26 @@ async function getProducts(
   const to = from + PAGE_SIZE - 1;
   query = query.range(from, to);
 
-  const { data, count } = await query;
+  const { data, count, error } = await query;
+
+  if (error) {
+    const fallback = supabase
+      .from("products")
+      .select("id, name, price, image_url, stock, description, created_at", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    const { data: fbData, count: fbCount } = await fallback;
+    return { products: (fbData ?? []) as Product[], total: fbCount ?? 0 };
+  }
+
   return { products: (data ?? []) as Product[], total: count ?? 0 };
 }
 
 async function getCategories(): Promise<{ category: string; count: number }[]> {
   const supabase = createClient();
-  const { data } = await supabase.from("products").select("category");
+  const { data, error } = await supabase.from("products").select("category");
 
-  if (!data) return [];
+  if (error || !data) return [];
 
   const counts: Record<string, number> = {};
   for (const row of data) {
