@@ -9,6 +9,7 @@ import ProductGallery from "@/components/product/ProductGallery";
 import ProductStickyBar from "@/components/product/ProductStickyBar";
 import { formatNaira } from "@/lib/utils";
 import { CATEGORY_LABELS, type ProductCategory } from "@/types";
+import { getCategoryBySlug } from "@/lib/categories";
 import Link from "next/link";
 
 export const revalidate = 60;
@@ -141,9 +142,28 @@ export default async function ProductPage({ params }: Props) {
               flexWrap: "wrap",
             }}
           >
+            <Link href="/" style={{ color: "var(--clr-terracotta)", fontWeight: 500 }}>
+              Home
+            </Link>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ opacity: 0.4 }}>
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
             <Link href="/shop" style={{ color: "var(--clr-terracotta)", fontWeight: 500 }}>
               Shop
             </Link>
+            {product.category && (() => {
+              const catConfig = getCategoryBySlug(product.category);
+              return catConfig ? (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ opacity: 0.4 }}>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                  <Link href={catConfig.href} style={{ color: "var(--clr-terracotta)", fontWeight: 500 }}>
+                    {catConfig.label}
+                  </Link>
+                </>
+              ) : null;
+            })()}
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" style={{ opacity: 0.4 }}>
               <polyline points="9 18 15 12 9 6" />
             </svg>

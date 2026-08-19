@@ -5,9 +5,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/lib/store/cart";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import AnnouncementBar from "./AnnouncementBar";
+import { CATEGORIES } from "@/lib/categories";
 
 const MotionNav = motion.nav;
 
@@ -29,33 +30,17 @@ function getInitials(fullName: string | null | undefined) {
 const Icon = {
   menu: () => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M4 6h16M4 12h16M4 18h16"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+      <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   ),
   close: () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M6 6l12 12M18 6L6 18"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+      <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   ),
   cart: () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M6 6h15l-2 9H8L6 4H3"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M6 6h15l-2 9H8L6 4H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="9" cy="20" r="1.5" fill="currentColor" />
       <circle cx="18" cy="20" r="1.5" fill="currentColor" />
     </svg>
@@ -63,58 +48,25 @@ const Icon = {
   search: () => (
     <svg width="10" height="16" viewBox="0 0 24 24" fill="none">
       <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-      <line
-        x1="20"
-        y1="20"
-        x2="16.5"
-        y2="16.5"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
+      <line x1="20" y1="20" x2="16.5" y2="16.5" stroke="currentColor" strokeWidth="2" />
     </svg>
   ),
   user: () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-        fill="currentColor"
-      />
+      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor" />
     </svg>
   ),
 };
 
-// ── Logout confirmation modal ──
-function LogoutModal({
-  onConfirm,
-  onCancel,
-  isLoading,
-}: {
-  onConfirm: () => void;
-  onCancel: () => void;
-  isLoading: boolean;
-}) {
+function LogoutModal({ onConfirm, onCancel, isLoading }: { onConfirm: () => void; onCancel: () => void; isLoading: boolean }) {
   return (
     <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Confirm logout">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.92 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.92 }}
-        className="modal-content"
-        style={{ maxWidth: 360, textAlign: "center" }}
-      >
-        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", marginBottom: "0.5rem", color: "var(--clr-bark)" }}>
-          Leaving so soon?
-        </h3>
-        <p style={{ color: "var(--clr-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
-          Are you sure you want to log out?
-        </p>
+      <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.92 }} className="modal-content" style={{ maxWidth: 360, textAlign: "center" }}>
+        <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", marginBottom: "0.5rem", color: "var(--clr-bark)" }}>Leaving so soon?</h3>
+        <p style={{ color: "var(--clr-muted)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>Are you sure you want to log out?</p>
         <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center" }}>
-          <button onClick={onCancel} className="btn btn-outline" style={{ flex: 1 }} disabled={isLoading}>
-            Stay
-          </button>
-          <button onClick={onConfirm} className="btn btn-danger" style={{ flex: 1 }} disabled={isLoading}>
-            {isLoading ? "Logging out..." : "Log Out"}
-          </button>
+          <button onClick={onCancel} className="btn btn-outline" style={{ flex: 1 }} disabled={isLoading}>Stay</button>
+          <button onClick={onConfirm} className="btn btn-danger" style={{ flex: 1 }} disabled={isLoading}>{isLoading ? "Logging out..." : "Log Out"}</button>
         </div>
       </motion.div>
     </div>
@@ -127,19 +79,34 @@ export default function Navbar(): JSX.Element {
   const totalItems = useCartStore((s) => s.totalItems);
   const supabase = createClient();
 
-  const [mounted, setMounted] = useState<boolean>(false);
-  const [menuOpen, setMenuOpen] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [mounted, setMounted] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [userName, setUserName] = useState<string>("");
+  const [userName, setUserName] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  const searchRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => setMounted(true), []);
 
-  // Lock body scroll and handle ESC key when drawer/modal is open
+  // Sticky shrink on scroll
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Lock body scroll when drawer/modal open
   useEffect(() => {
     if (menuOpen || showLogoutModal) {
       document.body.style.overflow = "hidden";
@@ -157,32 +124,34 @@ export default function Navbar(): JSX.Element {
     }
     document.body.style.overflow = "";
   }, [menuOpen, showLogoutModal]);
+
+  // Close search dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchFocused(false);
+        setSearchResults([]);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
   const cartCount = mounted ? totalItems() : 0;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const query =
-      new URLSearchParams(window.location.search).get("q")?.trim() || "";
+    const query = new URLSearchParams(window.location.search).get("q")?.trim() || "";
     setSearchTerm(query);
   }, []);
 
   useEffect(() => {
     async function fetchUser() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUser(user);
-        const { data: customer } = await supabase
-          .from("customers")
-          .select("full_name")
-          .eq("id", user.id)
-          .single();
-        const fullName =
-          customer?.full_name ||
-          user.user_metadata?.full_name ||
-          user.email ||
-          "";
+        const { data: customer } = await supabase.from("customers").select("full_name").eq("id", user.id).single();
+        const fullName = customer?.full_name || user.user_metadata?.full_name || user.email || "";
         setUserName(getDisplayName(fullName));
         const avatarUrl = user.user_metadata?.avatar_url || null;
         setProfileImage(typeof avatarUrl === "string" ? avatarUrl : null);
@@ -195,31 +164,54 @@ export default function Navbar(): JSX.Element {
     fetchUser();
   }, [supabase]);
 
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+  // Live search with debounce
+  const handleSearchInput = useCallback((value: string) => {
+    setSearchTerm(value);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    if (!value.trim()) {
+      setSearchResults([]);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    searchDebounceRef.current = setTimeout(async () => {
+      try {
+        const { data } = await supabase
+          .from("products")
+          .select("id, name, price, image_url, category")
+          .ilike("name", `%${value.trim()}%`)
+          .limit(6);
+        setSearchResults(data ?? []);
+      } catch {
+        setSearchResults([]);
+      }
+      setSearchLoading(false);
+    }, 300);
+  }, [supabase]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchTerm.trim()) return;
     router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
     setSearchTerm("");
+    setSearchFocused(false);
+    setSearchResults([]);
     setMenuOpen(false);
+  };
+
+  const handleSearchResultClick = () => {
+    setSearchTerm("");
+    setSearchFocused(false);
+    setSearchResults([]);
   };
 
   async function confirmLogout() {
     if (loggingOut) return;
-
     setLoggingOut(true);
     setShowLogoutModal(false);
     useCartStore.getState().clearCart();
-
-    try {
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      setDropdownOpen(false);
-      setMenuOpen(false);
-      setLoggingOut(false);
-      router.push("/");
-    }
+    try { await supabase.auth.signOut(); } catch (e) { console.error("Logout failed:", e); }
+    finally { setDropdownOpen(false); setMenuOpen(false); setLoggingOut(false); router.push("/"); }
   }
 
   function requestLogout() {
@@ -232,68 +224,88 @@ export default function Navbar(): JSX.Element {
   return (
     <>
       <AnnouncementBar />
+
+      {/* Main nav row */}
       <MotionNav
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="nav"
+        className={`nav ${scrolled ? "nav--scrolled" : ""}`}
       >
         <div className="nav__inner">
-          {/* Hamburger — mobile only */}
-          <button
-            className="nav__menu"
-            onClick={() => setMenuOpen(true)}
-            aria-label="Open menu"
-          >
+          <button className="nav__menu" onClick={() => setMenuOpen(true)} aria-label="Open menu">
             <Icon.menu />
           </button>
 
-          {/* Brand */}
           <Link href="/" className="nav__brand">
-            <Image
-              src="/images/logo.jpg"
-              alt="KMA Spices"
-              width={40}
-              height={40}
-              loading="lazy"
-              className="nav__logo"
-            />
+            <Image src="/images/logo.jpg" alt="KMA Spices" width={40} height={40} loading="lazy" className="nav__logo" />
             <span>KMA Spices</span>
           </Link>
 
-          {/* Desktop center links */}
           <div className="nav__center">
-            <Link href="/shop" className={pathname === "/shop" || pathname === "/" ? "active" : ""}>
-              Shop
-            </Link>
-            <Link
-              href="/do-you-know"
-              className={pathname === "/do-you-know" ? "active" : ""}
-            >
-              Tips
-            </Link>
+            {CATEGORIES.slice(0, 5).map((cat) => {
+              const isActive = typeof window !== "undefined" && window.location.search.includes(`category=${cat.slug}`);
+              return (
+                <Link key={cat.slug} href={`/shop?category=${cat.slug}`} className={pathname === "/shop" && isActive ? "active" : ""}>
+                  {cat.label}
+                </Link>
+              );
+            })}
+            {(() => {
+              const allActive = pathname === "/shop" && !(typeof window !== "undefined" && (window.location.search || "").includes("category"));
+              return (
+                <Link href="/shop" className={allActive ? "active" : ""}>
+                  All
+                </Link>
+              );
+            })()}
           </div>
 
-          {/* Right actions */}
           <div className="nav__actions">
-            <form
-              onSubmit={handleSearchSubmit}
-              className="nav__search desktop-search"
-            >
-              <input
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search products, tips..."
-                aria-label="Search"
-              />
-              <button
-                type="submit"
-                aria-label="Submit search"
-                className="nav__search-button"
-              >
-                <Icon.search />
-                <span>Search</span>
-              </button>
-            </form>
+            <div className="nav__search desktop-search" ref={searchRef}>
+              <form onSubmit={handleSearchSubmit} style={{ display: "contents" }}>
+                <input
+                  ref={searchInputRef}
+                  value={searchTerm}
+                  onChange={(e) => handleSearchInput(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
+                  placeholder="Search products..."
+                  aria-label="Search products"
+                  aria-autocomplete="list"
+                  aria-expanded={searchFocused && (searchResults.length > 0 || searchLoading)}
+                />
+                <button type="submit" aria-label="Submit search" className="nav__search-button">
+                  <Icon.search />
+                  <span>Search</span>
+                </button>
+              </form>
+
+              {/* Search suggestions dropdown */}
+              {searchFocused && (searchResults.length > 0 || searchLoading) && (
+                <div className="nav__search-dropdown" role="listbox" aria-label="Search suggestions">
+                  {searchLoading && <div className="nav__search-loading">Searching...</div>}
+                  {!searchLoading && searchResults.map((p) => (
+                    <Link key={p.id} href={`/product/${p.id}`} className="nav__search-item" role="option" onClick={handleSearchResultClick}>
+                      <div className="nav__search-item-thumb">
+                        {p.image_url ? (
+                          <Image src={p.image_url} alt={p.name} fill sizes="40px" style={{ objectFit: "cover" }} />
+                        ) : (
+                          <div style={{ width: "100%", height: "100%", background: "var(--clr-cream-dark)" }} />
+                        )}
+                      </div>
+                      <div className="nav__search-item-info">
+                        <span className="nav__search-item-name">{p.name}</span>
+                        <span className="nav__search-item-price">₦{p.price?.toLocaleString()}</span>
+                      </div>
+                    </Link>
+                  ))}
+                  {!searchLoading && searchTerm.trim() && (
+                    <Link href={`/search?q=${encodeURIComponent(searchTerm)}`} className="nav__search-item nav__search-item--all" onClick={handleSearchResultClick}>
+                      View all results for &ldquo;{searchTerm}&rdquo;
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
 
             <Link href="/cart" className="nav__cart" aria-label="Cart">
               <Icon.cart />
@@ -302,67 +314,25 @@ export default function Navbar(): JSX.Element {
 
             {user ? (
               <div className="nav__user">
-                <button
-                  className="nav__user-btn"
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  aria-label="Account"
-                  title={userName || user.email || "Account"}
-                >
+                <button className="nav__user-btn" onClick={() => setDropdownOpen(!dropdownOpen)} aria-label="Account" title={userName || user.email || "Account"}>
                   {profileImage ? (
-                    <Image
-                      src={profileImage}
-                      alt={userName || "User"}
-                      width={40}
-                      height={40}
-                      className="nav__user-avatar"
-                      loading="lazy"
-                      onError={() => setProfileImage(null)}
-                    />
+                    <Image src={profileImage} alt={userName || "User"} width={40} height={40} className="nav__user-avatar" loading="lazy" onError={() => setProfileImage(null)} />
                   ) : (
-                    <span className="nav__user-initials">
-                      {getInitials(userName || user?.email || "")}
-                    </span>
+                    <span className="nav__user-initials">{getInitials(userName || user?.email || "")}</span>
                   )}
                 </button>
                 {dropdownOpen && (
                   <div className="nav__dropdown">
-                    <Link
-                      href="/account/overview"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      Overview
-                    </Link>
-                    <Link
-                      href="/account/orders"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      Orders
-                    </Link>
-                    <Link
-                      href="/account/profile"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      Profile
-                    </Link>
-                    <Link
-                      href="/account/security"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      Security
-                    </Link>
-                    <button
-                      onClick={requestLogout}
-                      className="nav__dropdown-logout"
-                    >
-                      {loggingOut ? "Logging out..." : "Logout"}
-                    </button>
+                    <Link href="/account/overview" onClick={() => setDropdownOpen(false)}>Overview</Link>
+                    <Link href="/account/orders" onClick={() => setDropdownOpen(false)}>Orders</Link>
+                    <Link href="/account/profile" onClick={() => setDropdownOpen(false)}>Profile</Link>
+                    <Link href="/account/security" onClick={() => setDropdownOpen(false)}>Security</Link>
+                    <button onClick={requestLogout} className="nav__dropdown-logout">{loggingOut ? "Logging out..." : "Logout"}</button>
                   </div>
                 )}
               </div>
             ) : (
-              <Link href="/login" className="nav__user-btn" aria-label="Login">
-                <Icon.user />
-              </Link>
+              <Link href="/login" className="nav__user-btn" aria-label="Login"><Icon.user /></Link>
             )}
           </div>
         </div>
@@ -371,86 +341,42 @@ export default function Navbar(): JSX.Element {
         <AnimatePresence>
           {menuOpen && (
             <>
-              <motion.div
-                className="nav__overlay"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setMenuOpen(false)}
-              />
-              <motion.div
-                className="nav__drawer"
-                initial={{ x: "-100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "-100%" }}
-                transition={{ type: "tween", duration: 0.28 }}
-              >
+              <motion.div className="nav__overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMenuOpen(false)} />
+              <motion.div className="nav__drawer" initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "tween", duration: 0.28 }}>
                 <div className="nav__drawer-header">
                   <span>KMA Spices</span>
-                  <button
-                    onClick={() => setMenuOpen(false)}
-                    aria-label="Close menu"
-                  >
-                    <Icon.close />
-                  </button>
+                  <button onClick={() => setMenuOpen(false)} aria-label="Close menu"><Icon.close /></button>
                 </div>
 
-                <form
-                  onSubmit={handleSearchSubmit}
-                  className="nav__drawer-search"
-                >
-                  <input
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search..."
-                  />
-                  <button type="submit" aria-label="Search">
-                    <Icon.search />
-                  </button>
+                <form onSubmit={handleSearchSubmit} className="nav__drawer-search">
+                  <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search products..." />
+                  <button type="submit" aria-label="Search"><Icon.search /></button>
                 </form>
 
                 <nav className="nav__drawer-links">
-                  <Link href="/shop" onClick={() => setMenuOpen(false)}>
-                    Shop
-                  </Link>
-                  <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>
-                    Tips
-                  </Link>
-                  <Link href="/cart" onClick={() => setMenuOpen(false)}>
-                    Cart {cartCount > 0 && `(${cartCount})`}
-                  </Link>
+                  <span className="nav__drawer-section-label">Shop</span>
+                  {CATEGORIES.map((cat) => (
+                    <Link key={cat.slug} href={`/shop?category=${cat.slug}`} onClick={() => setMenuOpen(false)}>
+                      {cat.label}
+                    </Link>
+                  ))}
+                  <Link href="/shop" onClick={() => setMenuOpen(false)}>All Products</Link>
+
+                  <span className="nav__drawer-section-label">Account</span>
                   {user ? (
                     <>
-                      <Link
-                        href="/account/overview"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        Overview
-                      </Link>
-                      <Link
-                        href="/account/orders"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        Orders
-                      </Link>
-                      <Link
-                        href="/account/profile"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        Profile
-                      </Link>
-                      <button
-                        onClick={requestLogout}
-                        className="nav__drawer-logout"
-                      >
-                        Logout
-                      </button>
+                      <Link href="/account/overview" onClick={() => setMenuOpen(false)}>Overview</Link>
+                      <Link href="/account/orders" onClick={() => setMenuOpen(false)}>Orders</Link>
+                      <Link href="/account/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
+                      <button onClick={requestLogout} className="nav__drawer-logout">Logout</button>
                     </>
                   ) : (
-                    <Link href="/login" onClick={() => setMenuOpen(false)}>
-                      Login
-                    </Link>
+                    <Link href="/login" onClick={() => setMenuOpen(false)}>Login / Sign Up</Link>
                   )}
+
+                  <span className="nav__drawer-section-label">Help</span>
+                  <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>Spice Tips</Link>
+                  <a href="tel:+2347016186356">+234 701 618 6356</a>
                 </nav>
               </motion.div>
             </>
@@ -466,6 +392,11 @@ export default function Navbar(): JSX.Element {
           z-index: 100;
           box-shadow: 0 1px 0 rgba(255,255,255,0.06);
           height: var(--nav-height);
+          transition: height var(--transition-base), box-shadow var(--transition-base);
+        }
+        .nav--scrolled {
+          height: 56px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.15);
         }
         .nav__inner {
           display: flex;
@@ -491,6 +422,11 @@ export default function Navbar(): JSX.Element {
           object-fit: cover;
           width: 36px !important;
           height: 36px !important;
+          transition: width var(--transition-base), height var(--transition-base);
+        }
+        .nav--scrolled .nav__logo {
+          width: 32px !important;
+          height: 32px !important;
         }
         .nav__menu {
           display: flex;
@@ -502,6 +438,8 @@ export default function Navbar(): JSX.Element {
           cursor: pointer;
           flex-shrink: 0;
           padding: 0.4rem;
+          min-height: 44px;
+          min-width: 44px;
         }
         .nav__center { display: none; }
         .desktop-search { display: none; }
@@ -511,8 +449,7 @@ export default function Navbar(): JSX.Element {
           gap: 0.5rem;
           flex-shrink: 0;
         }
-        .nav__cart,
-        .nav__user-btn {
+        .nav__cart, .nav__user-btn {
           display: flex;
           align-items: center;
           justify-content: center;
@@ -640,7 +577,7 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 28px; height: 28px;
+          width: 44px; height: 44px;
           border-radius: 0;
           background: transparent;
           border: none;
@@ -676,12 +613,23 @@ export default function Navbar(): JSX.Element {
           display: flex;
           align-items: center;
           flex-shrink: 0;
+          min-height: 44px;
+          min-width: 44px;
+          justify-content: center;
         }
         .nav__drawer-links {
           display: flex;
           flex-direction: column;
           flex: 1;
           padding: 0.5rem 0 1rem;
+        }
+        .nav__drawer-section-label {
+          font-size: 0.65rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: rgba(255,255,255,0.3);
+          padding: 0.75rem 1rem 0.25rem;
         }
         .nav__drawer-links a,
         .nav__drawer-links button {
@@ -695,10 +643,11 @@ export default function Navbar(): JSX.Element {
           border: none;
           text-align: left;
           cursor: pointer;
-          padding: 0.7rem 1rem;
+          padding: 0.6rem 1rem;
           width: 100%;
           font-family: var(--font-body);
           transition: background 120ms ease, color 120ms ease;
+          min-height: 44px;
         }
         .nav__drawer-links a:hover,
         .nav__drawer-links button:hover {
@@ -716,17 +665,18 @@ export default function Navbar(): JSX.Element {
           .nav__inner { padding: 0.6rem 1.5rem; }
           .nav__brand { font-size: 0.9375rem; gap: 0.6rem; }
           .nav__logo { width: 40px !important; height: 40px !important; }
+          .nav--scrolled .nav__logo { width: 36px !important; height: 36px !important; }
           .nav__cart, .nav__user-btn { width: 40px; height: 40px; }
           .nav__actions { gap: 0.625rem; }
         }
 
-        /* LG */
+        /* LG — desktop nav + search */
         @media (min-width: 900px) {
           .nav__menu { display: none; }
           .nav__center {
             display: flex;
             align-items: center;
-            gap: 2rem;
+            gap: 1.5rem;
             flex: 1;
             justify-content: center;
           }
@@ -738,6 +688,7 @@ export default function Navbar(): JSX.Element {
             transition: color 150ms ease;
             padding: 0.25rem 0;
             border-bottom: 2px solid transparent;
+            white-space: nowrap;
           }
           .nav__center a:hover { color: var(--clr-cream); }
           .nav__center a.active {
@@ -753,6 +704,7 @@ export default function Navbar(): JSX.Element {
             padding: 0.25rem 0.375rem 0.25rem 0.875rem;
             gap: 0.25rem;
             border: 1px solid rgba(255,255,255,0.06);
+            position: relative;
           }
           .desktop-search input {
             border: none;
@@ -778,20 +730,77 @@ export default function Navbar(): JSX.Element {
             font-size: var(--text-xs);
             font-weight: 600;
             transition: background 150ms ease;
+            min-height: 44px;
           }
           .nav__search-button:hover { background: rgba(255,255,255,0.1); }
+          .nav__search-dropdown {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            width: 320px;
+            background: #fff;
+            border-radius: var(--radius-md);
+            box-shadow: 0 8px 32px rgba(30,23,16,0.15);
+            z-index: 200;
+            overflow: hidden;
+            animation: fadeIn 0.15s ease;
+          }
+          .nav__search-loading {
+            padding: 1rem;
+            text-align: center;
+            color: var(--clr-muted);
+            font-size: var(--text-sm);
+          }
+          .nav__search-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.875rem;
+            text-decoration: none;
+            color: var(--clr-bark);
+            transition: background 100ms ease;
+          }
+          .nav__search-item:hover { background: var(--clr-cream); }
+          .nav__search-item-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            background: var(--clr-cream-dark);
+          }
+          .nav__search-item-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+          }
+          .nav__search-item-name {
+            font-size: var(--text-sm);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .nav__search-item-price {
+            font-size: var(--text-xs);
+            color: var(--clr-muted);
+          }
+          .nav__search-item--all {
+            display: block;
+            padding: 0.75rem 0.875rem;
+            font-size: var(--text-sm);
+            font-weight: 600;
+            color: var(--clr-terracotta);
+            border-top: 1px solid var(--clr-cream-dark);
+          }
         }
       `}</style>
       </MotionNav>
 
-      {/* Logout confirmation modal — outside nav so it covers everything */}
       <AnimatePresence>
         {showLogoutModal && (
-          <LogoutModal
-            onConfirm={confirmLogout}
-            onCancel={() => setShowLogoutModal(false)}
-            isLoading={loggingOut}
-          />
+          <LogoutModal onConfirm={confirmLogout} onCancel={() => setShowLogoutModal(false)} isLoading={loggingOut} />
         )}
       </AnimatePresence>
     </>

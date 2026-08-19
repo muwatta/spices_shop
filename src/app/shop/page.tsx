@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { Product, ProductCategory, CATEGORY_LABELS } from "@/types";
+import { CATEGORIES } from "@/lib/categories";
 import ShopContent from "@/components/shop/ShopContent";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -14,16 +15,9 @@ type SortOption = (typeof VALID_SORT)[number];
 
 const PAGE_SIZE = 24;
 
-const CATEGORY_DESCRIPTIONS: Record<string, string> = {
-  spices: "Bold, aromatic spices sourced for depth and warmth in every dish.",
-  herbs: "Fresh and dried herbs to bring fragrance and flavor to everyday cooking.",
-  seasonings: "Expertly blended seasonings for quick, delicious meals.",
-  blends: "Curated spice blends that take the guesswork out of cooking.",
-  peppers: "Hot peppers and chili blends for those who love a kick of heat.",
-  oils: "Cooking oils and flours for authentic Nigerian cuisine.",
-  flours: "Quality flours for baking and cooking.",
-  other: "Essential kitchen products and more.",
-};
+const CATEGORY_DESCRIPTIONS: Record<string, string> = Object.fromEntries(
+  CATEGORIES.map((c) => [c.slug, c.description])
+);
 
 async function getProducts(
   search?: string,

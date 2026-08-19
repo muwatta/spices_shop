@@ -1,5 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { CATEGORIES } from "@/lib/categories";
 
 const Icon = {
   instagram: () => (
@@ -21,96 +25,97 @@ const Icon = {
 
 export default function Footer() {
   const whatsapp = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+
+  const toggleAccordion = (section: string) => {
+    setOpenAccordion(openAccordion === section ? null : section);
+  };
 
   return (
     <footer className="footer">
       <div className="footer__top">
         {/* Brand column */}
-        <div className="footer__brand-col">
+        <div className="footer__col footer__col--brand">
           <div className="footer__logo-row">
-            <Image
-              src="/images/logo.jpg"
-              alt="KMA Spices logo"
-              width={36}
-              height={36}
-              loading="lazy"
-              className="footer__logo"
-            />
+            <Image src="/images/logo.jpg" alt="KMA Spices logo" width={36} height={36} loading="lazy" className="footer__logo" />
             <span className="footer__name">KMA Spices</span>
           </div>
           <p className="footer__tagline">
             100% natural spices, herbs, flours, condiments, and oils. Freshly packed and trusted by kitchens across Nigeria.
           </p>
-          <span className="footer__hours">Mon - Sat: 8am - 6pm</span>
           <div className="footer__socials">
-            <a
-              href="https://www.instagram.com/kma_recipespices"
-              target="_blank"
-              rel="noreferrer"
-              className="instagram"
-              aria-label="Follow us on Instagram"
-            >
+            <a href="https://www.instagram.com/kma_recipespices" target="_blank" rel="noreferrer" aria-label="Follow us on Instagram">
               <Icon.instagram />
             </a>
-            <a
-              href="https://www.facebook.com/KMARecipesspices"
-              target="_blank"
-              rel="noreferrer"
-              className="facebook"
-              aria-label="Follow us on Facebook"
-            >
+            <a href="https://www.facebook.com/KMARecipesspices" target="_blank" rel="noreferrer" aria-label="Follow us on Facebook">
               <Icon.facebook />
             </a>
             {whatsapp && (
-              <a
-                href={`https://wa.me/${whatsapp}`}
-                target="_blank"
-                rel="noreferrer"
-                className="whatsapp"
-                aria-label="Order via WhatsApp"
-              >
+              <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer" aria-label="Order via WhatsApp">
                 <Icon.whatsapp />
               </a>
             )}
           </div>
         </div>
 
-        {/* Shop links */}
-        <div>
-          <h4 className="footer__heading">Shop</h4>
-          <ul className="footer__links">
+        {/* Shop — synced with header */}
+        <div className="footer__col">
+          <button className="footer__accordion-toggle" onClick={() => toggleAccordion("shop")} aria-expanded={openAccordion === "shop"}>
+            <h4 className="footer__heading">Shop</h4>
+            <svg className={`footer__accordion-icon ${openAccordion === "shop" ? "footer__accordion-icon--open" : ""}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          <ul className={`footer__links ${openAccordion === "shop" ? "footer__links--open" : ""}`}>
             <li><Link href="/shop">All Products</Link></li>
-            <li><Link href="/shop?category=spices">Spices</Link></li>
-            <li><Link href="/shop?category=seasonings">Seasonings</Link></li>
-            <li><Link href="/shop?category=peppers">Peppers</Link></li>
-            <li><Link href="/shop?category=herbs">Herbs</Link></li>
+            {CATEGORIES.map((cat) => (
+              <li key={cat.slug}><Link href={cat.href}>{cat.label}</Link></li>
+            ))}
           </ul>
         </div>
 
-        {/* Company links */}
-        <div>
-          <h4 className="footer__heading">Help</h4>
-          <ul className="footer__links">
+        {/* Customer Care */}
+        <div className="footer__col">
+          <button className="footer__accordion-toggle" onClick={() => toggleAccordion("care")} aria-expanded={openAccordion === "care"}>
+            <h4 className="footer__heading">Customer Care</h4>
+            <svg className={`footer__accordion-icon ${openAccordion === "care" ? "footer__accordion-icon--open" : ""}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          <ul className={`footer__links ${openAccordion === "care" ? "footer__links--open" : ""}`}>
+            <li><Link href="mailto:kmafoods22@gmail.com">Contact Us</Link></li>
             <li><Link href="/do-you-know">Spice Tips</Link></li>
-            <li><Link href="/account/orders">Track Order</Link></li>
+            <li><Link href="/account/orders">Track My Order</Link></li>
             <li><Link href="/account/overview">My Account</Link></li>
-            <li><Link href="/login">Login / Sign Up</Link></li>
+            <li><a href="tel:+2347016186356">+234 701 618 6356</a></li>
           </ul>
-          <h4 className="footer__heading" style={{ marginTop: "var(--space-lg)" }}>Contact</h4>
-          <div className="footer__contact-row">
-            <a href="tel:+2347016186356">+234 701 618 6356</a>
-          </div>
-          <div className="footer__contact-row">
-            <a href="mailto:kmafoods22@gmail.com">kmafoods22@gmail.com</a>
-          </div>
-          <span className="footer__location">Gombe, Nigeria</span>
+        </div>
+
+        {/* Company */}
+        <div className="footer__col">
+          <button className="footer__accordion-toggle" onClick={() => toggleAccordion("company")} aria-expanded={openAccordion === "company"}>
+            <h4 className="footer__heading">Company</h4>
+            <svg className={`footer__accordion-icon ${openAccordion === "company" ? "footer__accordion-icon--open" : ""}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          <ul className={`footer__links ${openAccordion === "company" ? "footer__links--open" : ""}`}>
+            <li><Link href="/about">About KMA</Link></li>
+            <li><Link href="/terms">Terms of Service</Link></li>
+            <li><Link href="/privacy">Privacy Policy</Link></li>
+          </ul>
         </div>
       </div>
 
       <div className="footer__divider" />
 
       <div className="footer__bottom">
-        &copy; {new Date().getFullYear()} KMA Spices &amp; Herbs. All rights reserved.
+        <p>&copy; {new Date().getFullYear()} KMA Global Link. All rights reserved.</p>
+        <div className="footer__payments">
+          <span className="footer__payment-badge">Cash on Delivery</span>
+          <span className="footer__payment-badge">Bank Transfer</span>
+        </div>
+        <p className="footer__origin">Proudly Nigerian</p>
       </div>
     </footer>
   );
