@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin, requireSuperAdmin } from "@/lib/admin";
 
+const PAGE_SIZE = 25;
+
 async function parseForm(request: Request) {
   const contentType = request.headers.get("content-type") || "";
 
@@ -17,6 +19,8 @@ async function parseForm(request: Request) {
     price: formData.get("price") as string | null,
     stock: formData.get("stock") as string | null,
     category: formData.get("category") as string | null,
+    status: formData.get("status") as string | null,
+    low_stock_threshold: formData.get("low_stock_threshold") as string | null,
     image: formData.get("image") as File | null,
   };
 
@@ -48,16 +52,45 @@ export async function GET(request: Request) {
   const authError = await requireAdmin(request);
   if (authError) return authError;
 
+  const { searchParams } = new URL(request.url);
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const search = searchParams.get("search") || "";
+  const category = searchParams.get("category") || "";
+  const status = searchParams.get("status") || "";
+
   const adminClient = createAdminClient();
-  const { data, error } = await adminClient
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
+  let query = adminClient
     .from("products")
-    .select("id, name, price")
-    .order("name");
+    .select("id, name, price, image_url, stock, category, status, low_stock_threshold, created_at, description", { count: "exact" });
+
+  if (search) {
+    query = query.ilike("name", `%${search}%`);
+  }
+  if (category) {
+    query = query.eq("category", category);
+  }
+  if (status) {
+    query = query.eq("status", status);
+  }
+
+  query = query.order("created_at", { ascending: false }).range(from, to);
+
+  const { data, error, count } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-  return NextResponse.json(data);
+
+  return NextResponse.json({
+    products: data,
+    total: count,
+    page,
+    pageSize: PAGE_SIZE,
+    totalPages: Math.ceil((count || 0) / PAGE_SIZE),
+  });
 }
 
 export async function POST(request: Request) {
@@ -93,6 +126,11 @@ export async function POST(request: Request) {
       body.category !== null && String(body.category).trim() !== ""
         ? String(body.category).trim()
         : null,
+    status: body.status || "active",
+    low_stock_threshold:
+      body.low_stock_threshold !== null && String(body.low_stock_threshold).trim() !== ""
+        ? parseInt(String(body.low_stock_threshold), 10)
+        : 5,
   };
 
   if (image_url) payload.image_url = image_url;
@@ -141,6 +179,10 @@ export async function PUT(request: Request) {
         : null,
   };
 
+  if (body.status) payload.status = String(body.status).trim();
+  if (body.low_stock_threshold !== null && String(body.low_stock_threshold).trim() !== "") {
+    payload.low_stock_threshold = parseInt(String(body.low_stock_threshold), 10);
+  }
   if (image_url !== undefined) payload.image_url = image_url;
 
   const { error } = await adminClient

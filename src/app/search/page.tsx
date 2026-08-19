@@ -22,12 +22,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     const { data: productData, error: productError } = await supabase
       .from("products")
       .select("*")
+      .eq("status", "active")
       .or(`name.ilike.%${query}%,description.ilike.%${query}%`);
 
     if (productError) {
       const { data: fallbackData } = await supabase
         .from("products")
-        .select("id, name, description, price, image_url, stock, created_at")
+        .select("id, name, description, price, image_url, stock, created_at, status, low_stock_threshold")
+        .eq("status", "active")
         .or(`name.ilike.%${query}%,description.ilike.%${query}%`);
       if (fallbackData) products.push(...(fallbackData as Product[]));
     } else if (productData) {

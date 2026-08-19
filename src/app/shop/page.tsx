@@ -29,7 +29,8 @@ async function getProducts(
 
   let query = supabase
     .from("products")
-    .select("id, name, price, image_url, stock, description, created_at, category", { count: "exact" });
+    .select("id, name, price, image_url, stock, description, created_at, category, status, low_stock_threshold", { count: "exact" })
+    .eq("status", "active");
 
   if (search) {
     query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
@@ -62,7 +63,8 @@ async function getProducts(
   if (error) {
     const fallback = supabase
       .from("products")
-      .select("id, name, price, image_url, stock, description, created_at", { count: "exact" })
+      .select("id, name, price, image_url, stock, description, created_at, status, low_stock_threshold", { count: "exact" })
+      .eq("status", "active")
       .order("created_at", { ascending: false })
       .range(from, to);
     const { data: fbData, count: fbCount } = await fallback;

@@ -1,6 +1,8 @@
-export type OrderStatus = "pending" | "confirmed" | "delivered" | "cancelled";
-export type PaymentMethod = "bank_transfer" | "cash_on_delivery";
+export type OrderStatus = "pending" | "confirmed" | "processing" | "out_for_delivery" | "delivered" | "cancelled";
+export type PaymentMethod = "bank_transfer" | "cash_on_delivery" | "paystack";
+export type PaymentStatus = "pending" | "verified" | "paid" | "failed" | "refunded";
 export type ProductCategory = "spices" | "herbs" | "seasonings" | "blends" | "peppers" | "oils" | "flours" | "other";
+export type ProductStatus = "active" | "out_of_stock" | "draft" | "archived";
 
 export const CATEGORY_LABELS: Record<ProductCategory, string> = {
   spices: "Spices",
@@ -13,6 +15,30 @@ export const CATEGORY_LABELS: Record<ProductCategory, string> = {
   other: "Other",
 };
 
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  pending: "Pending",
+  confirmed: "Confirmed",
+  processing: "Processing",
+  out_for_delivery: "Out for Delivery",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
+};
+
+export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+  pending: "Pending",
+  verified: "Verified",
+  paid: "Paid",
+  failed: "Failed",
+  refunded: "Refunded",
+};
+
+export const PRODUCT_STATUS_LABELS: Record<ProductStatus, string> = {
+  active: "Active",
+  out_of_stock: "Out of Stock",
+  draft: "Draft",
+  archived: "Archived",
+};
+
 export interface Product {
   id: string;
   name: string;
@@ -22,6 +48,8 @@ export interface Product {
   stock: number | null;
   created_at: string;
   category: ProductCategory | null;
+  status: ProductStatus;
+  low_stock_threshold: number;
 }
 
 export interface DoYouKnowItem {
@@ -46,8 +74,11 @@ export interface Order {
   customer_id: string;
   status: OrderStatus;
   payment_method: PaymentMethod;
+  payment_status: PaymentStatus;
   payment_proof_url: string | null;
   total_amount: number;
+  delivery_address: string | null;
+  transaction_id: string | null;
   created_at: string;
   updated_at: string;
   customers?: Customer;

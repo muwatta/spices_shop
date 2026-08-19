@@ -9,8 +9,11 @@ interface Stats {
   totalOrders: number;
   totalSales: number;
   pendingOrders: number;
-  productCount: number;
-  lowStockCount: number;
+  totalProducts: number;
+  activeProducts: number;
+  lowStock: number;
+  pendingCod: number;
+  pendingTransfers: number;
 }
 
 interface OrderItem {
@@ -34,13 +37,13 @@ interface RecentOrder {
 
 const STAT_CARDS = (stats: Stats) => [
   {
-    label: "Total Sales",
+    label: "Today's Sales",
     value: formatNaira(stats.totalSales),
     accent: "var(--clr-success)",
     bg: "#D1FAE5",
   },
   {
-    label: "Total Orders",
+    label: "Today's Orders",
     value: stats.totalOrders,
     accent: "#2563EB",
     bg: "#DBEAFE",
@@ -52,16 +55,28 @@ const STAT_CARDS = (stats: Stats) => [
     bg: "#FEF3C7",
   },
   {
-    label: "Total Products",
-    value: stats.productCount,
+    label: "Active Products",
+    value: stats.activeProducts,
     accent: "var(--clr-bark)",
     bg: "var(--clr-cream-dark)",
   },
   {
     label: "Low Stock",
-    value: stats.lowStockCount,
+    value: stats.lowStock,
     accent: "var(--clr-chili)",
     bg: "#FEE2E2",
+  },
+  {
+    label: "Pending COD",
+    value: stats.pendingCod,
+    accent: "#D97706",
+    bg: "#FEF3C7",
+  },
+  {
+    label: "Pending Transfers",
+    value: stats.pendingTransfers,
+    accent: "#7C3AED",
+    bg: "#EDE9FE",
   },
 ];
 
@@ -71,8 +86,11 @@ export default function AdminDashboardPage() {
     totalOrders: 0,
     totalSales: 0,
     pendingOrders: 0,
-    productCount: 0,
-    lowStockCount: 0,
+    totalProducts: 0,
+    activeProducts: 0,
+    lowStock: 0,
+    pendingCod: 0,
+    pendingTransfers: 0,
   });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
 
@@ -89,7 +107,16 @@ export default function AdminDashboardPage() {
         return;
       }
 
-      setStats(payload.stats);
+      setStats({
+        totalOrders: payload.totalOrders ?? 0,
+        totalSales: payload.totalSales ?? 0,
+        pendingOrders: payload.pendingOrders ?? 0,
+        totalProducts: payload.totalProducts ?? 0,
+        activeProducts: payload.activeProducts ?? 0,
+        lowStock: payload.lowStock ?? 0,
+        pendingCod: payload.pendingCod ?? 0,
+        pendingTransfers: payload.pendingTransfers ?? 0,
+      });
       setRecentOrders(payload.recentOrders ?? []);
       setLoading(false);
     }
@@ -522,7 +549,7 @@ export default function AdminDashboardPage() {
 
         @media (min-width: 1024px) {
           .dash { padding: 2rem; }
-          .dash__grid { grid-template-columns: repeat(5, 1fr); }
+          .dash__grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         }
       `}</style>
     </div>

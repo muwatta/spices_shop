@@ -1,70 +1,48 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/admin";
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   const authError = await requireAdmin(request);
   if (authError) return authError;
 
   const adminClient = createAdminClient();
 
   const [
-    { data: orderSummary, error: orderSummaryError },
-    { count: productCount, error: productCountError },
-    { count: lowStockCount, error: lowStockCountError },
-    { data: recentOrders, error: recentOrdersError },
+    totalProducts,
+    activeProducts,
+    lowStock,
+    pendingOrders,
+    todayOrders,
+    pendingCod,
+    pendingTransfers,
+    recentOrders,
   ] = await Promise.all([
-    adminClient
-      .from("orders")
-      .select("status, total_amount", { count: "exact" }),
     adminClient.from("products").select("id", { count: "exact", head: true }),
-    adminClient
-      .from("products")
-      .select("id", { count: "exact", head: true })
-      .not("stock", "is", null)
-      .lte("stock", 5),
+    adminClient.from("products").select("id", { count: "exact", head: true }).eq("status", "active"),
+    adminClient.from("products").select("id", { count: "exact", head: true }).not("stock", "is", null).lte("stock", 5).eq("status", "active"),
+    adminClient.from("orders").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    adminClient.from("orders").select("id, total_amount", { count: "exact" }).gte("created_at", new Date().toISOString().split("T")[0]),
+    adminClient.from("orders").select("id", { count: "exact", head: true }).eq("payment_method", "cash_on_delivery").eq("payment_status", "pending"),
+    adminClient.from("orders").select("id", { count: "exact", head: true }).eq("payment_method", "bank_transfer").eq("payment_status", "pending"),
     adminClient
       .from("orders")
-      .select(
-        `id, status, total_amount, created_at, delivery_address, payment_method, customers(full_name, phone), order_items(quantity, products(name, image_url))`,
-      )
+      .select("id, status, total_amount, created_at, delivery_address, payment_method, payment_status, customers(full_name, phone), order_items(quantity, products(name, image_url))")
       .order("created_at", { ascending: false })
-      .limit(5),
+      .limit(10),
   ]);
 
-  if (
-    orderSummaryError ||
-    productCountError ||
-    lowStockCountError ||
-    recentOrdersError
-  ) {
-    return NextResponse.json(
-      { error: "Unable to load dashboard data." },
-      { status: 500 },
-    );
-  }
-
-  const totalOrders = Array.isArray(orderSummary) ? orderSummary.length : 0;
-  const totalSales = Array.isArray(orderSummary)
-    ? orderSummary.reduce(
-        (sum, order) => sum + Number(order.total_amount ?? 0),
-        0,
-      )
-    : 0;
-  const pendingOrders = Array.isArray(orderSummary)
-    ? orderSummary.filter(
-        (order) => String(order.status).toLowerCase() === "pending",
-      ).length
-    : 0;
+  const todayTotal = todayOrders.data?.reduce((sum: number, o: any) => sum + (Number(o.total_amount) || 0), 0) ?? 0;
 
   return NextResponse.json({
-    stats: {
-      totalOrders,
-      totalSales,
-      pendingOrders,
-      productCount: Number(productCount ?? 0),
-      lowStockCount: Number(lowStockCount ?? 0),
-    },
-    recentOrders: recentOrders ?? [],
+    totalSales: todayTotal,
+    totalOrders: todayOrders.count ?? 0,
+    pendingOrders: pendingOrders.count ?? 0,
+    totalProducts: totalProducts.count ?? 0,
+    activeProducts: activeProducts.count ?? 0,
+    lowStock: lowStock.count ?? 0,
+    pendingCod: pendingCod.count ?? 0,
+    pendingTransfers: pendingTransfers.count ?? 0,
+    recentOrders: recentOrders.data ?? [],
   });
 }
