@@ -4,6 +4,15 @@ import { useEffect, useState } from "react";
 import { formatNaira } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  TrendingUp,
+  ShoppingCart,
+  Clock,
+  Package,
+  AlertTriangle,
+  Banknote,
+  CreditCard,
+} from "lucide-react";
 
 interface Stats {
   totalOrders: number;
@@ -18,10 +27,7 @@ interface Stats {
 
 interface OrderItem {
   quantity: number;
-  products: {
-    name: string;
-    image_url: string | null;
-  } | null;
+  products: { name: string; image_url: string | null } | null;
 }
 
 interface RecentOrder {
@@ -31,100 +37,68 @@ interface RecentOrder {
   created_at: string;
   delivery_address: string | null;
   payment_method: string;
+  payment_status: string;
   customers: { full_name: string; phone: string } | null;
   order_items: OrderItem[];
 }
 
-const STAT_CARDS = (stats: Stats) => [
-  {
-    label: "Today's Sales",
-    value: formatNaira(stats.totalSales),
-    accent: "var(--clr-success)",
-    bg: "#D1FAE5",
-  },
-  {
-    label: "Today's Orders",
-    value: stats.totalOrders,
-    accent: "#2563EB",
-    bg: "#DBEAFE",
-  },
-  {
-    label: "Pending Orders",
-    value: stats.pendingOrders,
-    accent: "var(--clr-terracotta)",
-    bg: "#FEF3C7",
-  },
-  {
-    label: "Active Products",
-    value: stats.activeProducts,
-    accent: "var(--clr-bark)",
-    bg: "var(--clr-cream-dark)",
-  },
-  {
-    label: "Low Stock",
-    value: stats.lowStock,
-    accent: "var(--clr-chili)",
-    bg: "#FEE2E2",
-  },
-  {
-    label: "Pending COD",
-    value: stats.pendingCod,
-    accent: "#D97706",
-    bg: "#FEF3C7",
-  },
-  {
-    label: "Pending Transfers",
-    value: stats.pendingTransfers,
-    accent: "#7C3AED",
-    bg: "#EDE9FE",
-  },
-];
+function buildStatCards(stats: Stats) {
+  return [
+    { label: "Today's Sales", value: formatNaira(stats.totalSales), icon: TrendingUp, bg: "#D1FAE5", color: "#065F46" },
+    { label: "Today's Orders", value: stats.totalOrders, icon: ShoppingCart, bg: "#DBEAFE", color: "#1E40AF" },
+    { label: "Pending Orders", value: stats.pendingOrders, icon: Clock, bg: "#FEF3C7", color: "#92400E" },
+    { label: "Active Products", value: stats.activeProducts, icon: Package, bg: "#E0E7FF", color: "#3730A3" },
+    { label: "Low Stock", value: stats.lowStock, icon: AlertTriangle, bg: "#FEE2E2", color: "#991B1B" },
+    { label: "Pending COD", value: stats.pendingCod, icon: Banknote, bg: "#FEF3C7", color: "#D97706" },
+    { label: "Pending Transfers", value: stats.pendingTransfers, icon: CreditCard, bg: "#EDE9FE", color: "#5B21B6" },
+  ];
+}
+
+function formatWhatsAppUrl(phone: string, name: string, orderId: string) {
+  const text = `Hello ${name}, your KMA Spices order %23${orderId} is being processed.`;
+  return `https://wa.me/${phone.replace(/\D/g, "")}?text=${text}`;
+}
 
 export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [stats, setStats] = useState<Stats>({
-    totalOrders: 0,
-    totalSales: 0,
-    pendingOrders: 0,
-    totalProducts: 0,
-    activeProducts: 0,
-    lowStock: 0,
-    pendingCod: 0,
-    pendingTransfers: 0,
+    totalOrders: 0, totalSales: 0, pendingOrders: 0,
+    totalProducts: 0, activeProducts: 0, lowStock: 0,
+    pendingCod: 0, pendingTransfers: 0,
   });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
 
   useEffect(() => {
+    const controller = new AbortController();
     async function loadStats() {
       setLoading(true);
-
-      const response = await fetch("/api/admin/dashboard");
-      const payload = await response.json();
-
-      if (!response.ok) {
-        console.error("[dashboard] failed to load", payload.error);
+      try {
+        const response = await fetch("/api/admin/dashboard", { signal: controller.signal });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "Failed to load");
+        setStats({
+          totalOrders: payload.totalOrders ?? 0,
+          totalSales: payload.totalSales ?? 0,
+          pendingOrders: payload.pendingOrders ?? 0,
+          totalProducts: payload.totalProducts ?? 0,
+          activeProducts: payload.activeProducts ?? 0,
+          lowStock: payload.lowStock ?? 0,
+          pendingCod: payload.pendingCod ?? 0,
+          pendingTransfers: payload.pendingTransfers ?? 0,
+        });
+        setRecentOrders(payload.recentOrders ?? []);
+      } catch (e: any) {
+        if (e.name !== "AbortError") setError(e.message || "Failed to load dashboard");
+      } finally {
         setLoading(false);
-        return;
       }
-
-      setStats({
-        totalOrders: payload.totalOrders ?? 0,
-        totalSales: payload.totalSales ?? 0,
-        pendingOrders: payload.pendingOrders ?? 0,
-        totalProducts: payload.totalProducts ?? 0,
-        activeProducts: payload.activeProducts ?? 0,
-        lowStock: payload.lowStock ?? 0,
-        pendingCod: payload.pendingCod ?? 0,
-        pendingTransfers: payload.pendingTransfers ?? 0,
-      });
-      setRecentOrders(payload.recentOrders ?? []);
-      setLoading(false);
     }
-
     loadStats();
+    return () => controller.abort();
   }, []);
 
-  const cards = STAT_CARDS(stats);
+  const cards = buildStatCards(stats);
 
   return (
     <div className="dash">
@@ -134,39 +108,34 @@ export default function AdminDashboardPage() {
           <p className="dash__sub">Sales, inventory and order overview</p>
         </div>
         <div className="dash__actions">
-          <Link href="/admin/orders" className="btn btn-primary btn-sm">
-            Orders
-          </Link>
-          <Link href="/admin/products" className="btn btn-outline btn-sm">
-            Products
-          </Link>
-          <Link href="/admin/reports" className="btn btn-outline btn-sm">
-            Reports
-          </Link>
+          <Link href="/admin/orders" className="btn btn-primary btn-sm">Orders</Link>
+          <Link href="/admin/products" className="btn btn-outline btn-sm">Products</Link>
+          <Link href="/admin/reports" className="btn btn-outline btn-sm">Reports</Link>
         </div>
       </div>
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: "4rem" }}>
-          <span
-            className="spinner"
-            style={{ margin: "0 auto", display: "block" }}
-          />
+        <div className="admin-loading">
+          <span className="spinner" />
+        </div>
+      ) : error ? (
+        <div className="admin-empty">
+          <p className="admin-empty__title">Failed to load dashboard</p>
+          <p>{error}</p>
+          <button className="btn btn-outline btn-sm" style={{ marginTop: "1rem" }} onClick={() => window.location.reload()}>
+            Retry
+          </button>
         </div>
       ) : (
         <>
           <div className="dash__grid">
             {cards.map((card) => (
               <div key={card.label} className="stat-card">
-                <div
-                  className="stat-card__icon"
-                  style={{ background: card.bg }}
-                />
+                <div className="stat-card__icon" style={{ background: card.bg }}>
+                  <card.icon size={22} style={{ color: card.color }} />
+                </div>
                 <div className="stat-card__body">
-                  <div
-                    className="stat-card__value"
-                    style={{ color: card.accent }}
-                  >
+                  <div className="stat-card__value" style={{ color: card.color }}>
                     {card.value}
                   </div>
                   <div className="stat-card__label">{card.label}</div>
@@ -178,9 +147,7 @@ export default function AdminDashboardPage() {
           <div className="dash__section">
             <div className="dash__section-header">
               <h2 className="dash__section-title">Recent Orders</h2>
-              <Link href="/admin/orders" className="dash__see-all">
-                View all
-              </Link>
+              <Link href="/admin/orders" className="dash__see-all">View all</Link>
             </div>
 
             {recentOrders.length === 0 ? (
@@ -190,24 +157,15 @@ export default function AdminDashboardPage() {
                 {recentOrders.map((order) => {
                   const customer = order.customers;
                   const items = order.order_items ?? [];
-                  const firstImg =
-                    items.find((i) => i.products?.image_url)?.products
-                      ?.image_url ?? null;
-
                   return (
                     <div key={order.id} className="order-card">
                       <div className="order-card__imgs">
                         {items.slice(0, 3).map((item, idx) => (
                           <div key={idx} className="order-card__thumb">
                             {item.products?.image_url ? (
-                              <Image
-                                src={item.products.image_url}
-                                alt={item.products.name ?? "Product"}
-                                fill
-                                style={{ objectFit: "cover" }}
-                              />
+                              <Image src={item.products.image_url} alt={item.products.name ?? "Product"} fill style={{ objectFit: "cover" }} />
                             ) : (
-                              <span className="order-card__product-tag">No image</span>
+                              <span style={{ fontSize: "0.7rem", color: "var(--clr-muted)" }}>N/A</span>
                             )}
                           </div>
                         ))}
@@ -220,76 +178,51 @@ export default function AdminDashboardPage() {
 
                       <div className="order-card__info">
                         <div className="order-card__top">
-                          <Link
-                            href={`/admin/orders/${order.id}`}
-                            className="order-card__id"
-                          >
+                          <Link href={`/admin/orders/${order.id}`} className="order-card__id">
                             #{order.id.slice(0, 8).toUpperCase()}
                           </Link>
-                          <span className={`badge badge-${order.status}`}>
+                          <span className={`status-badge status-badge--${order.status}`}>
                             {order.status}
+                          </span>
+                          <span className={`payment-badge ${order.payment_method === "bank_transfer" ? "payment-badge--transfer" : "payment-badge--cod"}`}>
+                            {order.payment_method === "bank_transfer" ? "Transfer" : "COD"}
                           </span>
                         </div>
 
                         <div className="order-card__products">
                           {items.map((item, idx) => (
                             <span key={idx} className="order-card__product-tag">
-                              {item.products?.name ?? "Product"} ×
-                              {item.quantity}
+                              {item.products?.name ?? "Product"} x{item.quantity}
                             </span>
                           ))}
                         </div>
 
                         <div className="order-card__meta">
-                          <span>{customer?.full_name ?? "—"}</span>
+                          <span>{customer?.full_name ?? "---"}</span>
                           {customer?.phone && (
-                            <a
-                              href={`tel:${customer.phone}`}
-                              className="order-card__phone"
-                            >
-                               {customer.phone}
+                            <a href={`tel:${customer.phone}`} className="order-card__phone">
+                              {customer.phone}
                             </a>
                           )}
                         </div>
 
                         {order.delivery_address && (
-                          <div className="order-card__address">
-                              {order.delivery_address}
-                          </div>
+                          <div className="order-card__address">{order.delivery_address}</div>
                         )}
 
                         <div className="order-card__footer">
-                          <span>
-                            {order.payment_method === "bank_transfer"
-                              ? "Transfer"
-                              : "COD"}
-                          </span>
-                          <span className="order-card__date">
-                            {new Date(order.created_at).toLocaleDateString(
-                              "en-NG",
-                              {
-                                day: "numeric",
-                                month: "short",
-                                year: "2-digit",
-                              },
-                            )}
-                          </span>
+                          <span>{new Date(order.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "2-digit" })}</span>
                         </div>
                       </div>
 
                       <div className="order-card__right">
-                        <div className="order-card__amount">
-                          {formatNaira(order.total_amount)}
-                        </div>
-                        <Link
-                          href={`/admin/orders/${order.id}`}
-                          className="btn btn-outline btn-sm"
-                        >
+                        <div className="order-card__amount">{formatNaira(order.total_amount)}</div>
+                        <Link href={`/admin/orders/${order.id}`} className="btn btn-outline btn-sm">
                           View
                         </Link>
                         {customer?.phone && (
                           <a
-                            href={`https://wa.me/${customer.phone.replace(/\D/g, "")}?text=Hi ${customer.full_name}, your KMA Spices order %23${order.id.slice(0, 8).toUpperCase()} is being processed.`}
+                            href={formatWhatsAppUrl(customer.phone, customer.full_name, order.id)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="btn btn-sm whatsapp-btn"
@@ -306,252 +239,6 @@ export default function AdminDashboardPage() {
           </div>
         </>
       )}
-
-      <style>{`
-        .dash {
-          display: flex;
-          flex-direction: column;
-          gap: 1.75rem;
-          padding: 1.5rem 1rem 2rem;
-          max-width: 1180px;
-          width: 100%;
-          margin: 0 auto;
-        }
-        .dash__header {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-        .dash__title {
-          font-family: var(--font-display);
-          font-size: 1.75rem;
-          margin: 0;
-          color: var(--clr-bark);
-        }
-        .dash__sub {
-          font-size: 0.95rem;
-          color: var(--clr-muted);
-          margin: 0;
-          max-width: 680px;
-          line-height: 1.6;
-        }
-        .dash__actions {
-          display: flex;
-          gap: 0.75rem;
-          flex-wrap: wrap;
-        }
-
-        .dash__grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 1rem;
-        }
-        .stat-card {
-          background: #fff;
-          border-radius: var(--radius-lg);
-          padding: 1.1rem 1rem;
-          display: flex;
-          align-items: center;
-          gap: 0.9rem;
-          box-shadow: var(--shadow-sm);
-          min-width: 0;
-          min-height: 112px;
-        }
-        .stat-card__icon {
-          width: 46px;
-          height: 46px;
-          border-radius: var(--radius-md);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.25rem;
-          flex-shrink: 0;
-        }
-        .stat-card__body { min-width: 0; }
-        .stat-card__value {
-          font-family: var(--font-display);
-          font-size: 1.35rem;
-          font-weight: 700;
-          line-height: 1.2;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .stat-card__label {
-          font-size: 0.78rem;
-          color: var(--clr-muted);
-          margin-top: 0.2rem;
-          white-space: nowrap;
-        }
-
-        .dash__section {
-          background: #fff;
-          border-radius: var(--radius-lg);
-          box-shadow: var(--shadow-sm);
-          overflow: hidden;
-        }
-        .dash__section-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 1.2rem 1.25rem;
-          gap: 1rem;
-          border-bottom: 1px solid var(--clr-cream-dark);
-        }
-        .dash__section-title {
-          font-family: var(--font-display);
-          font-size: 1.05rem;
-          margin: 0;
-          color: var(--clr-bark);
-        }
-        .dash__see-all {
-          font-size: 0.85rem;
-          color: var(--clr-terracotta-dark);
-          text-decoration: none;
-          font-weight: 600;
-          white-space: nowrap;
-        }
-        .dash__empty {
-          padding: 2.5rem;
-          text-align: center;
-          color: var(--clr-muted);
-          font-size: 0.9rem;
-        }
-
-        .order-cards {
-          display: flex;
-          flex-direction: column;
-        }
-        .order-card {
-          display: grid;
-          grid-template-columns: auto 1fr auto;
-          gap: 1rem;
-          padding: 1.15rem 1.35rem;
-          border-bottom: 1px solid var(--clr-cream-dark);
-          align-items: start;
-          transition: background 150ms ease;
-        }
-        .order-card:last-child { border-bottom: none; }
-        .order-card:hover { background: #fafaf9; }
-
-        .order-card__imgs {
-          display: flex;
-          flex-direction: column;
-          gap: 0.35rem;
-          padding-top: 0.12rem;
-        }
-        .order-card__thumb {
-          position: relative;
-          width: 44px;
-          height: 44px;
-          border-radius: var(--radius-md);
-          background: var(--clr-cream-dark);
-          overflow: hidden;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          font-size: 1.1rem;
-        }
-        .order-card__thumb--more {
-          background: var(--clr-bark);
-          color: var(--clr-cream);
-          font-size: 0.7rem;
-          font-weight: 700;
-        }
-
-        .order-card__info {
-          display: flex;
-          flex-direction: column;
-          gap: 0.375rem;
-          min-width: 0;
-        }
-        .order-card__top {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          flex-wrap: wrap;
-        }
-        .order-card__id {
-          font-weight: 700;
-          color: var(--clr-terracotta-dark);
-          text-decoration: none;
-          font-size: 0.875rem;
-        }
-        .order-card__products {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.3rem;
-        }
-        .order-card__product-tag {
-          font-size: 0.75rem;
-          background: var(--clr-cream-dark);
-          color: var(--clr-bark);
-          padding: 0.2rem 0.5rem;
-          border-radius: var(--radius-full);
-          white-space: nowrap;
-          font-weight: 500;
-        }
-        .order-card__meta {
-          display: flex;
-          align-items: center;
-          gap: 0.875rem;
-          font-size: 0.8125rem;
-          color: var(--clr-bark-mid);
-          flex-wrap: wrap;
-        }
-        .order-card__phone {
-          color: var(--clr-terracotta-dark);
-          text-decoration: none;
-          font-weight: 500;
-        }
-        .order-card__address {
-          font-size: 0.8rem;
-          color: var(--clr-muted);
-          line-height: 1.4;
-          max-width: 340px;
-        }
-        .order-card__footer {
-          display: flex;
-          gap: 0.75rem;
-          font-size: 0.78rem;
-          color: var(--clr-muted);
-          align-items: center;
-        }
-        .order-card__date { margin-left: auto; }
-
-        .order-card__right {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 0.5rem;
-          flex-shrink: 0;
-        }
-        .order-card__amount {
-          font-family: var(--font-display);
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--clr-bark);
-          white-space: nowrap;
-        }
-
-        @media (min-width: 768px) {
-          .dash { padding: 1.75rem 1.5rem; gap: 2rem; }
-          .dash__header { flex-direction: row; justify-content: space-between; align-items: flex-start; }
-          .dash__title { font-size: 1.75rem; }
-          .dash__grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-          .stat-card { padding: 1.25rem; }
-          .stat-card__icon { width: 48px; height: 48px; }
-          .stat-card__value { font-size: 1.4rem; }
-          .stat-card__label { font-size: 0.8125rem; }
-          .order-card__imgs { flex-direction: row; }
-        }
-
-        @media (min-width: 1024px) {
-          .dash { padding: 2rem; }
-          .dash__grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-        }
-      `}</style>
     </div>
   );
 }

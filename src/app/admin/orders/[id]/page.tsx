@@ -199,18 +199,6 @@ export default function AdminOrderDetailPage() {
         </div>
       )}
 
-      <style>{`
-        .admin-order-detail-grid {
-          display: grid;
-          grid-template-columns: 1.35fr 0.9fr;
-          gap: 1.25rem;
-          align-items: start;
-        }
-        @media (max-width: 900px) {
-          .admin-order-detail-grid { grid-template-columns: 1fr; }
-        }
-        .admin-order-detail-grid .card { width: 100%; }
-      `}</style>
     </div>
   );
 }

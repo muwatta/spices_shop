@@ -649,7 +649,7 @@ export default function AdminProductsPage() {
                         </span>
                         <span style={{ fontSize: "0.78rem", color: isLowStock ? "var(--clr-chili)" : "var(--clr-muted)" }}>
                           {product.stock === null ? "∞ in stock" : `${product.stock} left`}
-                          {isLowStock && " ⚠"}
+                          {isLowStock && <span style={{ fontSize: "0.7rem", color: "var(--clr-chili)" }}>low</span>}
                         </span>
                       </div>
                     </div>
@@ -728,14 +728,6 @@ export default function AdminProductsPage() {
         onCancel={() => setBulkArchiveOpen(false)}
       />
 
-      <style>{`
-        .admin-products-table { display: none; }
-        .admin-products-cards { display: flex; }
-        @media (min-width: 768px) {
-          .admin-products-table { display: block !important; }
-          .admin-products-cards { display: none !important; }
-        }
-      `}</style>
     </div>
   );
 }
