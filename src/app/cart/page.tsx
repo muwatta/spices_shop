@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useCartStore } from "@/lib/store/cart";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -28,11 +28,16 @@ interface Product {
 }
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, clearCart, syncStock } = useCartStore();
+  const { items, addItem, removeItem, updateQuantity, clearCart, syncStock } = useCartStore();
   const supabase = createClient();
   const [products, setProducts] = useState<Record<string, Product>>({});
   const [loading, setLoading] = useState(true);
   const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  const [undoItem, setUndoItem] = useState<{ productId: string; quantity: number } | null>(null);
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountApplied, setDiscountApplied] = useState(false);
+  const [discountError, setDiscountError] = useState("");
 
   useEffect(() => {
     async function fetchProducts() {
@@ -75,7 +80,42 @@ export default function CartPage() {
 
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const delivery = getDeliveryInfo(totalPrice);
-  const grandTotal = totalPrice + delivery.fee;
+  const discount = discountApplied ? Math.round(totalPrice * 0.1) : 0;
+  const grandTotal = totalPrice + delivery.fee - discount;
+
+  const handleRemove = useCallback(
+    (productId: string) => {
+      const item = items.find((i) => i.productId === productId);
+      if (!item) return;
+      removeItem(productId);
+      setUndoItem({ productId, quantity: item.quantity });
+      if (undoTimer.current) clearTimeout(undoTimer.current);
+      undoTimer.current = setTimeout(() => setUndoItem(null), 5000);
+    },
+    [items, removeItem],
+  );
+
+  const handleUndo = useCallback(() => {
+    if (!undoItem) return;
+    addItem(undoItem.productId, undoItem.quantity);
+    setUndoItem(null);
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+  }, [undoItem, addItem]);
+
+  const handleApplyDiscount = useCallback(() => {
+    setDiscountError("");
+    if (!discountCode.trim()) {
+      setDiscountError("Please enter a code");
+      return;
+    }
+    if (discountCode.trim().toUpperCase() === "KMA10") {
+      setDiscountApplied(true);
+      setDiscountError("");
+    } else {
+      setDiscountError("Invalid discount code");
+      setDiscountApplied(false);
+    }
+  }, [discountCode]);
 
   function handleWhatsAppOrder() {
     if (!phone) {
@@ -168,8 +208,12 @@ export default function CartPage() {
           <div className="cart-layout">
             {/* Cart items */}
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              {cartItems.map(({ product, quantity }) => (
-                <div key={product.id} className="card cart-item">
+              {cartItems.map(({ product, quantity }) => {
+                const itemOOS = product.stock !== null && product.stock === 0;
+                const itemLowStock = product.stock !== null && product.stock > 0 && product.stock < quantity;
+
+                return (
+                <div key={product.id} className={`card cart-item ${itemOOS ? "cart-item--oos" : ""}`}>
                   <Link href={`/product/${product.id}`} className="cart-item__image">
                     {product.image_url ? (
                       <Image
@@ -193,6 +237,16 @@ export default function CartPage() {
                     </Link>
                     <p className="cart-item__price">{formatNaira(product.price * quantity)}</p>
                     <p className="cart-item__unit">{formatNaira(product.price)} each</p>
+                    {itemOOS && (
+                      <p className="cart-item__flag cart-item__flag--oos" role="alert">
+                        This item is out of stock
+                      </p>
+                    )}
+                    {!itemOOS && itemLowStock && (
+                      <p className="cart-item__flag cart-item__flag--low">
+                        Only {product.stock} in stock
+                      </p>
+                    )}
                   </div>
                   <div className="cart-item__actions">
                     <QuantitySelector
@@ -201,12 +255,23 @@ export default function CartPage() {
                       min={1}
                       max={product.stock || 99}
                     />
-                    <button onClick={() => removeItem(product.id)} className="cart-item__remove">
+                    <button onClick={() => handleRemove(product.id)} className="cart-item__remove">
                       Remove
                     </button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
+
+              {/* Undo remove toast */}
+              {undoItem && (
+                <div className="cart-undo-toast" role="status" aria-live="polite">
+                  <span>Item removed</span>
+                  <button className="cart-undo-toast__action" onClick={handleUndo}>
+                    Undo
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Order summary */}
@@ -220,6 +285,30 @@ export default function CartPage() {
                   <span>{formatNaira(product.price * quantity)}</span>
                 </div>
               ))}
+              <div className="order-summary__discount">
+                <div className="order-summary__discount-row">
+                  <input
+                    type="text"
+                    value={discountCode}
+                    onChange={(e) => { setDiscountCode(e.target.value); setDiscountError(""); }}
+                    placeholder="Discount code"
+                    className="order-summary__discount-input"
+                    disabled={discountApplied}
+                    aria-label="Discount code"
+                  />
+                  {discountApplied ? (
+                    <button className="order-summary__discount-btn order-summary__discount-btn--applied" onClick={() => { setDiscountApplied(false); setDiscountCode(""); }} type="button">
+                      Remove
+                    </button>
+                  ) : (
+                    <button className="order-summary__discount-btn" onClick={handleApplyDiscount} type="button">
+                      Apply
+                    </button>
+                  )}
+                </div>
+                {discountError && <p className="order-summary__discount-error">{discountError}</p>}
+                {discountApplied && <p className="order-summary__discount-success">10% discount applied</p>}
+              </div>
               <div className="order-summary__line">
                 <span className="order-summary__line-label">Delivery</span>
                 <span>
@@ -230,6 +319,12 @@ export default function CartPage() {
                   )}
                 </span>
               </div>
+              {discountApplied && (
+                <div className="order-summary__line order-summary__line--discount">
+                  <span className="order-summary__line-label">Discount (10%)</span>
+                  <span>-{formatNaira(discount)}</span>
+                </div>
+              )}
               <div className="divider" />
               {!delivery.free && delivery.remaining > 0 && (
                 <p style={{ fontSize: "0.8rem", color: "var(--clr-muted)", marginBottom: "0.75rem" }}>

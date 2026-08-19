@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X, ShoppingBag, ArrowRight } from "lucide-react";
@@ -9,12 +9,15 @@ import { useCartStore } from "@/lib/store/cart";
 import { formatNaira } from "@/lib/utils";
 
 const AUTO_CLOSE_MS = 8000;
+const SWIPE_THRESHOLD = 80;
 
 export default function MiniCartDrawer() {
   const { isOpen, product, quantity, close } = useMiniCartStore();
   const totalItems = useCartStore((s) => s.totalItems());
   const drawerRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const [touchY, setTouchY] = useState<number | null>(null);
+  const [swipeDelta, setSwipeDelta] = useState(0);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -66,6 +69,26 @@ export default function MiniCartDrawer() {
     [close],
   );
 
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    setTouchY(e.touches[0].clientY);
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (touchY === null) return;
+    const delta = e.touches[0].clientY - touchY;
+    if (delta > 0) {
+      setSwipeDelta(delta);
+    }
+  }, [touchY]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (swipeDelta > SWIPE_THRESHOLD) {
+      close();
+    }
+    setTouchY(null);
+    setSwipeDelta(0);
+  }, [swipeDelta, close]);
+
   if (!isOpen || !product) return null;
 
   return (
@@ -81,7 +104,16 @@ export default function MiniCartDrawer() {
         ref={drawerRef}
         className="mini-cart-drawer"
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          transform: swipeDelta > 0 ? `translateY(${swipeDelta * 0.5}px)` : undefined,
+          transition: touchY !== null ? "none" : undefined,
+        }}
       >
+        <div className="mini-cart-drawer__swipe-handle" aria-hidden="true" />
+
         <div className="mini-cart-drawer__header">
           <div className="mini-cart-drawer__title">
             <ShoppingBag size={20} />

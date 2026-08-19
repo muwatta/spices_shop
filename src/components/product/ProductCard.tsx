@@ -17,6 +17,7 @@ export default function ProductCard({ product, index = 0 }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const { open: openMiniCart } = useMiniCartStore();
   const [added, setAdded] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
 
   const isOutOfStock = product.stock !== null && product.stock === 0;
   const isLowStock = product.stock !== null && product.stock > 0 && product.stock <= 5;
@@ -32,6 +33,15 @@ export default function ProductCard({ product, index = 0 }: Props) {
       setTimeout(() => setAdded(false), 2000);
     },
     [addItem, openMiniCart, product, isOutOfStock],
+  );
+
+  const handleWishlist = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setWishlisted((prev) => !prev);
+    },
+    [],
   );
 
   return (
@@ -50,6 +60,17 @@ export default function ProductCard({ product, index = 0 }: Props) {
               {CATEGORY_LABELS[product.category as ProductCategory] || product.category}
             </span>
           )}
+
+          <button
+            className={`product-card__wishlist ${wishlisted ? "product-card__wishlist--active" : ""}`}
+            onClick={handleWishlist}
+            aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+            aria-pressed={wishlisted}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill={wishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
 
           {isOutOfStock && (
             <div className="product-card__out-of-stock" role="status">

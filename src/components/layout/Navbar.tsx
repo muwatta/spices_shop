@@ -297,7 +297,7 @@ export default function Navbar(): JSX.Element {
 
             <Link href="/cart" className="nav__cart" aria-label="Cart">
               <Icon.cart />
-              {cartCount > 0 && <span className="nav__badge">{cartCount}</span>}
+              {cartCount > 0 && <span className="nav__badge" aria-live="polite" aria-atomic="true">{cartCount}</span>}
             </Link>
 
             {user ? (

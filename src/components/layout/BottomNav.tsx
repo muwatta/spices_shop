@@ -33,10 +33,10 @@ export default function BottomNav() {
             href={item.href}
             className={`bottom-nav__item ${isActive ? "bottom-nav__item--active" : ""}`}
           >
-            <span className="bottom-nav__icon">
+              <span className="bottom-nav__icon">
               <item.icon size={20} />
               {item.badge && totalItems > 0 && (
-                <span className="bottom-nav__badge">{totalItems}</span>
+                <span className="bottom-nav__badge" aria-live="polite" aria-atomic="true">{totalItems}</span>
               )}
             </span>
             <span className="bottom-nav__label">{item.label}</span>

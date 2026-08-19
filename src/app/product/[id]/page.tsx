@@ -5,10 +5,11 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AddToCartButton from "@/components/product/AddToCartButton";
 import ProductCard from "@/components/product/ProductCard";
+import ProductGallery from "@/components/product/ProductGallery";
+import ProductStickyBar from "@/components/product/ProductStickyBar";
 import { formatNaira } from "@/lib/utils";
 import { CATEGORY_LABELS, type ProductCategory } from "@/types";
 import Link from "next/link";
-import ClientProductImage from "./ClientProductImage";
 
 export const revalidate = 60;
 
@@ -151,7 +152,7 @@ export default async function ProductPage({ params }: Props) {
 
           <div className="product-detail-layout">
             {/* Product image */}
-            <ClientProductImage
+            <ProductGallery
               imageUrl={product.image_url}
               productName={product.name}
               category={product.category}
@@ -210,6 +211,14 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </div>
       </main>
+
+      {/* Sticky bottom bar — mobile only */}
+      {!outOfStock && (
+        <ProductStickyBar
+          product={product}
+          price={formatNaira(product.price)}
+        />
+      )}
 
       {/* Related products */}
       {relatedProducts.length > 0 && (
