@@ -9,8 +9,76 @@
 }
 
 /* ============================================
-   Design Tokens
+   Product detail page
    ============================================ */
+.product-detail__image-container {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--clr-cream-dark);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.product-detail__suggestions {
+  background: var(--clr-cream);
+  border: 1px solid var(--clr-cream-dark);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+}
+
+.product-detail__suggestions-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--clr-bark);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.product-detail__suggestions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.product-detail__suggestions-list li {
+  font-size: var(--text-sm);
+  color: var(--clr-bark-mid);
+  line-height: 1.6;
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+.product-detail__suggestions-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--clr-terracotta);
+  font-weight: 700;
+}
+
+.product-detail__delivery-info {
+  background: var(--clr-cream);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  font-size: var(--text-sm);
+  color: var(--clr-muted);
+  line-height: 1.7;
+  border: 1px solid var(--clr-cream-dark);
+}
+
+.product-detail__delivery-info strong {
+  color: var(--clr-bark);
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: var(--text-sm);
+}
 :root {
   /* Brand palette */
   --clr-terracotta: #B45A3C;

@@ -12,6 +12,19 @@ import ClientProductImage from "./ClientProductImage";
 
 export const revalidate = 60;
 
+const COOKING_SUGGESTIONS: Record<string, string[]> = {
+  spices: ["Add to soups and stews", "Marinate meats before grilling", "Mix into rice dishes"],
+  herbs: ["Sprinkle over finished dishes", "Add to roasting trays", "Infuse into oils and sauces"],
+  seasonings: ["Rub onto meat before cooking", "Stir into soups and sauces", "Season vegetables before roasting"],
+  blends: ["Use as an all-purpose seasoning", "Add to one-pot meals", "Perfect for quick weeknight cooking"],
+  peppers: ["Add heat to any dish", "Blend into pepper sauces", "Sprinkle on grilled meats"],
+};
+
+function getCookingSuggestions(category: string | null): string[] {
+  if (!category) return COOKING_SUGGESTIONS.spices;
+  return COOKING_SUGGESTIONS[category] || COOKING_SUGGESTIONS.spices;
+}
+
 interface Props {
   params: Promise<{ id: string }>;
 }
@@ -50,6 +63,7 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   const outOfStock = product.stock !== null && product.stock === 0;
+  const cookingSuggestions = getCookingSuggestions(product.category);
 
   // Fetch related products (same category, excluding current)
   let relatedProducts: any[] = [];
@@ -112,6 +126,7 @@ export default async function ProductPage({ params }: Props) {
             <ClientProductImage
               imageUrl={product.image_url}
               productName={product.name}
+              category={product.category}
             />
 
             {/* Product info */}
@@ -210,28 +225,26 @@ export default async function ProductPage({ params }: Props) {
               {!outOfStock && <AddToCartButton product={product} />}
               <WhatsAppOrderButton product={product} />
 
+              {/* Cooking suggestions */}
+              <div className="product-detail__suggestions">
+                <h3 className="product-detail__suggestions-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                    <path d="M12 2v6m0 8v6M4.93 4.93l4.24 4.24m5.66 5.66l4.24 4.24M2 12h6m8 0h6M4.93 19.07l4.24-4.24m5.66-5.66l4.24-4.24" />
+                  </svg>
+                  How to use
+                </h3>
+                <ul className="product-detail__suggestions-list">
+                  {cookingSuggestions.map((tip, i) => (
+                    <li key={i}>{tip}</li>
+                  ))}
+                </ul>
+              </div>
+
               <div
-                style={{
-                  background: "var(--clr-cream)",
-                  borderRadius: "var(--radius-md)",
-                  padding: "1rem 1.25rem",
-                  fontSize: "var(--text-sm)",
-                  color: "var(--clr-muted)",
-                  lineHeight: 1.7,
-                  border: "1px solid var(--clr-cream-dark)",
-                }}
+                className="product-detail__delivery-info"
               >
-                <strong
-                  style={{
-                    color: "var(--clr-bark)",
-                    display: "block",
-                    marginBottom: "0.25rem",
-                    fontSize: "var(--text-sm)",
-                  }}
-                >
-                  Payment &amp; Delivery
-                </strong>
-                Pay via bank transfer or choose cash on delivery. We deliver nationwide across Nigeria.
+                <strong>Payment &amp; Delivery</strong>
+                Pay via bank transfer or choose cash on delivery. We deliver nationwide across Nigeria. Free delivery on orders above ₦15,000.
               </div>
             </div>
           </div>
