@@ -10,6 +10,7 @@ import {
   CATEGORY_LABELS,
 } from "@/types";
 import Image from "next/image";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 interface PaginatedProducts {
   products: Product[];
@@ -48,6 +49,8 @@ export default function AdminProductsPage() {
     text: string;
   } | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [archiveTarget, setArchiveTarget] = useState<Product | null>(null);
+  const [bulkArchiveOpen, setBulkArchiveOpen] = useState(false);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -176,20 +179,22 @@ export default function AdminProductsPage() {
     } catch {}
   }
 
-  async function handleArchive(product: Product) {
-    if (!confirm(`Archive "${product.name}"? It will be hidden from the storefront.`))
-      return;
-    try {
-      const res = await fetch("/api/admin/products/status", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: product.id, status: "archived" }),
-      });
+  function handleArchive(product: Product) {
+    setArchiveTarget(product);
+  }
+
+  function confirmArchive() {
+    if (!archiveTarget) return;
+    fetch("/api/admin/products/status", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: archiveTarget.id, status: "archived" }),
+    }).then((res) => {
       if (res.ok) {
-        setMessage({ type: "success", text: `"${product.name}" archived.` });
+        setMessage({ type: "success", text: `"${archiveTarget.name}" archived.` });
         loadProducts();
       }
-    } catch {}
+    }).finally(() => setArchiveTarget(null));
   }
 
   function toggleSelect(id: string) {
@@ -210,9 +215,12 @@ export default function AdminProductsPage() {
     }
   }
 
-  async function bulkArchive() {
-    if (!confirm(`Archive ${selected.size} product(s)? They will be hidden from the storefront.`))
-      return;
+  function bulkArchive() {
+    setBulkArchiveOpen(true);
+  }
+
+  async function confirmBulkArchive() {
+    setBulkArchiveOpen(false);
     let archived = 0;
     for (const id of selected) {
       const res = await fetch("/api/admin/products/status", {
@@ -697,6 +705,28 @@ export default function AdminProductsPage() {
           )}
         </>
       )}
+
+      {/* Archive single product modal */}
+      <ConfirmModal
+        open={!!archiveTarget}
+        title="Archive Product"
+        message={`Archive "${archiveTarget?.name}"? It will be hidden from the storefront but preserved in order history.`}
+        confirmLabel="Archive"
+        variant="danger"
+        onConfirm={confirmArchive}
+        onCancel={() => setArchiveTarget(null)}
+      />
+
+      {/* Bulk archive modal */}
+      <ConfirmModal
+        open={bulkArchiveOpen}
+        title="Archive Multiple Products"
+        message={`Archive ${selected.size} product(s)? They will be hidden from the storefront but preserved in order history.`}
+        confirmLabel={`Archive ${selected.size} product(s)`}
+        variant="danger"
+        onConfirm={confirmBulkArchive}
+        onCancel={() => setBulkArchiveOpen(false)}
+      />
 
       <style>{`
         .admin-products-table { display: none; }
