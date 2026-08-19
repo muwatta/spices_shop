@@ -84,7 +84,6 @@ export default function Footer() {
           </button>
           <ul className={`footer__links ${openAccordion === "care" ? "footer__links--open" : ""}`}>
             <li><Link href="mailto:kmafoods22@gmail.com">Contact Us</Link></li>
-            <li><Link href="/do-you-know">Spice Tips</Link></li>
             <li><Link href="/account/orders">Track My Order</Link></li>
             <li><Link href="/account/overview">My Account</Link></li>
             <li><a href="tel:+2347016186356">+234 701 618 6356</a></li>

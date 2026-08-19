@@ -375,7 +375,6 @@ export default function Navbar(): JSX.Element {
                   )}
 
                   <span className="nav__drawer-section-label">Help</span>
-                  <Link href="/do-you-know" onClick={() => setMenuOpen(false)}>Spice Tips</Link>
                   <a href="tel:+2347016186356">+234 701 618 6356</a>
                 </nav>
               </motion.div>
