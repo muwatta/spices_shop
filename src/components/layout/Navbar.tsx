@@ -9,6 +9,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import AnnouncementBar from "./AnnouncementBar";
 import { CATEGORIES } from "@/lib/categories";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const MotionNav = motion.nav;
 
@@ -256,6 +257,7 @@ export default function Navbar(): JSX.Element {
           </div>
 
           <div className="nav__actions">
+            <ThemeToggle />
             <div className="nav__search desktop-search" ref={searchRef}>
               <form onSubmit={handleSearchSubmit} style={{ display: "contents" }}>
                 <input
