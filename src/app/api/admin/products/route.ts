@@ -12,17 +12,8 @@ async function parseForm(request: Request) {
   }
 
   const formData = await request.formData();
-  const payload: Record<string, any> = {
-    id: formData.get("id") as string | null,
-    name: formData.get("name") as string | null,
-    description: formData.get("description") as string | null,
-    price: formData.get("price") as string | null,
-    stock: formData.get("stock") as string | null,
-    category: formData.get("category") as string | null,
-    status: formData.get("status") as string | null,
-    low_stock_threshold: formData.get("low_stock_threshold") as string | null,
-    image: formData.get("image") as File | null,
-  };
+  const payload: Record<string, any> = {};
+  for (const [key, value] of formData.entries()) payload[key] = value;
 
   return payload;
 }

@@ -99,6 +99,171 @@
   font-size: var(--text-base);
   margin: 0;
 }
+
+.product-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--clr-cream-dark);
+}
+
+.product-reviews__header,
+.product-reviews__form-footer,
+.product-review__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.product-reviews__header .section-title {
+  margin: 0;
+}
+
+.product-reviews__summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: var(--clr-muted);
+  font-size: var(--text-sm);
+}
+
+.product-reviews__summary strong {
+  color: var(--clr-bark);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+}
+
+.product-reviews__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--clr-cream);
+  border: 1px solid var(--clr-cream-dark);
+  border-radius: var(--radius-lg);
+}
+
+.product-reviews__form-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.product-reviews__form-heading h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.product-reviews__form-heading span,
+.product-reviews__form-footer span,
+.product-reviews__login-note,
+.product-reviews__empty {
+  color: var(--clr-muted);
+  font-size: var(--text-sm);
+}
+
+.product-reviews__stars,
+.product-review__stars {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  color: var(--clr-cream-dark);
+  letter-spacing: 0.08em;
+}
+
+.product-reviews__stars button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--clr-cream-dark);
+  cursor: pointer;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.product-reviews__stars button.is-selected,
+.product-review__stars {
+  color: var(--clr-turmeric);
+}
+
+.product-reviews__form textarea {
+  width: 100%;
+  min-height: 88px;
+  resize: vertical;
+  padding: 0.75rem;
+  border: 1px solid var(--clr-cream-dark);
+  border-radius: var(--radius-md);
+  background: var(--clr-white);
+  color: var(--clr-bark);
+  font: inherit;
+}
+
+.product-reviews__form textarea:focus {
+  outline: 2px solid rgba(180, 90, 60, 0.25);
+  border-color: var(--clr-terracotta);
+}
+
+.product-reviews__list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.product-review {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--clr-cream-dark);
+}
+
+.product-review__topline strong {
+  color: var(--clr-bark);
+  font-size: var(--text-sm);
+}
+
+.product-review__topline time {
+  color: var(--clr-muted);
+  font-size: var(--text-xs);
+}
+
+.product-review__stars {
+  margin: 0.35rem 0;
+  font-size: 0.8rem;
+}
+
+.product-review p {
+  color: var(--clr-bark-mid);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.product-reviews__login-note {
+  margin: 0;
+}
+
+.product-reviews__login-note a {
+  color: var(--clr-terracotta);
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .product-reviews {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+
+  .product-reviews__header,
+  .product-reviews__form-footer {
+    align-items: flex-start;
+  }
+
+  .product-reviews__form-footer {
+    flex-direction: column;
+  }
+}
 .product-detail__image-container {
   position: relative;
   aspect-ratio: 1;
@@ -2031,30 +2196,20 @@ a,
   }
 }
 
-.footer__socials a {
-  width: 40px;
-  height: 40px;
+.footer__social-link {
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-full);
+  border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   color: rgba(255,255,255,0.7);
-  transition: all 200ms ease;
+  text-decoration: none;
+  flex-shrink: 0;
 }
-.footer__socials a:hover {
-  transform: translateY(-2px);
-}
-.footer__socials a[aria-label="Instagram"]:hover {
-  background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-  color: #fff;
-}
-.footer__socials a[aria-label="Facebook"]:hover {
-  background: #1877f2;
-  color: #fff;
-}
-.footer__socials a[aria-label="WhatsApp"]:hover {
-  background: #25d366;
+.footer__social-link:hover {
+  background: var(--social-color);
   color: #fff;
 }
 

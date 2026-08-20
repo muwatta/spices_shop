@@ -7,6 +7,7 @@ import AddToCartButton from "@/components/product/AddToCartButton";
 import ProductCard from "@/components/product/ProductCard";
 import ProductGallery from "@/components/product/ProductGallery";
 import ProductStickyBar from "@/components/product/ProductStickyBar";
+import ProductReviews from "@/components/product/ProductReviews";
 import { formatNaira } from "@/lib/utils";
 import { CATEGORY_LABELS, type ProductCategory } from "@/types";
 import { getCategoryBySlug } from "@/lib/categories";
@@ -230,6 +231,8 @@ export default async function ProductPage({ params }: Props) {
               </div>
             </div>
           </div>
+
+          <ProductReviews productId={product.id} />
         </div>
       </main>
 
