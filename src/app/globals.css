@@ -5083,45 +5083,6 @@ textarea:focus-visible {
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.nav__user {
-  position: relative;
-}
-.nav__dropdown {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  background: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: 0 8px 24px rgba(30,23,16,0.12);
-  min-width: 160px;
-  z-index: 200;
-  overflow: hidden;
-}
-.nav__dropdown a,
-.nav__dropdown button {
-  display: block;
-  width: 100%;
-  padding: 0.625rem 1rem;
-  text-align: left;
-  background: none;
-  border: none;
-  color: var(--clr-bark);
-  text-decoration: none;
-  font-size: var(--text-sm);
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: background 120ms ease;
-}
-.nav__dropdown a:hover,
-.nav__dropdown button:hover {
-  background: var(--clr-cream);
-}
-.nav__dropdown-logout {
-  color: var(--clr-chili) !important;
-  border-top: 1px solid var(--clr-cream-dark) !important;
-  font-weight: 600 !important;
-}
-
 /* Nav overlay + drawer */
 .nav__overlay {
   position: fixed;

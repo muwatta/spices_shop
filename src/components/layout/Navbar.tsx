@@ -88,7 +88,6 @@ export default function Navbar(): JSX.Element {
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -208,12 +207,11 @@ export default function Navbar(): JSX.Element {
     setShowLogoutModal(false);
     useCartStore.getState().clearCart();
     try { await supabase.auth.signOut(); } catch (e) { console.error("Logout failed:", e); }
-    finally { setDropdownOpen(false); setMenuOpen(false); setLoggingOut(false); router.push("/"); }
+    finally { setMenuOpen(false); setLoggingOut(false); router.push("/"); }
   }
 
   function requestLogout() {
     setLoggingOut(false);
-    setDropdownOpen(false);
     setMenuOpen(false);
     setShowLogoutModal(true);
   }
@@ -312,24 +310,13 @@ export default function Navbar(): JSX.Element {
             </Link>
 
             {user ? (
-              <div className="nav__user">
-                <button className="nav__user-btn" onClick={() => setDropdownOpen(!dropdownOpen)} aria-label="Account" title={userName || user.email || "Account"}>
+              <Link href="/account/profile" className="nav__user-btn" aria-label="Profile" title="Profile">
                   {profileImage ? (
                     <Image src={profileImage} alt={userName || "User"} width={40} height={40} className="nav__user-avatar" loading="lazy" onError={() => setProfileImage(null)} />
                   ) : (
                     <span className="nav__user-initials">{getInitials(userName || user?.email || "")}</span>
                   )}
-                </button>
-                {dropdownOpen && (
-                  <div className="nav__dropdown">
-                    <Link href="/account/overview" onClick={() => setDropdownOpen(false)}>Overview</Link>
-                    <Link href="/account/orders" onClick={() => setDropdownOpen(false)}>Orders</Link>
-                    <Link href="/account/profile" onClick={() => setDropdownOpen(false)}>Profile</Link>
-                    <Link href="/account/security" onClick={() => setDropdownOpen(false)}>Security</Link>
-                    <button onClick={requestLogout} className="nav__dropdown-logout">{loggingOut ? "Logging out..." : "Logout"}</button>
-                  </div>
-                )}
-              </div>
+              </Link>
             ) : (
               <Link href="/login" className="nav__user-btn" aria-label="Login"><Icon.user /></Link>
             )}
