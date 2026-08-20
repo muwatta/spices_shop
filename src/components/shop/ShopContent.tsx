@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Product, ProductCategory, CATEGORY_LABELS } from "@/types";
 import ProductCard from "@/components/product/ProductCard";
 import Image from "next/image";
+import VisualSearchButton from "@/components/shop/VisualSearchButton";
 
 interface CategoryCount {
   category: string;
@@ -178,6 +179,7 @@ export default function ShopContent({
                 </svg>
               </button>
             )}
+            <VisualSearchButton />
           </div>
 
           {/* Toolbar */}

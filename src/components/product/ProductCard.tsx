@@ -8,6 +8,7 @@ import { useCartStore } from "@/lib/store/cart";
 import { useMiniCartStore } from "@/lib/store/miniCart";
 import { useState, useCallback } from "react";
 import ProductImage from "@/components/ui/ProductImage";
+import { motion } from "framer-motion";
 
 interface Props {
   product: Product;
@@ -46,7 +47,13 @@ export default function ProductCard({ product, index = 0 }: Props) {
   );
 
   return (
-    <article className="product-card">
+    <motion.article
+      className="product-card"
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.12 }}
+      transition={{ duration: 0.35, delay: Math.min(index * 0.035, 0.28) }}
+    >
       <Link href={`/product/${product.id}`} className="product-card__image-link">
         <div className="product-card__image-wrapper">
           <ProductImage
@@ -107,10 +114,6 @@ export default function ProductCard({ product, index = 0 }: Props) {
           </span>
         )}
 
-        <Link href={`/product/${product.id}`} className="product-card__details">
-          View details
-        </Link>
-
         <div className="product-card__footer">
           <span className="product-card__price" aria-label={`Price: ${formatNaira(product.price)}`}>
             {formatNaira(product.price)}
@@ -130,17 +133,17 @@ export default function ProductCard({ product, index = 0 }: Props) {
               className="btn btn-primary btn-sm product-card__add-btn"
               onClick={handleAdd}
               aria-label={`Add ${product.name} to cart`}
+              title="Add to cart"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M6 6h15l-2 9H8L6 4H3" />
                 <circle cx="9" cy="20" r="1.5" fill="currentColor" />
                 <circle cx="18" cy="20" r="1.5" fill="currentColor" />
               </svg>
-              Add
             </button>
           )}
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }
