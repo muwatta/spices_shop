@@ -23,11 +23,9 @@ export default function BackToTop() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
+          className="back-to-top"
           onClick={scrollToTop}
           style={{
-            position: "fixed",
-            bottom: "1.5rem",
-            right: "1.5rem",
             background: "var(--clr-terracotta)",
             color: "var(--clr-white)",
             border: "none",
@@ -36,7 +34,6 @@ export default function BackToTop() {
             height: "48px",
             cursor: "pointer",
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-            zIndex: 100,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

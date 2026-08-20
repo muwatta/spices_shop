@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { formatNaira } from "@/lib/utils";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
+import styles from "./page.module.css";
 import {
   OrderStatus,
   PaymentMethod,
@@ -176,17 +177,17 @@ export default function AdminOrdersPage() {
   return (
     <>
       <Toaster position="top-right" />
-      <div style={{ padding: "1rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+      <div className={styles.container}>
+        <div className={styles.header}>
           <div>
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", margin: 0 }}>Orders</h1>
+            <h1 className={styles.title}>Orders</h1>
             {data && (
               <p style={{ margin: "0.25rem 0 0", color: "var(--clr-muted)", fontSize: "0.85rem" }}>
                 {data.total} total · Page {data.page}/{data.totalPages}
               </p>
             )}
           </div>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+          <div className={styles.headerActions}>
             <button onClick={() => loadOrders()} className="btn btn-outline btn-sm">Refresh</button>
             <button onClick={downloadOrdersCsv} className="btn btn-outline btn-sm">Export CSV</button>
             <Link href="/admin" className="btn btn-outline btn-sm">Dashboard</Link>
@@ -194,29 +195,29 @@ export default function AdminOrdersPage() {
         </div>
 
         {/* Search + filters */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.25rem" }}>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+        <div className={styles.filtersSection}>
+          <div className={styles.searchRow}>
             <input className="form-input" type="search" value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()} placeholder="Search by name, phone, or order ID" style={{ flex: "1 1 200px", maxWidth: 400 }} />
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()} placeholder="Search by name, phone, or order ID" />
             <button onClick={handleSearch} className="btn btn-primary btn-sm">Search</button>
             <button onClick={clearSearch} className="btn btn-outline btn-sm">Clear</button>
           </div>
 
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div className={styles.filterRow}>
             {(["all", "pending", "confirmed", "processing", "delivered", "cancelled"] as const).map((s) => (
               <button key={s} onClick={() => setFilter(s)} className={`btn btn-sm ${filter === s ? "btn-primary" : "btn-outline"}`}>
                 {s === "all" ? "All Status" : ORDER_STATUS_LABELS[s]}
               </button>
             ))}
           </div>
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div className={styles.filterRow}>
             {([["all", "All Payment"], ["cod", "COD"], ["transfer", "Transfer"]] as const).map(([val, label]) => (
               <button key={val} onClick={() => setPaymentFilter(val)} className={`btn btn-sm ${paymentFilter === val ? "btn-primary" : "btn-outline"}`}>
                 {label}
               </button>
             ))}
           </div>
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div className={styles.filterRow}>
             {(["all", "pending", "verified", "paid"] as const).map((s) => (
               <button key={s} onClick={() => setPaymentStatusFilter(s)} className={`btn btn-sm ${paymentStatusFilter === s ? "btn-primary" : "btn-outline"}`}>
                 {s === "all" ? "All Pay Status" : PAYMENT_STATUS_LABELS[s]}
@@ -234,22 +235,23 @@ export default function AdminOrdersPage() {
             {orders.length === 0 ? "No orders found." : "No orders match your search."}
           </div>
         ) : (
-          <div className="card" style={{ overflow: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem", minWidth: 800 }}>
-              <thead>
-                <tr style={{ borderBottom: "2px solid var(--clr-cream-dark)", background: "var(--clr-cream)" }}>
-                  {["Order", "Customer", "Items", "Amount", "Payment", "Status", "Actions"].map((h) => (
-                    <th key={h} style={{ textAlign: "left", padding: "0.75rem 1rem", fontWeight: 600, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--clr-muted)", whiteSpace: "nowrap" }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredOrders.map((order) => {
-                  const sc = STATUS_COLORS[order.status] || STATUS_COLORS.pending;
-                  const pc = PAYMENT_METHOD_COLORS[order.payment_method] || PAYMENT_METHOD_COLORS.cash_on_delivery;
-                  return (
+          <>
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr style={{ borderBottom: "2px solid var(--clr-cream-dark)", background: "var(--clr-cream)" }}>
+                    {["Order", "Customer", "Items", "Amount", "Payment", "Status", "Actions"].map((h) => (
+                      <th key={h} style={{ textAlign: "left", padding: "0.75rem 1rem", fontWeight: 600, fontSize: "0.78rem", textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--clr-muted)", whiteSpace: "nowrap" }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredOrders.map((order) => {
+                    const sc = STATUS_COLORS[order.status] || STATUS_COLORS.pending;
+                    const pc = PAYMENT_METHOD_COLORS[order.payment_method] || PAYMENT_METHOD_COLORS.cash_on_delivery;
+                    return (
                     <tr key={order.id} style={{ borderBottom: "1px solid var(--clr-cream-dark)" }}>
                       <td style={{ padding: "0.75rem 1rem" }}>
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
@@ -305,17 +307,85 @@ export default function AdminOrdersPage() {
                         </div>
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className={styles.ordersGrid} aria-label="Orders list">
+              {filteredOrders.map((order) => {
+                const sc = STATUS_COLORS[order.status] || STATUS_COLORS.pending;
+                const pc = PAYMENT_METHOD_COLORS[order.payment_method] || PAYMENT_METHOD_COLORS.cash_on_delivery;
+                return (
+                  <article key={order.id} className={styles.orderCard}>
+                    <div className={styles.orderCardHeader}>
+                      <div>
+                        <span className={styles.orderCardLabel}>Order</span>
+                        <Link href={`/admin/orders/${order.id}`} className={styles.orderCardId}>
+                          #{order.transaction_id ?? order.id.slice(0, 8).toUpperCase()}
+                        </Link>
+                        <span className={styles.orderCardDate}>
+                          {new Date(order.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "2-digit" })}
+                        </span>
+                      </div>
+                      <strong className={styles.orderCardAmount}>{formatNaira(order.total_amount)}</strong>
+                    </div>
+
+                    <div className={styles.orderCardBody}>
+                      <div className={styles.orderCardRow}>
+                        <span className={styles.orderCardLabel}>Customer</span>
+                        <span className={styles.orderCardValue}>{order.customers?.full_name ?? "-"}</span>
+                      </div>
+                      <div className={styles.orderCardRow}>
+                        <span className={styles.orderCardLabel}>Items</span>
+                        <span className={styles.orderCardValue}>{order.order_items?.length ?? 0}</span>
+                      </div>
+                      <div className={styles.orderCardRow}>
+                        <span className={styles.orderCardLabel}>Amount</span>
+                        <span className={styles.orderCardValue}>{formatNaira(order.total_amount)}</span>
+                      </div>
+                      <div className={styles.orderCardRow}>
+                        <span className={styles.orderCardLabel}>Payment</span>
+                        <span className={styles.orderCardValue}>
+                          <span className={styles.paymentBadge} style={{ background: pc.bg, color: pc.color }}>
+                            {order.payment_method === "bank_transfer" ? "Transfer" : "COD"}
+                          </span>
+                          <small>{PAYMENT_STATUS_LABELS[order.payment_status] || "Pending"}</small>
+                        </span>
+                      </div>
+                      <div className={styles.orderCardRow}>
+                        <span className={styles.orderCardLabel}>Status</span>
+                        <span className={styles.statusBadge} style={{ background: sc.bg, color: sc.color }}>
+                          {ORDER_STATUS_LABELS[order.status]}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.orderCardActions}>
+                      <Link href={`/admin/orders/${order.id}`} className="btn btn-ghost btn-sm">View order</Link>
+                      {order.payment_method === "cash_on_delivery" && order.payment_status === "pending" && (
+                        <button className="btn btn-sm" style={{ background: "var(--clr-success)", color: "#fff", border: "none" }} onClick={() => updatePaymentStatus(order.id, "paid")}>
+                          Mark paid
+                        </button>
+                      )}
+                      {order.payment_method === "bank_transfer" && order.payment_status === "pending" && (
+                        <button className="btn btn-sm" style={{ background: "#2563EB", color: "#fff", border: "none" }} onClick={() => updatePaymentStatus(order.id, "verified")}>
+                          Verify
+                        </button>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </>
         )}
 
         {data && data.totalPages > 1 && (
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "0.5rem", marginTop: "1.5rem" }}>
+          <div className={styles.pagination}>
             <button className="btn btn-sm btn-outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Prev</button>
-            <span style={{ fontSize: "0.85rem", color: "var(--clr-muted)" }}>Page {data.page} of {data.totalPages}</span>
+            <span className={styles.paginationInfo}>Page {data.page} of {data.totalPages}</span>
             <button className="btn btn-sm btn-outline" disabled={page >= data.totalPages} onClick={() => setPage((p) => p + 1)}>Next</button>
           </div>
         )}

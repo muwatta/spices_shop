@@ -142,7 +142,7 @@ export default function AdminDashboardPage() {
         </div>
       ) : (
         <>
-          <div className="dash__grid">
+          <div className="dash__grid admin-card-grid">
             {cards.map((card) => (
               <div key={card.label} className="stat-card">
                 <div className="stat-card__icon" style={{ background: card.bg }}>

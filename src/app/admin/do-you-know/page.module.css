@@ -1,0 +1,248 @@
+/* Do You Know Admin Page - Mobile-first responsive */
+.container {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .container { padding: 2rem; }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .title { font-size: 1.5rem; }
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .headerActions { width: auto; }
+}
+
+.headerActions button {
+  flex: 1;
+  min-width: 120px;
+}
+
+@media (min-width: 640px) {
+  .headerActions button { flex: 0 1 auto; }
+}
+
+.messageBox {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.messageBox.success {
+  background: #D1FAE5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.messageBox.error {
+  background: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem 2rem;
+}
+
+/* Form Section */
+.formCard {
+  border: 1px solid var(--clr-cream-dark);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  background: #fff;
+}
+
+.formTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .formGrid { grid-template-columns: 1fr 1fr; }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.formLabel {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--clr-bark);
+}
+
+.formInput,
+.formTextarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--clr-cream-dark);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.imageInputWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.imagePreview {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--clr-cream);
+}
+
+.formActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+  .formActions { grid-template-columns: auto auto; justify-content: flex-start; }
+}
+
+/* Items Grid */
+.itemsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .itemsGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .itemsGrid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.itemCard {
+  border: 1px solid var(--clr-cream-dark);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s;
+}
+
+.itemCard:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.itemImage {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  background: var(--clr-cream);
+}
+
+.itemContent {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.itemTitle {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.itemSubtitle {
+  font-size: 0.8rem;
+  color: var(--clr-muted);
+  margin-bottom: 0.75rem;
+}
+
+.itemBenefits {
+  font-size: 0.8rem;
+  color: var(--clr-muted);
+  line-height: 1.4;
+  flex: 1;
+  margin-bottom: 0.75rem;
+}
+
+.itemActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.itemActions button {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--clr-muted);
+  background: #fff;
+  border-radius: var(--radius-lg);
+}

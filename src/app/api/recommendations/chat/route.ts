@@ -25,11 +25,16 @@ function fallbackReply(message: string, products: any[]) {
     return { product, score };
   }).filter(({ score }) => score > 0).sort((a, b) => b.score - a.score).slice(0, 4).map(({ product }) => product);
   const suggestions = matches.length ? matches : products.filter((product) => product.stock === null || product.stock > 0).slice(0, 4);
+  const videoQueries = [`how to cook ${message}`, `${message} recipe Nigerian cooking`];
   return {
     reply: suggestions.length
       ? `Based on your request, these ${suggestions.length === 1 ? "options is" : "options are"} available now. Tell me more about the meal or flavour and I will narrow it down.`
       : "I could not find an available match right now. Try another ingredient or meal.",
     products: suggestions,
+    youtubeVideos: videoQueries.map((query) => ({
+      title: `${query.replace(/\b\w/g, (letter) => letter.toUpperCase())} videos`,
+      url: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
+    })),
   };
 }
 
@@ -60,7 +65,7 @@ Rules:
 - Recommend only products from the catalog below. Never invent products, prices, stock, health claims, or availability.
 - Prefer 1 to 4 products and explain briefly why each fits the customer's request.
 - Give practical cooking guidance, ask one useful follow-up question when the request is vague, and stay concise.
-- Return valid JSON only: {"reply":"string","productIds":["catalog id"],"reasons":["short reason per product"]}.
+- Return valid JSON only: {"reply":"string","productIds":["catalog id"],"reasons":["short reason per product"],"youtubeQueries":["search phrase"]}.
 Customer request: ${message}
 Catalog: ${JSON.stringify(catalogForModel)}`;
 
@@ -78,7 +83,18 @@ Catalog: ${JSON.stringify(catalogForModel)}`;
     const parsed = JSON.parse(result.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}");
     const ids = new Set(Array.isArray(parsed.productIds) ? parsed.productIds : []);
     const recommended = catalog.filter((product) => ids.has(product.id)).slice(0, 4);
-    return NextResponse.json({ reply: String(parsed.reply || localFallback.reply), products: recommended, reasons: Array.isArray(parsed.reasons) ? parsed.reasons.slice(0, 4) : [] });
+    const youtubeQueries = Array.isArray(parsed.youtubeQueries)
+      ? parsed.youtubeQueries.map((query: unknown) => String(query).trim()).filter(Boolean).slice(0, 2)
+      : localFallback.youtubeVideos.map((video) => video.title.replace(/ videos$/, ""));
+    return NextResponse.json({
+      reply: String(parsed.reply || localFallback.reply),
+      products: recommended,
+      reasons: Array.isArray(parsed.reasons) ? parsed.reasons.slice(0, 4) : [],
+      youtubeVideos: youtubeQueries.map((query: string) => ({
+        title: `${query.replace(/\b\w/g, (letter) => letter.toUpperCase())} videos`,
+        url: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
+      })),
+    });
   } catch {
     return NextResponse.json(localFallback);
   }

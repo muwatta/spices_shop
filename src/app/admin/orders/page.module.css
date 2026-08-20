@@ -1,0 +1,269 @@
+/* Mobile-first responsive layout */
+.container {
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container { padding: 2rem; }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .title { font-size: 1.5rem; }
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filtersSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.searchRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .searchRow { flex-wrap: nowrap; }
+  .searchRow > input { flex: 1; }
+}
+
+.filterRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filterRow > button {
+  flex: 1 1 auto;
+  min-width: 100px;
+}
+
+@media (min-width: 640px) {
+  .filterRow > button { flex: 1 1 auto; }
+}
+
+.tableWrapper {
+  display: none;
+  border: 1px solid var(--clr-cream-dark);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .tableWrapper { display: block; overflow-x: auto; }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  min-width: 600px;
+}
+
+.tableHeaderRow {
+  border-bottom: 2px solid var(--clr-cream-dark);
+}
+
+.tableHeaderCell {
+  text-align: left;
+  padding: 0.75rem 0.5rem;
+  font-weight: 600;
+  background: #fafafa;
+}
+
+.tableBodyRow {
+  border-bottom: 1px solid var(--clr-cream-dark);
+}
+
+.tableBodyCell {
+  padding: 0.75rem 0.5rem;
+}
+
+.orderIdCell {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.customerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.customerName {
+  font-weight: 500;
+}
+
+.customerEmail {
+  font-size: 0.8rem;
+  color: var(--clr-muted);
+}
+
+.amountCell {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--clr-terracotta);
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.2rem 0.625rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.paymentBadge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.paginationInfo {
+  font-size: 0.85rem;
+  color: var(--clr-muted);
+}
+
+/* Mobile card view for small screens (hidden, revealed with JS if needed) */
+.ordersGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .ordersGrid { display: none; }
+}
+
+.orderCard {
+  border: 1px solid var(--clr-cream-dark);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  background: #fff;
+}
+
+.orderCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--clr-cream-dark);
+}
+
+.orderCardDate {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--clr-muted);
+  font-size: 0.75rem;
+}
+
+.orderCardId {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.orderCardAmount {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--clr-terracotta);
+}
+
+.orderCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.orderCardRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.orderCardLabel {
+  color: var(--clr-muted);
+  min-width: 80px;
+}
+
+.orderCardValue {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  min-width: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.orderCardValue small {
+  color: var(--clr-muted);
+  font-size: 0.75rem;
+}
+
+.orderCardActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--clr-cream-dark);
+}
+
+.orderCardActions button,
+.orderCardActions a {
+  flex: 1;
+  font-size: 0.75rem;
+}

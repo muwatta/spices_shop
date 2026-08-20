@@ -25,6 +25,7 @@ export default function AdminCustomersPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalCustomers, setTotalCustomers] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [editForm, setEditForm] = useState<any>({});
   const PAGE_SIZE = 20;
@@ -143,13 +144,38 @@ export default function AdminCustomersPage() {
     toast.success("CSV downloaded");
   };
 
+  const filteredCustomers = customers.filter((customer) => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return true;
+    return [
+      customer.full_name,
+      customer.email,
+      customer.phone,
+      customer.city,
+      customer.state,
+    ].some((value) => value?.toLowerCase().includes(query));
+  });
+
   return (
     <div className={styles.pageWrapper}>
       <div className={styles.headerRow}>
-        <h1 className={styles.pageTitle}>Customers</h1>
-        <button className="btn btn-primary" onClick={exportToCSV}>
-           Export CSV
-        </button>
+        <div>
+          <h1 className={styles.pageTitle}>Customers</h1>
+          <p className={styles.pageSubtitle}>{totalCustomers} registered customers</p>
+        </div>
+        <div className={styles.headerActions}>
+          <input
+            className={styles.searchInput}
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Search customers..."
+            aria-label="Search customers"
+          />
+          <button className="btn btn-primary" onClick={exportToCSV}>
+            Export CSV
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -158,6 +184,8 @@ export default function AdminCustomersPage() {
         </div>
       ) : customers.length === 0 ? (
         <div className={`card ${styles.emptyState}`}>No customers found.</div>
+      ) : filteredCustomers.length === 0 ? (
+        <div className={`card ${styles.emptyState}`}>No customers match your search.</div>
       ) : (
         <>
           <div className={`card ${styles.tableWrapper}`}>
@@ -175,7 +203,7 @@ export default function AdminCustomersPage() {
                 </tr>
               </thead>
               <tbody>
-                {customers.map((c) => (
+                {filteredCustomers.map((c) => (
                   <tr key={c.id} className={styles.tableRow}>
                     <td className={styles.tableCell}>
                       <strong>{c.full_name}</strong>

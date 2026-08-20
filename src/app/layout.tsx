@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import CartReminder from "@/components/ui/CartReminder";
-import BackToTop from "@/components/ui/BackToTop";
 import ClientWidgets from "@/components/layout/ClientWidgets";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -63,7 +62,6 @@ export default function RootLayout({
       <body>
         <ClientWidgets />
         {children}
-        <BackToTop />
         <CartReminder />
         <Analytics />
         <SpeedInsights />

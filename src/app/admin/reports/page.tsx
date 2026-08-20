@@ -130,16 +130,7 @@ export default function AdminReportsPage() {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-          gap: "1rem",
-          alignItems: "center",
-          marginBottom: "1.5rem",
-        }}
-      >
+      <div className="admin-report-header">
         <div>
           <h1
             style={{
@@ -159,22 +150,8 @@ export default function AdminReportsPage() {
         </button>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "1rem",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <label
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.4rem",
-            minWidth: "170px",
-          }}
-        >
+      <div className="admin-report-controls">
+        <label className="admin-report-field">
           <span style={{ fontSize: "0.85rem", color: "var(--clr-muted)" }}>
             Month
           </span>
@@ -191,14 +168,7 @@ export default function AdminReportsPage() {
           </select>
         </label>
 
-        <label
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "0.4rem",
-            minWidth: "140px",
-          }}
-        >
+        <label className="admin-report-field admin-report-field--compact">
           <span style={{ fontSize: "0.85rem", color: "var(--clr-muted)" }}>
             Year
           </span>
@@ -216,46 +186,23 @@ export default function AdminReportsPage() {
         </label>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        <div
-          className="card"
-          style={{ padding: "1.5rem", textAlign: "center" }}
-        >
-          <div style={{ fontSize: "2rem", fontWeight: 700 }}>
-            {stats.totalOrders}
-          </div>
-          <div style={{ color: "var(--clr-muted)" }}>Orders</div>
+      <div className="admin-report-stats" style={{ marginBottom: "2rem" }}>
+        <div className="card admin-stat-card">
+          <div className="admin-stat-value">{stats.totalOrders}</div>
+          <div className="admin-stat-label">Orders</div>
         </div>
-        <div
-          className="card"
-          style={{ padding: "1.5rem", textAlign: "center" }}
-        >
+        <div className="card admin-stat-card">
           <div
-            style={{
-              fontSize: "2rem",
-              fontWeight: 700,
-              color: "var(--clr-terracotta)",
-            }}
+            className="admin-stat-value"
+            style={{ color: "var(--clr-terracotta)" }}
           >
             {formatNaira(stats.totalSales)}
           </div>
-          <div style={{ color: "var(--clr-muted)" }}>Sales</div>
+          <div className="admin-stat-label">Sales</div>
         </div>
-        <div
-          className="card"
-          style={{ padding: "1.5rem", textAlign: "center" }}
-        >
-          <div style={{ fontSize: "2rem", fontWeight: 700 }}>
-            {stats.pendingOrders}
-          </div>
-          <div style={{ color: "var(--clr-muted)" }}>Pending Orders</div>
+        <div className="card admin-stat-card">
+          <div className="admin-stat-value">{stats.pendingOrders}</div>
+          <div className="admin-stat-label">Pending Orders</div>
         </div>
       </div>
 
