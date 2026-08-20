@@ -1822,6 +1822,7 @@ a,
   color: var(--clr-bark);
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   transition: color var(--transition-fast);
@@ -1833,6 +1834,7 @@ a,
 .product-card__description {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin: 0;
@@ -3516,10 +3518,6 @@ a,
 .skeleton-row-cell {
   min-height: 28px;
   border-radius: var(--radius-md);
-}
-
-.skeleton[aria-hidden="true"] {
-  /* Visually hidden but present for layout */
 }
 
 /* ============================================
