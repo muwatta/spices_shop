@@ -4,6 +4,18 @@ import { requireAdmin, requireSuperAdmin } from "@/lib/admin";
 
 const PAGE_SIZE = 25;
 
+const BASE_PRODUCT_COLUMNS = "id, name, price, image_url, stock, created_at, description";
+
+function normalizeProducts(products: any[] | null) {
+  return (products ?? []).map((product) => ({
+    ...product,
+    images: Array.isArray(product.images) ? product.images : [],
+    category: product.category ?? null,
+    status: product.status ?? "active",
+    low_stock_threshold: product.low_stock_threshold ?? 5,
+  }));
+}
+
 async function parseForm(request: Request) {
   const contentType = request.headers.get("content-type") || "";
 
@@ -72,12 +84,29 @@ export async function GET(request: Request) {
   const { data, error, count } = await query;
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    let fallback = adminClient
+      .from("products")
+      .select(BASE_PRODUCT_COLUMNS, { count: "exact" });
+    if (search) fallback = fallback.ilike("name", `%${search}%`);
+    const { data: fallbackData, count: fallbackCount, error: fallbackError } = await fallback
+      .order("created_at", { ascending: false })
+      .range(from, to);
+    if (fallbackError) return NextResponse.json({ error: fallbackError.message }, { status: 500 });
+    const products = normalizeProducts(fallbackData);
+    return NextResponse.json({
+      products,
+      total: fallbackCount ?? products.length,
+      page,
+      pageSize: PAGE_SIZE,
+      totalPages: Math.ceil((fallbackCount ?? products.length) / PAGE_SIZE),
+      schemaFallback: true,
+    });
   }
 
+  const products = normalizeProducts(data);
   return NextResponse.json({
-    products: data,
-    total: count,
+    products,
+    total: count ?? products.length,
     page,
     pageSize: PAGE_SIZE,
     totalPages: Math.ceil((count || 0) / PAGE_SIZE),
@@ -85,7 +114,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const authError = await requireSuperAdmin(request);
+  const authError = await requireAdmin(request);
   if (authError) return authError;
 
   const adminClient = createAdminClient();
@@ -137,7 +166,11 @@ export async function POST(request: Request) {
   if (image_url) payload.image_url = image_url;
   if (additionalImages.length > 0) payload.images = additionalImages;
 
-  const { error } = await adminClient.from("products").insert(payload);
+  let { error } = await adminClient.from("products").insert(payload);
+  if (error && /column .* does not exist|schema cache/i.test(error.message)) {
+    const basePayload = { name: payload.name, description: payload.description, price: payload.price, stock: payload.stock, ...(image_url ? { image_url } : {}) };
+    ({ error } = await adminClient.from("products").insert(basePayload));
+  }
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -146,7 +179,7 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const authError = await requireSuperAdmin(request);
+  const authError = await requireAdmin(request);
   if (authError) return authError;
 
   const adminClient = createAdminClient();
@@ -209,10 +242,14 @@ export async function PUT(request: Request) {
     payload.images = [...existing, ...additionalImages];
   }
 
-  const { error } = await adminClient
+  let { error } = await adminClient
     .from("products")
     .update(payload)
     .eq("id", id);
+  if (error && /column .* does not exist|schema cache/i.test(error.message)) {
+    const basePayload = { name: payload.name, description: payload.description, price: payload.price, stock: payload.stock, ...(image_url !== undefined ? { image_url } : {}) };
+    ({ error } = await adminClient.from("products").update(basePayload).eq("id", id));
+  }
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

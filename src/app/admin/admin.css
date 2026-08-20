@@ -136,6 +136,7 @@
 .admin-sidebar__brand {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.6rem;
   font-size: 1.05rem;
   font-weight: 700;
@@ -168,6 +169,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 0.15rem;
   padding: 0.5rem 0.6rem 1rem;
   overflow-y: auto;
@@ -179,10 +181,13 @@
   letter-spacing: 0.1em;
   color: rgba(253, 246, 236, 0.3);
   padding: 0.85rem 0.75rem 0.35rem;
+  text-align: left;
 }
 .admin-sidebar__link {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+  width: 100%;
   gap: 0.65rem;
   padding: 0.6rem 0.85rem;
   min-height: 46px;
@@ -228,6 +233,8 @@
 .admin-sidebar__back {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-start;
+  width: 100%;
   gap: 0.45rem;
   font-size: 0.85rem;
   text-decoration: none;
