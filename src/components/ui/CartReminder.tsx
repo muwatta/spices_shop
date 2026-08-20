@@ -4,12 +4,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
+const REMINDER_DELAY_MS = 60 * 1000;
+const REMINDER_VISIBLE_MS = 8 * 1000;
+
 export default function CartReminder() {
   const [showReminder, setShowReminder] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     let idleTimer: NodeJS.Timeout;
+    let dismissTimer: NodeJS.Timeout;
     const resetTimer = () => {
       if (idleTimer) clearTimeout(idleTimer);
       idleTimer = setTimeout(
@@ -20,10 +24,11 @@ export default function CartReminder() {
             : 0;
           if (cartItems > 0 && !window.location.pathname.includes("/cart")) {
             setShowReminder(true);
+            dismissTimer = setTimeout(() => setShowReminder(false), REMINDER_VISIBLE_MS);
           }
         },
-        5 * 60 * 1000,
-      ); // 5 minutes
+        REMINDER_DELAY_MS,
+      );
     };
 
     const events = ["mousemove", "keydown", "click", "scroll"];
@@ -32,6 +37,7 @@ export default function CartReminder() {
 
     return () => {
       if (idleTimer) clearTimeout(idleTimer);
+      if (dismissTimer) clearTimeout(dismissTimer);
       events.forEach((event) => window.removeEventListener(event, resetTimer));
     };
   }, []);
