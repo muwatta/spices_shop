@@ -47,14 +47,13 @@ export default function HomePage() {
                 <Link key={cat.slug} href={`/shop?category=${cat.slug}`} className="home-cat-tile">
                   <div className="home-cat-tile__img">
                     <img src={cat.image} alt={cat.name} loading="lazy" />
-                    <div className="home-cat-tile__overlay">
+                    <div className="home-cat-tile__info">
                       <span className="home-cat-tile__name">{cat.name}</span>
                       <span className="home-cat-tile__arrow">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
                       </span>
                     </div>
                   </div>
-                  <span className="home-cat-tile__label">{cat.name}</span>
                 </Link>
               ))}
             </div>
