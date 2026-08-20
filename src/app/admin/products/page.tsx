@@ -35,6 +35,7 @@ export default function AdminProductsPage() {
   const [form, setForm] = useState({
     name: "",
     description: "",
+    benefits: "",
     price: "",
     stock: "",
     category: "",
@@ -92,6 +93,7 @@ export default function AdminProductsPage() {
     setForm({
       name: "",
       description: "",
+      benefits: "",
       price: "",
       stock: "",
       category: "",
@@ -109,6 +111,7 @@ export default function AdminProductsPage() {
     setForm({
       name: product.name,
       description: product.description ?? "",
+      benefits: product.benefits ?? "",
       price: String(product.price),
       stock: product.stock !== null ? String(product.stock) : "",
       category: product.category ?? "",
@@ -132,6 +135,7 @@ export default function AdminProductsPage() {
       const formData = new FormData();
       formData.append("name", form.name);
       formData.append("description", form.description);
+      formData.append("benefits", form.benefits);
       formData.append("price", form.price);
       formData.append("stock", form.stock);
       formData.append("category", form.category);
@@ -365,6 +369,8 @@ export default function AdminProductsPage() {
               <div className="form-group">
                 <label className="form-label">Description</label>
                 <textarea className="form-input" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Describe the spice..." style={{ resize: "vertical" }} />
+                <label className="form-label">Benefits</label>
+                <textarea className="form-input" rows={3} value={form.benefits} onChange={(e) => setForm({ ...form, benefits: e.target.value })} placeholder="One benefit per line (up to 3)" style={{ resize: "vertical" }} />
               </div>
 
               <div className="admin-form-grid">

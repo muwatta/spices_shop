@@ -11,6 +11,7 @@ function normalizeProducts(products: any[] | null) {
     ...product,
     images: Array.isArray(product.images) ? product.images : [],
     category: product.category ?? null,
+    benefits: product.benefits ?? null,
     status: product.status ?? "active",
     low_stock_threshold: product.low_stock_threshold ?? 5,
   }));
@@ -67,7 +68,7 @@ export async function GET(request: Request) {
 
   let query = adminClient
     .from("products")
-    .select("id, name, price, image_url, images, stock, category, status, low_stock_threshold, created_at, description", { count: "exact" });
+    .select("id, name, price, image_url, images, stock, category, status, low_stock_threshold, created_at, description, benefits", { count: "exact" });
 
   if (search) {
     query = query.ilike("name", `%${search}%`);
@@ -147,6 +148,7 @@ export async function POST(request: Request) {
   const payload: Record<string, any> = {
     name,
     description: body.description ? String(body.description).trim() : null,
+    benefits: body.benefits ? String(body.benefits).split("\n").map((benefit: string) => benefit.trim()).filter(Boolean).slice(0, 3).join("\n") : null,
     price,
     stock:
       body.stock !== null && String(body.stock).trim() !== ""
@@ -213,6 +215,7 @@ export async function PUT(request: Request) {
   const payload: Record<string, any> = {
     name,
     description: body.description ? String(body.description).trim() : null,
+    benefits: body.benefits ? String(body.benefits).split("\n").map((benefit: string) => benefit.trim()).filter(Boolean).slice(0, 3).join("\n") : null,
     price,
     stock:
       body.stock !== null && String(body.stock).trim() !== ""

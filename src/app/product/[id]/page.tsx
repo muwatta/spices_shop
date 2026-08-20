@@ -11,6 +11,7 @@ import ProductReviews from "@/components/product/ProductReviews";
 import { formatNaira } from "@/lib/utils";
 import { CATEGORY_LABELS, type ProductCategory } from "@/types";
 import { getCategoryBySlug } from "@/lib/categories";
+import { getProductBenefits } from "@/lib/product-content";
 import Link from "next/link";
 
 export const revalidate = 60;
@@ -78,6 +79,7 @@ export default async function ProductPage({ params }: Props) {
 
   const outOfStock = product.stock !== null && product.stock === 0;
   const cookingSuggestions = getCookingSuggestions(product.category);
+  const productBenefits = getProductBenefits(product.benefits, product.category);
 
   // JSON-LD structured data
   const jsonLd = {
@@ -221,6 +223,20 @@ export default async function ProductPage({ params }: Props) {
                 <ul className="product-detail__suggestions-list">
                   {cookingSuggestions.map((tip, i) => (
                     <li key={i}>{tip}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="product-detail__benefits">
+                <h3 className="product-detail__suggestions-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                    <path d="m12 3 2.5 5.5L20 11l-5.5 2.5L12 19l-2.5-5.5L4 11l5.5-2.5L12 3Z" />
+                  </svg>
+                  Benefits
+                </h3>
+                <ul className="product-detail__suggestions-list">
+                  {productBenefits.map((benefit) => (
+                    <li key={benefit}>{benefit}</li>
                   ))}
                 </ul>
               </div>
