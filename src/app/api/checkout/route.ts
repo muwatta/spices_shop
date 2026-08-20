@@ -72,6 +72,13 @@ export async function POST(request: Request) {
     );
   }
 
+  if (payment_method === "bank_transfer" && payment_proof_url && !payment_proof_url.startsWith(`${user.id}/`)) {
+    return NextResponse.json(
+      { error: "Invalid payment proof. Please upload the receipt again." },
+      { status: 400 },
+    );
+  }
+
   // Aggregate duplicate product IDs
   const orderQuantities: Record<string, number> = {};
   for (const item of items) {
@@ -117,137 +124,15 @@ export async function POST(request: Request) {
     if (message.includes("insufficient stock") || message.includes("product") || message.includes("invalid quantity")) {
       return NextResponse.json({ error: atomicError.message }, { status: 400 });
     }
-  }
-
-  const { data: products, error: productError } = await admin
-    .from("products")
-    .select("id, price, stock")
-    .in("id", productIds);
-
-  if (productError || !products || products.length === 0) {
     return NextResponse.json(
-      { error: "Unable to verify products. Please try again." },
-      { status: 500 },
+      { error: "Checkout is temporarily unavailable. Your payment was not confirmed. Please try again." },
+      { status: 503 },
     );
   }
 
-  const productMap: Record<string, { price: number; stock: number | null }> = {};
-  for (const p of products) {
-    productMap[p.id] = { price: p.price, stock: p.stock };
-  }
-
-  // Validate all products exist and have enough stock
-  let totalAmount = 0;
-  for (const productId of productIds) {
-    const product = productMap[productId];
-    if (!product) {
-      return NextResponse.json(
-        { error: "One or more items in your cart are no longer available." },
-        { status: 400 },
-      );
-    }
-    const qty = orderQuantities[productId];
-    if (product.stock !== null && product.stock < qty) {
-      return NextResponse.json(
-        { error: `Insufficient stock for one or more items. Please adjust your cart.` },
-        { status: 400 },
-      );
-    }
-    totalAmount += product.price * qty;
-  }
-
-  // Build delivery address
-  const deliveryAddress = [
-    address_line1,
-    address_line2 ? address_line2 + "," : "",
-    city + ",",
-    state,
-    postal_code || "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  // Generate transaction ID
-  const transactionId =
-    "KMA" + Date.now() + Math.random().toString(36).substring(2, 6).toUpperCase();
-
-  // Upsert customer
-  const { error: customerError } = await admin.from("customers").upsert(
-    {
-      id: user.id,
-      full_name,
-      email: user.email || "",
-      phone,
-      address: address_line1,
-      address_line2: address_line2 || "",
-      city,
-      state,
-      postal_code: postal_code || null,
-      account_number: account_number || null,
-    },
-    { onConflict: "id" },
+  return NextResponse.json(
+    { error: "Checkout is temporarily unavailable. Your payment was not confirmed. Please try again." },
+    { status: 503 },
   );
 
-  if (customerError) {
-    console.error("Customer upsert error:", customerError);
-  }
-
-  // Create order
-  const orderId = crypto.randomUUID();
-  const { data: order, error: orderError } = await admin
-    .from("orders")
-    .insert({
-      id: orderId,
-      transaction_id: transactionId,
-      customer_id: user.id,
-      status: "pending",
-      payment_method,
-      payment_proof_url: payment_proof_url || null,
-      total_amount: totalAmount,
-      delivery_address: deliveryAddress,
-    })
-    .select()
-    .single();
-
-  if (orderError) {
-    console.error("Order creation error:", orderError);
-    return NextResponse.json(
-      { error: "Unable to place order. Please try again later." },
-      { status: 500 },
-    );
-  }
-
-  // Create order items and decrement stock
-  const orderItems = productIds.map((productId) => ({
-    order_id: orderId,
-    product_id: productId,
-    quantity: orderQuantities[productId],
-    unit_price: productMap[productId].price,
-  }));
-
-  const { error: itemsError } = await admin.from("order_items").insert(orderItems);
-
-  if (itemsError) {
-    console.error("Order items error:", itemsError);
-    // Try to clean up the order
-    await admin.from("orders").delete().eq("id", orderId);
-    return NextResponse.json(
-      { error: "Unable to place order. Please try again later." },
-      { status: 500 },
-    );
-  }
-
-  // Decrement stock for each product
-  for (const productId of productIds) {
-    const product = productMap[productId];
-    if (product.stock !== null) {
-      const newStock = product.stock - orderQuantities[productId];
-      await admin
-        .from("products")
-        .update({ stock: Math.max(0, newStock) })
-        .eq("id", productId);
-    }
-  }
-
-  return NextResponse.json({ order });
 }

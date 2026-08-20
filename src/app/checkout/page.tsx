@@ -186,6 +186,14 @@ function CheckoutContent() {
       return;
     }
 
+    if (paymentMethod === "bank_transfer" && proofFile) {
+      const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+      if (!allowedTypes.includes(proofFile.type) || proofFile.size > 5 * 1024 * 1024) {
+        setError("Payment proof must be a JPG, PNG, WEBP, or PDF file under 5 MB.");
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       let proofUrl: string | null = null;
@@ -222,6 +230,7 @@ function CheckoutContent() {
 
       const result = await response.json();
       if (!response.ok) {
+        if (proofUrl) await supabase.storage.from("payment-proofs").remove([proofUrl]);
         throw new Error(
           result.error || "Unable to place order. Please try again.",
         );
@@ -445,7 +454,15 @@ function CheckoutContent() {
                             id="proof-upload"
                             type="file"
                             accept="image/*,.pdf"
-                            onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0] || null;
+                              setProofFile(file);
+                              if (file && (file.size > 5 * 1024 * 1024 || (!file.type.startsWith("image/") && file.type !== "application/pdf"))) {
+                                setError("Payment proof must be a JPG, PNG, WEBP, or PDF file under 5 MB.");
+                              } else {
+                                setError("");
+                              }
+                            }}
                             className="form-input"
                             style={{ padding: "0.5rem" }}
                           />

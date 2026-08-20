@@ -2161,13 +2161,38 @@ a,
 }
 
 .shopping-assistant__products a {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   padding: 0.5rem;
   border-radius: var(--radius-md);
   background: var(--clr-cream);
   color: var(--clr-bark);
   font-size: var(--text-sm);
   text-decoration: none;
+}
+
+.shopping-assistant__products a span {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.shopping-assistant__products a span small {
+  color: var(--clr-bark-mid);
+  font-size: var(--text-xs);
+  font-weight: 400;
+}
+
+.shopping-assistant__products > button {
+  min-height: 40px;
+  margin-top: 0.25rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--clr-terracotta);
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
 }
 
 .shopping-assistant__videos {

@@ -12,6 +12,9 @@ const INTENT_TERMS: Record<string, string[]> = {
   herb: ["thyme", "rosemary", "oregano", "bay", "curry"],
 };
 
+const GEMINI_MODEL = "gemini-3.5-flash-lite";
+const GEMINI_TIMEOUT_MS = 8_000;
+
 function fallbackReply(message: string, products: any[]) {
   const normalized = message.toLowerCase();
   const words = normalized.split(/\s+/).filter((word) => word.length > 2);
@@ -43,7 +46,12 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in to use the Spice Guide." }, { status: 401 });
 
-  const body = await request.json();
+  let body: { message?: unknown };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Send a valid JSON request." }, { status: 400 });
+  }
   const message = String(body.message ?? "").trim().slice(0, 500);
   if (!message) return NextResponse.json({ error: "Tell me what you want to cook or find." }, { status: 400 });
 
@@ -70,26 +78,46 @@ Customer request: ${message}
 Catalog: ${JSON.stringify(catalogForModel)}`;
 
   try {
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-goog-api-key": apiKey },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 500 },
-      }),
-    });
-    if (!response.ok) return NextResponse.json(localFallback);
+    let response: Response | null = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-goog-api-key": apiKey },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseMimeType: "application/json", temperature: 0.2, maxOutputTokens: 500 },
+        }),
+        signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
+      });
+      const canRetry = [429, 500, 503, 504].includes(response.status);
+      if (response.ok || !canRetry) break;
+    }
+    if (!response?.ok) return NextResponse.json(localFallback);
     const result = await response.json();
-    const parsed = JSON.parse(result.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}");
-    const ids = new Set(Array.isArray(parsed.productIds) ? parsed.productIds : []);
+    const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (typeof responseText !== "string") return NextResponse.json(localFallback);
+    const parsed = JSON.parse(responseText) as {
+      reply?: unknown;
+      productIds?: unknown;
+      reasons?: unknown;
+      youtubeQueries?: unknown;
+    };
+    const productIds = Array.isArray(parsed.productIds)
+      ? parsed.productIds.filter((id): id is string => typeof id === "string")
+      : [];
+    const ids = new Set(productIds);
     const recommended = catalog.filter((product) => ids.has(product.id)).slice(0, 4);
+    if (!recommended.length) return NextResponse.json(localFallback);
+    const reasons = Array.isArray(parsed.reasons)
+      ? parsed.reasons.filter((reason): reason is string => typeof reason === "string").slice(0, recommended.length)
+      : [];
     const youtubeQueries = Array.isArray(parsed.youtubeQueries)
-      ? parsed.youtubeQueries.map((query: unknown) => String(query).trim()).filter(Boolean).slice(0, 2)
+      ? parsed.youtubeQueries.filter((query): query is string => typeof query === "string").map((query) => query.trim()).filter(Boolean).slice(0, 2)
       : localFallback.youtubeVideos.map((video) => video.title.replace(/ videos$/, ""));
     return NextResponse.json({
-      reply: String(parsed.reply || localFallback.reply),
+      reply: typeof parsed.reply === "string" && parsed.reply.trim() ? parsed.reply.trim() : localFallback.reply,
       products: recommended,
-      reasons: Array.isArray(parsed.reasons) ? parsed.reasons.slice(0, 4) : [],
+      reasons,
       youtubeVideos: youtubeQueries.map((query: string) => ({
         title: `${query.replace(/\b\w/g, (letter) => letter.toUpperCase())} videos`,
         url: `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
