@@ -805,6 +805,42 @@ a,
   overflow: hidden;
   position: relative;
 }
+.home-hero__carousel {
+  width: 100%;
+  aspect-ratio: 1;
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+.home-hero__carousel-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.home-hero__dots {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+  position: relative;
+  z-index: 2;
+}
+.home-hero__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: rgba(255,255,255,0.25);
+  cursor: pointer;
+  padding: 0;
+  transition: all 300ms ease;
+}
+.home-hero__dot--active {
+  background: var(--clr-turmeric);
+  width: 24px;
+}
 .home-hero__image img {
   width: 100%;
   height: auto;

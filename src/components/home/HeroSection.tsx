@@ -1,12 +1,21 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useState, useEffect, useCallback } from "react";
 
 const promos = [
   "Free delivery above \u20A615,000",
   "Pay on delivery",
   "100% natural",
+];
+
+const HERO_SLIDES = [
+  { src: "/images/mixed_spices_1.jpg", alt: "KMA mixed spices collection" },
+  { src: "/images/cardamom.jpg", alt: "Premium cardamom spices" },
+  { src: "/images/curry_mix.png", alt: "KMA curry blend mix" },
+  { src: "/images/ginger_powder.jpg", alt: "Fresh ginger powder" },
+  { src: "/images/tumeric.png", alt: "Golden turmeric powder" },
 ];
 
 const fadeUp = {
@@ -18,20 +27,28 @@ const fadeUp = {
   }),
 };
 
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.85 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] as const },
-  },
-};
-
 const stagger = {
   visible: { transition: { staggerChildren: 0.08 } },
 };
 
+const slideVariants = {
+  enter: { opacity: 0, scale: 1.08 },
+  center: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } },
+  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } },
+};
+
 export default function HeroSection() {
+  const [current, setCurrent] = useState(0);
+
+  const next = useCallback(() => {
+    setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(next, 3500);
+    return () => clearInterval(timer);
+  }, [next]);
+
   return (
     <>
       {/* Promo strip */}
@@ -123,12 +140,37 @@ export default function HeroSection() {
 
           <motion.div
             className="home-hero__image"
-            initial="hidden"
-            animate="visible"
-            variants={scaleIn}
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }}
           >
             <div className="home-hero__image-glow" />
-            <img src="/images/mixed_spices_1.jpg" alt="KMA spice collection" />
+            <div className="home-hero__carousel">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={current}
+                  src={HERO_SLIDES[current].src}
+                  alt={HERO_SLIDES[current].alt}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="home-hero__carousel-img"
+                />
+              </AnimatePresence>
+            </div>
+
+            {/* Dots */}
+            <div className="home-hero__dots">
+              {HERO_SLIDES.map((_, i) => (
+                <button
+                  key={i}
+                  className={`home-hero__dot ${i === current ? "home-hero__dot--active" : ""}`}
+                  onClick={() => setCurrent(i)}
+                  aria-label={`View slide ${i + 1}`}
+                />
+              ))}
+            </div>
           </motion.div>
         </div>
       </section>
