@@ -421,12 +421,48 @@ p {
 
 @media (min-width: 768px) {
   .container {
-    padding: 0 var(--space-xl);
+    max-width: 1280px;
+    padding: 0 2rem;
   }
 
   .store-page-shell {
-    padding-top: var(--space-3xl);
-    padding-bottom: var(--space-4xl);
+    padding-top: 4rem;
+    padding-bottom: 5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-right: 2.5rem !important;
+    padding-left: 2.5rem !important;
+  }
+
+  .section-padding {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+
+  .shop-main {
+    padding: 3.5rem 0 5rem;
+  }
+
+  .account-page {
+    padding: 3.5rem 0 5rem;
+  }
+
+  .auth-page {
+    padding: 4rem 2rem;
+  }
+
+  .nav__inner {
+    padding-right: 2.5rem;
+    padding-left: 2.5rem;
+  }
+
+  .footer__top,
+  .footer__bottom {
+    padding-right: 2.5rem;
+    padding-left: 2.5rem;
   }
 }
 
@@ -1564,26 +1600,28 @@ a,
 @media (min-width: 640px) {
   .product-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-lg);
+    gap: 1.5rem;
   }
 }
 
 @media (min-width: 960px) {
   .product-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 1.75rem;
   }
 }
 
 @media (min-width: 1280px) {
   .product-grid {
     grid-template-columns: repeat(5, 1fr);
+    gap: 2rem;
   }
 }
 
 .skeleton-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--space-lg);
+  gap: 1.5rem;
 }
 
 
