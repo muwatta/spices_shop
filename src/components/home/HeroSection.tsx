@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 
 const promos = [
-  "Free delivery above \u20A615,000",
   "Pay on delivery",
   "100% natural",
 ];
