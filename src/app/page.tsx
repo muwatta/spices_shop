@@ -6,7 +6,7 @@ import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import ProductGrid from "@/components/product/ProductGrid";
 import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
-import CategoryCard from "@/components/ui/CategoryCard";
+import HeroSection from "@/components/home/HeroSection";
 
 function HomeSkeletonGrid() {
   return (
@@ -27,43 +27,12 @@ const CATEGORIES = [
   { name: "Flours", image: "/images/bacbab.jpg", href: "/shop?category=flours" },
 ];
 
-const PROMOS = [
-  { label: "Free delivery on orders above \u20A615,000", href: "/shop" },
-  { label: "Pay on delivery available", href: "/shop" },
-  { label: "100% natural, no additives", href: "/shop" },
-];
-
 export default function HomePage() {
   return (
     <>
       <Navbar />
       <main>
-        {/* Promo strip */}
-        <div className="promo-strip">
-          <div className="container promo-strip__inner">
-            {PROMOS.map((p) => (
-              <Link key={p.label} href={p.href} className="promo-strip__item">
-                {p.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Hero — full width product banner */}
-        <section className="home-hero">
-          <div className="container home-hero__grid">
-            <div className="home-hero__copy">
-              <h1 className="home-hero__title">Premium Nigerian Spices</h1>
-              <p className="home-hero__sub">100% natural. Freshly packed. Delivered nationwide.</p>
-              <div className="home-hero__actions">
-                <Link href="/shop" className="btn btn-primary btn-lg">Shop Now</Link>
-              </div>
-            </div>
-            <div className="home-hero__image">
-              <img src="/images/mixed_spices_1.jpg" alt="KMA spice collection" />
-            </div>
-          </div>
-        </section>
+        <HeroSection />
 
         {/* Category tiles */}
         <section className="section-padding">

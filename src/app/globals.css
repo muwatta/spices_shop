@@ -701,54 +701,146 @@ a,
 
 /* === Home Hero === */
 .home-hero {
-  background: linear-gradient(135deg, #1E1710 0%, #2C1F14 60%, #3D2B1A 100%);
+  background: linear-gradient(135deg, #1E1710 0%, #2C1F14 40%, #3D2B1A 100%);
   color: #fff;
-  padding: 2.5rem 0;
+  padding: 3rem 0 3.5rem;
+  overflow: hidden;
 }
 .home-hero__grid {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 2.5rem;
   align-items: center;
   text-align: center;
 }
+.home-hero__badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--clr-turmeric);
+  background: rgba(232,160,32,0.12);
+  border: 1px solid rgba(232,160,32,0.25);
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+}
 .home-hero__title {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 800;
   margin: 0;
-  line-height: 1.15;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.home-hero__title-accent {
+  background: linear-gradient(135deg, var(--clr-turmeric) 0%, #E8A020 50%, var(--clr-terracotta) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .home-hero__sub {
   font-size: 1rem;
-  color: rgba(255,255,255,0.7);
-  margin: 0.6rem 0 1.25rem;
+  color: rgba(255,255,255,0.6);
+  margin: 1rem 0 1.5rem;
+  max-width: 400px;
+  line-height: 1.5;
 }
-.home-hero__actions { display: flex; gap: 0.75rem; justify-content: center; }
+.home-hero__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn-outline-light {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.5rem;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 200ms ease;
+  font-family: var(--font-body);
+}
+.btn-outline-light:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.4);
+}
+.home-hero__stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.home-hero__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.home-hero__stat-num {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--clr-turmeric);
+}
+.home-hero__stat-label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
 .home-hero__image {
   width: 100%;
-  max-width: 420px;
-  border-radius: var(--radius-lg);
+  max-width: 440px;
+  border-radius: 1.5rem;
   overflow: hidden;
+  position: relative;
 }
 .home-hero__image img {
   width: 100%;
   height: auto;
   display: block;
   object-fit: cover;
+  position: relative;
+  z-index: 1;
+}
+.home-hero__image-glow {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(circle, rgba(232,160,32,0.2) 0%, transparent 70%);
+  z-index: 0;
+  animation: heroGlow 4s ease-in-out infinite alternate;
+}
+@keyframes heroGlow {
+  from { opacity: 0.5; transform: scale(1); }
+  to { opacity: 1; transform: scale(1.1); }
 }
 @media (min-width: 768px) {
-  .home-hero { padding: 3rem 0; }
+  .home-hero { padding: 4rem 0 4.5rem; }
   .home-hero__grid {
     flex-direction: row;
     text-align: left;
-    gap: 3rem;
+    gap: 4rem;
   }
-  .home-hero__title { font-size: 2.5rem; }
-  .home-hero__image { max-width: 400px; flex-shrink: 0; }
+  .home-hero__sub { max-width: 440px; }
+  .home-hero__actions { justify-content: flex-start; }
+  .home-hero__stats { justify-content: flex-start; }
+  .home-hero__title { font-size: 2.8rem; }
+  .home-hero__image { max-width: 420px; flex-shrink: 0; }
 }
 @media (min-width: 1024px) {
-  .home-hero__title { font-size: 3rem; }
+  .home-hero { padding: 5rem 0 5.5rem; }
+  .home-hero__title { font-size: 3.4rem; }
+  .home-hero__grid { gap: 5rem; }
 }
 
 /* === Home Category Tiles === */
