@@ -102,7 +102,7 @@ export default function AccountProfilePage() {
   if (loading) {
     return (
       <PageTransition>
-        <div className={`card ${styles.container}`}>
+        <div className={styles.container}>
           <Skeleton className={styles.header} />
           <Skeleton className={styles.subtext} />
           <div className={styles.skeletonGrid}>
@@ -123,7 +123,7 @@ export default function AccountProfilePage() {
 
   return (
     <PageTransition>
-      <div className={`card ${styles.container}`}>
+      <div className={styles.container}>
         <div className={styles.header}>
           <h1 className={styles.heading}>Profile</h1>
           <p className={styles.subtext}>
@@ -138,7 +138,7 @@ export default function AccountProfilePage() {
         )}
 
         <form onSubmit={handleSave} className={styles.form}>
-          <div className="form-group">
+          <div className={`form-group ${styles.formField}`}>
             <label htmlFor="full_name" className="form-label">
               Full Name *
             </label>
@@ -154,7 +154,7 @@ export default function AccountProfilePage() {
               }
             />
           </div>
-          <div className="form-group">
+          <div className={`form-group ${styles.formField}`}>
             <label htmlFor="phone" className="form-label">
               Phone Number *
             </label>
@@ -170,7 +170,7 @@ export default function AccountProfilePage() {
               }
             />
           </div>
-          <div className="form-group">
+          <div className={`form-group ${styles.formFieldWide}`}>
             <label htmlFor="address" className="form-label">
               Address Line 1 *
             </label>
@@ -186,7 +186,7 @@ export default function AccountProfilePage() {
               }
             />
           </div>
-          <div className="form-group">
+          <div className={`form-group ${styles.formFieldWide}`}>
             <label htmlFor="address_line2" className="form-label">
               Address Line 2 (optional)
             </label>
@@ -201,7 +201,7 @@ export default function AccountProfilePage() {
               }
             />
           </div>
-          <div className="form-group">
+          <div className={`form-group ${styles.formField}`}>
             <label htmlFor="city" className="form-label">
               City *
             </label>
@@ -215,7 +215,7 @@ export default function AccountProfilePage() {
               onChange={(e) => setProfile({ ...profile, city: e.target.value })}
             />
           </div>
-          <div className="form-group">
+          <div className={`form-group ${styles.formField}`}>
             <label htmlFor="state" className="form-label">
               State *
             </label>
@@ -231,7 +231,7 @@ export default function AccountProfilePage() {
               }
             />
           </div>
-          <div className="form-group">
+          <div className={`form-group ${styles.formField}`}>
             <label htmlFor="postal_code" className="form-label">
               Postal Code (optional)
             </label>
@@ -246,7 +246,7 @@ export default function AccountProfilePage() {
               }
             />
           </div>
-          <div className="form-group">
+          <div className={`form-group ${styles.formFieldWide}`}>
             <label htmlFor="account_number" className="form-label">
               Account Number (optional, for faster checkout)
             </label>
@@ -265,7 +265,7 @@ export default function AccountProfilePage() {
             </small>
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={saving}>
+          <button type="submit" className={`btn btn-primary ${styles.submit}`} disabled={saving}>
             {saving ? "Saving..." : "Save Changes"}
           </button>
         </form>
