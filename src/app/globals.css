@@ -5018,8 +5018,8 @@ textarea:focus-visible {
   transform: scale(0.93);
 }
 .nav__cart {
-  background: var(--clr-terracotta);
-  color: var(--clr-white);
+  background: transparent;
+  color: var(--clr-cream);
   position: relative;
 }
 .nav__badge {
@@ -5040,7 +5040,7 @@ textarea:focus-visible {
   line-height: 1;
 }
 .nav__user-btn {
-  background: rgba(255,255,255,0.08);
+  background: transparent;
   color: var(--clr-cream);
   font-family: var(--font-body);
 }
