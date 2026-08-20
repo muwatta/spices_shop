@@ -360,37 +360,6 @@
 
   
 
-  
-}
-
-html {
-  font-size: 16px;
-  scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
-}
-
-img,
-video,
-iframe {
-  max-width: 100%;
-  height: auto;
-}
-
-
-body {
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  line-height: 1.6;
-  color: var(--clr-bark);
-  background-color: var(--clr-cream);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-main {
   flex: 1;
 }
 
