@@ -3938,15 +3938,6 @@ textarea:focus-visible {
   background: rgba(255,255,255,0.12);
 }
 
-/* Greeting */
-.nav__drawer-greeting {
-  padding: 0 1rem 0.5rem;
-  font-size: 0.8rem;
-  color: rgba(255,255,255,0.4);
-  flex-shrink: 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-
 /* Search */
 .nav__drawer-search {
   display: flex;
@@ -4084,18 +4075,6 @@ textarea:focus-visible {
 }
 .nav__drawer-logout-btn:hover {
   color: #ff6b6b;
-}
-.nav__drawer-phone {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: rgba(255,255,255,0.35);
-  text-decoration: none;
-  font-size: 0.75rem;
-  font-family: var(--font-body);
-}
-.nav__drawer-phone:hover {
-  color: rgba(255,255,255,0.55);
 }
 
 /* Nav responsive */
