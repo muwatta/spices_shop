@@ -3,6 +3,16 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const adminEmails = ["kmafoods22@gmail.com", "abdullahmusliudeen@gmail.com"];
 
+function isRefreshTokenError(error: any): boolean {
+  const code = error?.code?.toString?.() || "";
+  const message = error?.message?.toString?.() || "";
+  return (
+    code === "refresh_token_not_found" ||
+    code === "invalid_refresh_token" ||
+    message.includes("Refresh Token")
+  );
+}
+
 export async function proxy(request: NextRequest) {
   const supabaseResponse = NextResponse.next({ request });
 
@@ -29,7 +39,12 @@ export async function proxy(request: NextRequest) {
     error,
   } = await supabase.auth.getUser();
 
-  if (error) return supabaseResponse;
+  if (error) {
+    if (isRefreshTokenError(error)) {
+      await supabase.auth.signOut({ scope: "local" });
+    }
+    return supabaseResponse;
+  }
 
   const path = request.nextUrl.pathname;
 

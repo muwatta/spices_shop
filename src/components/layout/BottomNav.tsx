@@ -29,7 +29,7 @@ export default function BottomNav() {
 
         return (
           <Link
-            key={item.href}
+            key={item.label}
             href={item.href}
             className={`bottom-nav__item ${isActive ? "bottom-nav__item--active" : ""}`}
           >

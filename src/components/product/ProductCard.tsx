@@ -62,6 +62,12 @@ export default function ProductCard({ product, index = 0 }: Props) {
             </span>
           )}
 
+          {product.images?.length > 0 && (
+            <span className="product-card__gallery-count" aria-label={`${product.images.length + 1} product photos`}>
+              {product.images.length + 1} photos
+            </span>
+          )}
+
           <button
             className={`product-card__wishlist ${wishlisted ? "product-card__wishlist--active" : ""}`}
             onClick={handleWishlist}
@@ -89,6 +95,20 @@ export default function ProductCard({ product, index = 0 }: Props) {
       <div className="product-card__content">
         <Link href={`/product/${product.id}`} className="product-card__name" tabIndex={-1}>
           {product.name}
+        </Link>
+
+        {product.description && (
+          <p className="product-card__description">{product.description}</p>
+        )}
+
+        {product.stock !== null && (
+          <span className={`product-card__stock ${isLowStock ? "product-card__stock--low" : ""}`}>
+            {product.stock} left in stock
+          </span>
+        )}
+
+        <Link href={`/product/${product.id}`} className="product-card__details">
+          View details
         </Link>
 
         <div className="product-card__footer">

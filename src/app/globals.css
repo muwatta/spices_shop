@@ -703,13 +703,13 @@ a,
 .home-hero {
   background: linear-gradient(135deg, #1E1710 0%, #2C1F14 40%, #3D2B1A 100%);
   color: #fff;
-  padding: 3rem 0 3.5rem;
+  padding: 2.25rem 0 2.75rem;
   overflow: hidden;
 }
 .home-hero__grid {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 1.75rem;
   align-items: center;
   text-align: center;
 }
@@ -728,8 +728,9 @@ a,
 }
 .home-hero__title {
   font-family: var(--font-display);
-  font-size: 2.2rem;
+  font-size: clamp(1.9rem, 8vw, 2.35rem);
   font-weight: 800;
+  color: var(--clr-cream);
   margin: 0;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -741,7 +742,7 @@ a,
   background-clip: text;
 }
 .home-hero__sub {
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   color: rgba(255,255,255,0.75);
   margin: 1rem 0 1.5rem;
   max-width: 400px;
@@ -752,6 +753,10 @@ a,
   gap: 0.75rem;
   justify-content: center;
   flex-wrap: wrap;
+  width: 100%;
+}
+.home-hero__actions .btn {
+  flex: 1 1 12rem;
 }
 .btn-outline-light {
   display: inline-flex;
@@ -775,9 +780,11 @@ a,
 }
 .home-hero__stats {
   display: flex;
-  gap: 2rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 .home-hero__stat {
@@ -800,14 +807,14 @@ a,
 }
 .home-hero__image {
   width: 100%;
-  max-width: 440px;
+  max-width: 340px;
   border-radius: 1.5rem;
   overflow: hidden;
   position: relative;
 }
 .home-hero__carousel {
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 3;
   position: relative;
   overflow: hidden;
   border-radius: 1.5rem;
@@ -841,7 +848,7 @@ a,
   background: var(--clr-turmeric);
   width: 24px;
 }
-.home-hero__image img {
+.home-hero__image > img {
   width: 100%;
   height: auto;
   display: block;
@@ -860,7 +867,35 @@ a,
   from { opacity: 0.5; transform: scale(1); }
   to { opacity: 1; transform: scale(1.1); }
 }
-@media (min-width: 768px) {
+@media (min-width: 768px) and (max-width: 1023px) {
+  .home-hero {
+    padding: 3rem 0 3.5rem;
+  }
+  .home-hero__grid {
+    gap: 2.25rem;
+  }
+  .home-hero__copy {
+    max-width: 620px;
+  }
+  .home-hero__title {
+    font-size: 2.8rem;
+  }
+  .home-hero__sub {
+    max-width: 520px;
+  }
+  .home-hero__actions {
+    width: auto;
+  }
+  .home-hero__stats {
+    width: auto;
+    justify-content: center;
+    gap: 2.5rem;
+  }
+  .home-hero__image {
+    max-width: 460px;
+  }
+}
+@media (min-width: 1024px) {
   .home-hero { padding: 4rem 0 4.5rem; }
   .home-hero__grid {
     flex-direction: row;
@@ -1416,6 +1451,15 @@ a,
   gap: var(--space-md);
 }
 
+.product-grid__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+  color: var(--clr-muted);
+  font-size: var(--text-sm);
+}
+
 @media (min-width: 640px) {
   .product-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -1502,6 +1546,19 @@ a,
   z-index: 2;
 }
 
+.product-card__gallery-count {
+  position: absolute;
+  right: 0.625rem;
+  bottom: 0.625rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-full);
+  background: rgba(30, 23, 16, 0.72);
+  color: var(--clr-white);
+  font-size: 0.65rem;
+  font-weight: 600;
+  z-index: 2;
+}
+
 .product-card__out-of-stock {
   position: absolute;
   inset: 0;
@@ -1554,7 +1611,38 @@ a,
 }
 
 .product-card__description {
-  display: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+  color: var(--clr-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.product-card__stock {
+  color: var(--clr-success);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.product-card__stock--low {
+  color: #a16207;
+}
+
+.product-card__details {
+  align-self: flex-start;
+  min-height: 0;
+  color: var(--clr-terracotta);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.product-card__details:hover {
+  text-decoration: underline;
 }
 
 .product-card__footer {
@@ -4005,7 +4093,9 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
+  align-self: flex-start;
   min-height: 46px;
   padding: 0.65rem 0.75rem;
   background: transparent;
@@ -4040,6 +4130,9 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  width: fit-content;
+  max-width: 100%;
+  align-self: flex-start;
   gap: 0.75rem;
   color: rgba(255,255,255,0.9);
   text-decoration: none;

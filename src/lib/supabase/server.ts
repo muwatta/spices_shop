@@ -15,9 +15,15 @@ function wrapGetUser(supabase: any) {
   const originalGetUser = supabase.auth.getUser.bind(supabase.auth);
   (supabase.auth as any).getUser = async (...args: any[]) => {
     try {
-      return await originalGetUser(...args);
+      const result = await originalGetUser(...args);
+      if (result.error && isRefreshTokenError(result.error)) {
+        await supabase.auth.signOut({ scope: "local" });
+        return { data: { user: null }, error: null };
+      }
+      return result;
     } catch (error: any) {
       if (isRefreshTokenError(error)) {
+        await supabase.auth.signOut({ scope: "local" });
         return { data: { user: null }, error: null };
       }
       throw error;
