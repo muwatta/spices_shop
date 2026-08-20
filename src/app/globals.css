@@ -2795,6 +2795,7 @@ textarea:focus-visible {
     flex-direction: column;
     gap: 0.25rem;
     position: sticky;
+    width: 100%;
     top: 100px;
     align-self: start;
     overflow-x: visible;
@@ -2814,6 +2815,13 @@ textarea:focus-visible {
   text-decoration: none;
   white-space: nowrap;
   transition: all var(--transition-fast);
+}
+
+@media (min-width: 768px) {
+  .account-sidebar__link {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 .account-sidebar__link:hover {
