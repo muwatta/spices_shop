@@ -8,6 +8,7 @@ import {
   buildWhatsAppUrl,
   buildOrderWhatsAppMessage,
   getDeliveryInfo,
+  generateTransactionId,
 } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -38,6 +39,8 @@ export default function CartPage() {
   const [discountCode, setDiscountCode] = useState("");
   const [discountApplied, setDiscountApplied] = useState(false);
   const [discountError, setDiscountError] = useState("");
+  const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
+  const [whatsappOrderRef, setWhatsappOrderRef] = useState("");
 
   useEffect(() => {
     async function fetchProducts() {
@@ -126,12 +129,16 @@ export default function CartPage() {
       window.alert("Your cart is empty.");
       return;
     }
-    const summary = cartItems
-      .map((item) => `${item.product.name} x${item.quantity}`)
-      .join("\n");
-    if (!window.confirm(`Order via WhatsApp:\n\n${summary}\n\nTotal: ${formatNaira(grandTotal)}\n\nContinue?`)) {
+    if (cartItems.some(({ product }) => product.stock === 0)) {
+      window.alert("Remove out-of-stock items before ordering via WhatsApp.");
       return;
     }
+    setWhatsappOrderRef(generateTransactionId().slice(-10));
+    setWhatsappModalOpen(true);
+  }
+
+  function confirmWhatsAppOrder() {
+    if (!phone || !whatsappOrderRef) return;
     const message = buildOrderWhatsAppMessage(
       cartItems.map((i) => ({
         name: i.product.name,
@@ -139,8 +146,9 @@ export default function CartPage() {
         price: i.product.price,
       })),
       grandTotal,
-    );
+    ) + `\n\nOrder reference: KMA-${whatsappOrderRef}`;
     window.open(buildWhatsAppUrl(phone, message), "_blank");
+    setWhatsappModalOpen(false);
   }
 
   if (loading) {
@@ -367,6 +375,52 @@ export default function CartPage() {
           </div>
         </div>
       </main>
+      {whatsappModalOpen && (
+        <div className="modal-overlay" role="presentation" onClick={() => setWhatsappModalOpen(false)}>
+          <section
+            className="modal-content whatsapp-order-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="whatsapp-order-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="whatsapp-order-modal__header">
+              <div>
+                <span className="whatsapp-order-modal__eyebrow">WhatsApp checkout</span>
+                <h2 id="whatsapp-order-title">Review your order</h2>
+              </div>
+              <button type="button" className="whatsapp-order-modal__close" onClick={() => setWhatsappModalOpen(false)} aria-label="Close order review">&times;</button>
+            </div>
+
+            <div className="whatsapp-order-modal__reference">
+              <span>Order reference</span>
+              <strong>KMA-{whatsappOrderRef}</strong>
+            </div>
+
+            <div className="whatsapp-order-modal__items">
+              {cartItems.map(({ product, quantity }) => (
+                <div key={product.id} className="whatsapp-order-modal__item">
+                  <span>{product.name} <small>&times; {quantity}</small></span>
+                  <strong>{formatNaira(product.price * quantity)}</strong>
+                </div>
+              ))}
+            </div>
+
+            <div className="whatsapp-order-modal__totals">
+              <div><span>Subtotal</span><strong>{formatNaira(totalPrice)}</strong></div>
+              <div><span>Delivery</span><strong>{delivery.free ? "Free" : formatNaira(delivery.fee)}</strong></div>
+              {discountApplied && <div><span>Discount</span><strong>-{formatNaira(discount)}</strong></div>}
+              <div className="whatsapp-order-modal__total"><span>Total</span><strong>{formatNaira(grandTotal)}</strong></div>
+            </div>
+
+            <p className="whatsapp-order-modal__note">WhatsApp will open with these order details ready to send. Keep your reference for follow-up.</p>
+            <div className="whatsapp-order-modal__actions">
+              <button type="button" className="btn btn-ghost" onClick={() => setWhatsappModalOpen(false)}>Go back</button>
+              <button type="button" className="btn whatsapp-btn" onClick={confirmWhatsAppOrder}>Continue to WhatsApp</button>
+            </div>
+          </section>
+        </div>
+      )}
       <Footer />
     </>
   );

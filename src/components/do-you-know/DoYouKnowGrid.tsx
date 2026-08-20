@@ -7,17 +7,17 @@ import type { DoYouKnowItem } from "@/types";
 const imageMap: Record<string, string> = {
   "Curry Mix 2000": "/images/curry_mix.png",
   "Mixed spices 2500": "/images/mixed_spices.png",
-  "Ginger Powder 2500": "/images/ginger_powder.jpeg",
-  "Italian Spice 2000": "/images/spies_herbs.jpeg",
-  "Signature Spice 2500": "/images/mixed_spices_1.jpeg",
-  "Garam Masala 2500": "/images/curry_mix1.jpeg",
-  "Cardamom 5000": "/images/cardamom.jpeg",
-  "Dry Okro Powder 3500": "/images/dry_okra.jpeg",
-  "Baobab Powder (Kuka) 2000": "/images/bacbab.jpeg",
+  "Ginger Powder 2500": "/images/ginger_powder.jpg",
+  "Italian Spice 2000": "/images/kma_leaf.jpg",
+  "Signature Spice 2500": "/images/mixed_spices_1.jpg",
+  "Garam Masala 2000": "/images/curry_mix1.jpg",
+  "Cardamom 5000": "/images/cardamom.jpg",
+  "Dry Okro Powder 3500": "/images/dry_okra.jpg",
+  "Baobab Powder (Kuka) 2000": "/images/bacbab.jpg",
 };
 
 function getCardImage(item: DoYouKnowItem) {
-  return item.image_url || imageMap[item.name] || "/images/kma_leaf.jpeg";
+  return item.image_url || imageMap[item.name] || "/images/kma_leaf.jpg";
 }
 
 export default function DoYouKnowGrid({ items }: { items: DoYouKnowItem[] }) {

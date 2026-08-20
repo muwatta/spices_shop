@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import ServiceWorkerRegistration from "@/components/layout/ServiceWorkerRegistration";
+import InstallPrompt from "@/components/layout/InstallPrompt";
 
 const MiniCartDrawer = dynamic(() => import("@/components/ui/MiniCartDrawer"), { ssr: false });
 const BottomNav = dynamic(() => import("@/components/layout/BottomNav"), { ssr: false });
@@ -18,6 +19,7 @@ export default function ClientWidgets() {
   return (
     <>
       <ServiceWorkerRegistration />
+      <InstallPrompt />
       <MiniCartDrawer />
       {showBottomNav && <BottomNav />}
       <ToastContainer />
