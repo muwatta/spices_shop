@@ -71,18 +71,38 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --clr-bark: #F7F0E6;
-  --clr-bark-mid: #D8C9B8;
+  --clr-terracotta: #E08B6C;
+  --clr-terracotta-light: #F0A991;
+  --clr-terracotta-dark: #C66A4A;
+  --clr-turmeric: #E8C56A;
+  --clr-turmeric-light: #F1D88E;
+  --clr-sage: #9FC5A0;
+  --clr-sage-light: #B9D9BA;
+  --clr-saffron: #E8C56A;
+  --clr-saffron-dark: #E08B6C;
+  --clr-turmeric-alt: #F1D88E;
+  --clr-chili: #F27A6F;
+  --clr-bark: #FFF9F0;
+  --clr-bark-mid: #E6D9CB;
   --clr-cream: #17130F;
   --clr-cream-dark: #32291F;
-  --clr-muted: #B2A292;
+  --clr-muted: #C8B9A8;
   --clr-white: #211B15;
-  --clr-pepper: #0C0A08;
+  --clr-pepper: #FFF9F0;
+  --clr-success: #83C99A;
+  --clr-error: #F27A6F;
+  --clr-warning: #F1D88E;
+  --clr-info: #8FC2E3;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.25);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35);
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] body {
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
 }
 
 html {
