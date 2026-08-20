@@ -163,11 +163,11 @@ export default function ShopContent({
             <input
               className="shop-search__input"
               type="search"
-              placeholder="Search spices, herbs, seasonings..."
               value={searchValue}
               onChange={(e) => handleSearch(e.target.value)}
               aria-label="Search products"
             />
+            <VisualSearchButton />
             {searchValue && (
               <button
                 className="shop-search__clear"
@@ -179,7 +179,6 @@ export default function ShopContent({
                 </svg>
               </button>
             )}
-            <VisualSearchButton />
           </div>
 
           {/* Toolbar */}

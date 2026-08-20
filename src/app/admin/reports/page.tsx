@@ -206,53 +206,21 @@ export default function AdminReportsPage() {
         </div>
       </div>
 
-      <div
-        className="card"
-        style={{ padding: "1.5rem", marginBottom: "1.5rem" }}
-      >
-        <h2 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>
-          Monthly Orders
-        </h2>
+      <div className="card admin-report-section">
+        <h2 className="admin-report-section__title">Monthly Orders</h2>
         {orders.length === 0 ? (
           <p style={{ color: "var(--clr-muted)" }}>
             No orders were placed during {MONTHS[month - 1]} {year}.
           </p>
         ) : (
-          <div style={{ display: "grid", gap: "1rem" }}>
+          <div className="admin-report-order-list">
             {orders.map((order) => (
-              <div
-                key={order.id}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr auto",
-                  gap: "1rem",
-                  padding: "1rem",
-                  borderRadius: "1rem",
-                  background: "rgba(255,255,255,0.95)",
-                  border: "1px solid var(--clr-cream-dark)",
-                }}
-              >
+              <div key={order.id} className="admin-report-order-card">
                 <div>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      marginBottom: "0.25rem",
-                      color: "var(--clr-bark)",
-                    }}
-                  >
-                    #
-                    {order.transaction_id ?? order.id.slice(0, 8).toUpperCase()}
+                  <div className="admin-report-order__id">
+                    #{order.transaction_id ?? order.id.slice(0, 8).toUpperCase()}
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "0.75rem",
-                      alignItems: "center",
-                      color: "var(--clr-muted)",
-                      fontSize: "0.9rem",
-                    }}
-                  >
+                  <div className="admin-report-order__meta">
                     <span>{order.customers?.full_name ?? "-"}</span>
                     <span>• {formatNaira(order.total_amount)}</span>
                     <span>
@@ -267,15 +235,7 @@ export default function AdminReportsPage() {
                     </span>
                   </div>
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "0.5rem",
-                    flexWrap: "wrap",
-                    justifyContent: "flex-end",
-                    alignItems: "center",
-                  }}
-                >
+                <div className="admin-report-order__actions">
                   <span
                     className={`badge badge-${order.status}`}
                     style={{ fontSize: "0.85rem" }}
@@ -295,8 +255,8 @@ export default function AdminReportsPage() {
         )}
       </div>
 
-      <div className="card" style={{ padding: "1.5rem" }}>
-        <h2 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>
+      <div className="card admin-report-section">
+        <h2 className="admin-report-section__title">
           Low Stock Products (≤5 left)
         </h2>
         {stats.lowStockProducts.length === 0 ? (
@@ -304,15 +264,9 @@ export default function AdminReportsPage() {
             All products have sufficient stock.
           </p>
         ) : (
-          <ul style={{ listStyle: "none", padding: 0 }}>
+          <ul className="admin-report-list">
             {stats.lowStockProducts.map((p) => (
-              <li
-                key={p.name}
-                style={{
-                  padding: "0.5rem 0",
-                  borderBottom: "1px solid var(--clr-cream-dark)",
-                }}
-              >
+              <li key={p.name} className="admin-report-list__item">
                 <strong>{p.name}</strong> – Only {p.stock} left
               </li>
             ))}
