@@ -2073,22 +2073,6 @@ a,
   }
 }
 
-.footer__payments {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.footer__payment-badge {
-  padding: 0.2rem 0.5rem;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: var(--radius-sm);
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 .footer__origin {
   font-weight: 600;
   color: var(--clr-turmeric);

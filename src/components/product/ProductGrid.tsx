@@ -13,7 +13,7 @@ async function getProducts(): Promise<{ products: Product[]; total: number }> {
   if (error) {
     const { data: fallback } = await supabase
       .from("products")
-      .select("id, name, price, image_url, images, stock, description, created_at, category, low_stock_threshold", { count: "exact" })
+      .select("id, name, price, image_url, stock, description, created_at", { count: "exact" })
       .order("created_at", { ascending: false });
     return { products: (fallback ?? []) as Product[], total: fallback?.length ?? 0 };
   }
