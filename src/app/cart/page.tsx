@@ -197,7 +197,7 @@ export default function CartPage() {
     <>
       <Navbar />
       <main>
-        <div className="container" style={{ padding: "3rem var(--space-md)" }}>
+        <div className="container store-page-shell">
           <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(1.5rem, 4vw, 2rem)", marginBottom: "2rem" }}>
             Shopping Cart
             <span style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", fontWeight: 400, color: "var(--clr-muted)", marginLeft: "0.75rem" }}>

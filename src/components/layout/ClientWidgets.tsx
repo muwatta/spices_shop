@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import ServiceWorkerRegistration from "@/components/layout/ServiceWorkerRegistration";
 
 const MiniCartDrawer = dynamic(() => import("@/components/ui/MiniCartDrawer"), { ssr: false });
@@ -9,13 +10,18 @@ const ToastContainer = dynamic(() => import("@/components/ui/Toast"), { ssr: fal
 const ShoppingAssistant = dynamic(() => import("@/components/layout/ShoppingAssistant"), { ssr: false });
 
 export default function ClientWidgets() {
+  const pathname = usePathname();
+  const isBackOffice = pathname.startsWith("/admin") || pathname.startsWith("/account");
+  const showBottomNav = !isBackOffice && !pathname.startsWith("/checkout");
+  const showShoppingAssistant = !isBackOffice && !pathname.startsWith("/checkout") && !pathname.startsWith("/cart");
+
   return (
     <>
       <ServiceWorkerRegistration />
       <MiniCartDrawer />
-      <BottomNav />
+      {showBottomNav && <BottomNav />}
       <ToastContainer />
-      <ShoppingAssistant />
+      {showShoppingAssistant && <ShoppingAssistant />}
     </>
   );
 }

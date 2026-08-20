@@ -286,7 +286,7 @@ function CheckoutContent() {
     <>
       <Navbar />
       <main style={{ background: "var(--clr-cream)", minHeight: "70vh" }}>
-        <div className="container" style={{ padding: "2rem var(--space-md)" }}>
+        <div className="container store-page-shell">
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <div className="page-header">
               <h1 className="page-header__title">Checkout</h1>
