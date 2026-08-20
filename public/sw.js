@@ -1,9 +1,10 @@
-const CACHE_NAME = "kma-spices-v1";
+const CACHE_NAME = "kma-spices-v2";
 const OFFLINE_URL = "/offline.html";
+const PRECACHE_URLS = ["/", OFFLINE_URL, "/images/logo.jpg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(["/", OFFLINE_URL, "/images/logo.jpg"])),
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)),
   );
   self.skipWaiting();
 });
@@ -24,15 +25,7 @@ self.addEventListener("fetch", (event) => {
   if (requestUrl.origin !== self.location.origin || requestUrl.pathname.startsWith("/api/")) return;
 
   if (event.request.mode === "navigate") {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(async () => (await caches.match(event.request)) || caches.match(OFFLINE_URL)),
-    );
+    event.respondWith(fetch(event.request).catch(() => caches.match(OFFLINE_URL)));
     return;
   }
 
@@ -40,7 +33,11 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((response) => {
-        if (response.ok && requestUrl.pathname.startsWith("/_next/static/")) {
+        if (
+          response.ok &&
+          (requestUrl.pathname.startsWith("/_next/static/") ||
+            requestUrl.pathname.startsWith("/images/"))
+        ) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
