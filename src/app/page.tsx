@@ -34,7 +34,6 @@ export default function HomePage() {
       <main>
         <HeroSection />
 
-        {}
         <section className="section-padding">
           <div className="container">
             <div className="section-header">
@@ -60,7 +59,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {}
         <section className="section-padding section-padding--alt">
           <div className="container">
             <div className="section-header">
@@ -73,7 +71,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {}
         <div className="trust-strip">
           <div className="container trust-strip__inner">
             <div className="trust-strip__item">

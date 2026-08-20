@@ -119,7 +119,6 @@ export default function ProductGallery({
   return (
     <>
       <div className="pd-gallery" ref={containerRef} tabIndex={0}>
-        {}
         <div
           className="pd-gallery__main"
           onTouchStart={handleTouchStart}
@@ -172,7 +171,6 @@ export default function ProductGallery({
             </div>
           )}
 
-          {}
           {hasMultiple && (
             <>
               <button
@@ -193,7 +191,6 @@ export default function ProductGallery({
           )}
         </div>
 
-        {}
         {hasMultiple && (
           <div className="pd-gallery__thumbs">
             {allImages.map((img, idx) => (
@@ -219,7 +216,6 @@ export default function ProductGallery({
           </div>
         )}
 
-        {}
         {hasMultiple && (
           <div className="pd-gallery__dots" aria-hidden="true">
             {allImages.map((_, idx) => (
@@ -234,7 +230,6 @@ export default function ProductGallery({
         )}
       </div>
 
-      {}
       {zoomOpen && showImage && (
         <div
           className="pd-zoom-overlay"

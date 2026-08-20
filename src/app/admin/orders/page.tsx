@@ -194,7 +194,6 @@ export default function AdminOrdersPage() {
           </div>
         </div>
 
-        {}
         <div className={styles.filtersSection}>
           <div className={styles.searchRow}>
             <input className="form-input" type="search" value={searchInput} onChange={(e) => setSearchInput(e.target.value)}

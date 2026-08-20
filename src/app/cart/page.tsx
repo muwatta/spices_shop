@@ -224,7 +224,6 @@ export default function CartPage() {
           </div>
 
           <div className="cart-layout">
-            {}
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               {cartItems.map(({ product, quantity }) => {
                 const itemOOS = product.stock !== null && product.stock === 0;
@@ -281,7 +280,6 @@ export default function CartPage() {
                 );
               })}
 
-              {}
               {undoItem && (
                 <div className="cart-undo-toast" role="status" aria-live="polite">
                   <span>Item removed</span>
@@ -292,7 +290,6 @@ export default function CartPage() {
               )}
             </div>
 
-            {}
             <div className="card order-summary" style={{ alignSelf: "start", position: "sticky", top: "calc(var(--nav-height) + 1.5rem)" }}>
               <h2 className="order-summary__title">Order Summary</h2>
               {cartItems.map(({ product, quantity }) => (

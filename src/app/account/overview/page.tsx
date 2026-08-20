@@ -95,14 +95,12 @@ export default function AccountOverviewPage() {
   return (
     <PageTransition>
       <div className="ov">
-        {}
         <div className="ov__head">
           <h1 className="ov__title">Overview</h1>
           <p className="ov__sub">Your account summary and quick actions.</p>
           {email && <span className="ov__email">{email}</span>}
         </div>
 
-        {}
         <div className="ov__stats">
           <div className="ov__stat ov__stat--orders">
             <span className="ov__stat-num">{stats.totalOrders}</span>
@@ -118,13 +116,11 @@ export default function AccountOverviewPage() {
           </div>
         </div>
 
-        {}
         <div className="ov__actions">
           <Link href="/account/orders" className="btn btn-primary btn-sm">View Orders</Link>
           <Link href="/account/profile" className="btn btn-outline btn-sm">Update Profile</Link>
         </div>
 
-        {}
         <section className="ov__recent" aria-labelledby="recent-heading">
           <div className="ov__recent-head">
             <h2 id="recent-heading">Recent orders</h2>

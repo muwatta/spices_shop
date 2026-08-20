@@ -50,7 +50,6 @@ export default function HeroSection() {
 
   return (
     <>
-      {}
       <motion.div
         className="promo-strip"
         initial={{ opacity: 0 }}
@@ -64,7 +63,6 @@ export default function HeroSection() {
         </div>
       </motion.div>
 
-      {}
       <section className="home-hero">
         <div className="container home-hero__grid">
           <div className="home-hero__copy">
@@ -159,7 +157,6 @@ export default function HeroSection() {
               </AnimatePresence>
             </div>
 
-            {}
             <div className="home-hero__dots">
               {HERO_SLIDES.map((_, i) => (
                 <button

@@ -130,7 +130,6 @@ export default async function ProductPage({ params }: Props) {
       <Navbar />
       <main>
         <div className="container" style={{ padding: "2rem var(--space-md) var(--space-3xl)" }}>
-          {}
           <nav
             aria-label="Breadcrumb"
             style={{
@@ -172,7 +171,6 @@ export default async function ProductPage({ params }: Props) {
           </nav>
 
           <div className="product-detail-layout">
-            {}
             <ProductGallery
               imageUrl={product.image_url}
               images={product.images ?? []}
@@ -180,7 +178,6 @@ export default async function ProductPage({ params }: Props) {
               category={product.category}
             />
 
-            {}
             <div className="product-detail-info">
               {product.category && (
                 <span className="product-detail-category">
@@ -210,7 +207,6 @@ export default async function ProductPage({ params }: Props) {
 
               {!outOfStock && <AddToCartButton product={product} />}
 
-              {}
               <div className="product-detail__suggestions">
                 <h3 className="product-detail__suggestions-title">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -250,7 +246,6 @@ export default async function ProductPage({ params }: Props) {
         </div>
       </main>
 
-      {}
       {!outOfStock && (
         <ProductStickyBar
           product={product}
@@ -258,7 +253,6 @@ export default async function ProductPage({ params }: Props) {
         />
       )}
 
-      {}
       {relatedProducts.length > 0 && (
         <section className="section-padding section-padding--alt">
           <div className="container">

@@ -196,7 +196,6 @@ export default function ManualOrderPage() {
         )}
       </div>
 
-      {}
       <div className={`card ${styles.customerCard}`}>
         <h2 className={styles.cardTitle}> Customer</h2>
         <div className={styles.searchContainer}>
@@ -244,7 +243,6 @@ export default function ManualOrderPage() {
         </div>
       </div>
 
-      {}
       {showNewCustomerForm && (
         <div className={`card ${styles.newCustomerCard}`}>
           <h3 className={styles.newCustomerTitle}>Create New Customer</h3>
@@ -309,10 +307,8 @@ export default function ManualOrderPage() {
         </div>
       )}
 
-      {}
       {selectedCustomer && (
         <div className={styles.productsCartGrid}>
-          {}
           <div className={`card ${styles.productsCard}`}>
             <h2 className={styles.productsTitle}> Add Products</h2>
             <div className={styles.productGrid}>
@@ -333,7 +329,6 @@ export default function ManualOrderPage() {
             </div>
           </div>
 
-          {}
           <div className={`card ${styles.cartCard}`}>
             <h2 className={styles.cartHeader}>
                Cart

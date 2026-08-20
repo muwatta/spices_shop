@@ -133,7 +133,6 @@ export default function ShopContent({
 
   return (
     <div className="shop-page">
-      {}
       <div className="shop-hero">
         <div className="container">
           <div className="shop-hero__content">
@@ -152,7 +151,6 @@ export default function ShopContent({
 
       <main className="shop-main">
         <div className="container">
-          {}
           <div className="shop-search" role="search" aria-label="Search products">
             <svg className="shop-search__icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <circle cx="11" cy="11" r="8" />
@@ -179,7 +177,6 @@ export default function ShopContent({
             )}
           </div>
 
-          {}
           <div className="shop-toolbar">
             <div className="shop-toolbar__categories" role="tablist" aria-label="Filter by category">
               <button
@@ -246,7 +243,6 @@ export default function ShopContent({
             </div>
           </div>
 
-          {}
           {hasActiveFilters && (
             <div className="shop-active-filters">
               {activeFilters.map((f) => (
@@ -273,7 +269,6 @@ export default function ShopContent({
             </div>
           )}
 
-          {}
           {products.length > 0 ? (
             <div className="product-grid" role="list">
               {products.map((product, i) => (
@@ -309,7 +304,6 @@ export default function ShopContent({
             </div>
           )}
 
-          {}
           {totalPages > 1 && (
             <nav className="shop-pagination" aria-label="Pagination">
               <button
@@ -373,7 +367,6 @@ export default function ShopContent({
         </div>
       </main>
 
-      {}
       {mobileFiltersOpen && (
         <div className="shop-mobile-filters">
           <div

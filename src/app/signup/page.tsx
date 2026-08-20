@@ -295,7 +295,6 @@ function SignupContent() {
               autoComplete="new-password"
             />
 
-            {}
             {form.confirmPassword && (
               <p
                 style={{

@@ -279,7 +279,6 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {}
       <div className="admin-products-filter">
         <input
           type="text"
@@ -323,7 +322,6 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {}
       {selected.size > 0 && (
         <div className="admin-products-bulk">
           <span style={{ fontWeight: 600 }}>{selected.size} selected</span>
@@ -339,7 +337,6 @@ export default function AdminProductsPage() {
         </div>
       )}
 
-      {}
       {showForm && (
         <div className="admin-form-overlay" role="dialog" aria-modal="true">
           <div className="admin-form-panel">
@@ -406,7 +403,74 @@ export default function AdminProductsPage() {
 
               <div className="form-group">
                 <label className="form-label">Product Image</label>
-                <input type="file" accept="image}
+                <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] ?? null)} className="form-input" style={{ padding: "0.5rem" }} />
+                {editingProduct?.image_url && !imageFile && (
+                  <p style={{ fontSize: "0.8rem", color: "var(--clr-muted)" }}>Current image kept if none selected.</p>
+                )}
+                {imageFile && (
+                  <div style={{ marginTop: "0.5rem", position: "relative", aspectRatio: "4/3", maxWidth: 200, borderRadius: "var(--radius-md)", overflow: "hidden", background: "var(--clr-cream-dark)" }}>
+                    <Image src={URL.createObjectURL(imageFile)} alt="Preview" fill style={{ objectFit: "cover" }} />
+                  </div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Gallery Images (up to 5)</label>
+                <p style={{ fontSize: "0.8rem", color: "var(--clr-muted)", marginBottom: "0.5rem" }}>
+                  Additional images shown in the product detail page carousel.
+                </p>
+                {editingProduct?.images && editingProduct.images.length > 0 && (
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.5rem" }}>
+                    {editingProduct.images.map((img, idx) => (
+                      <div key={idx} style={{ position: "relative", width: 60, height: 60, borderRadius: "var(--radius-md)", overflow: "hidden", background: "var(--clr-cream-dark)" }}>
+                        <Image src={img} alt={`Gallery ${idx + 1}`} fill style={{ objectFit: "cover" }} />
+                      </div>
+                    ))}
+                    <span style={{ fontSize: "0.75rem", color: "var(--clr-muted)", alignSelf: "center" }}>
+                      {editingProduct.images.length} existing
+                    </span>
+                  </div>
+                )}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  {[0, 1, 2, 3, 4].map((idx) => (
+                    <input
+                      key={idx}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const newFiles = [...galleryFiles];
+                        newFiles[idx] = e.target.files?.[0] ?? null;
+                        setGalleryFiles(newFiles);
+                      }}
+                      className="form-input"
+                      style={{ padding: "0.5rem", fontSize: "0.8rem" }}
+                    />
+                  ))}
+                </div>
+                {galleryFiles.some((f) => f !== null) && (
+                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.5rem" }}>
+                    {galleryFiles.filter(Boolean).map((file, idx) => (
+                      <div key={idx} style={{ position: "relative", width: 60, height: 60, borderRadius: "var(--radius-md)", overflow: "hidden", background: "var(--clr-cream-dark)" }}>
+                        <Image src={URL.createObjectURL(file!)} alt={`New ${idx + 1}`} fill style={{ objectFit: "cover" }} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="admin-form-actions">
+                <button type="submit" className="btn btn-primary" disabled={saving}>
+                  {saving ? "Saving..." : editingProduct ? "Save Changes" : "Create Product"}
+                </button>
+                <button type="button" className="btn btn-outline" onClick={() => setShowForm(false)}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div style={{ textAlign: "center", padding: "4rem" }}>
           <span className="spinner" style={{ margin: "0 auto", display: "block" }} />
@@ -418,7 +482,6 @@ export default function AdminProductsPage() {
         </div>
       ) : (
         <>
-          {}
           <div className="admin-products-table" style={{ display: "none" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
               <thead>
@@ -517,7 +580,6 @@ export default function AdminProductsPage() {
             </table>
           </div>
 
-          {}
           <div className="admin-products-cards" style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--clr-muted)", cursor: "pointer" }}>
               <input
@@ -612,7 +674,6 @@ export default function AdminProductsPage() {
             })}
           </div>
 
-          {}
           {data.totalPages > 1 && (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "0.5rem", marginTop: "1.5rem" }}>
               <button
@@ -637,7 +698,6 @@ export default function AdminProductsPage() {
         </>
       )}
 
-      {}
       <ConfirmModal
         open={!!archiveTarget}
         title="Archive Product"
@@ -648,7 +708,6 @@ export default function AdminProductsPage() {
         onCancel={() => setArchiveTarget(null)}
       />
 
-      {}
       <ConfirmModal
         open={bulkArchiveOpen}
         title="Archive Multiple Products"

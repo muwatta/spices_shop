@@ -101,7 +101,6 @@ export default function AdminOrderDetailPage() {
       </div>
 
       <div className="admin-order-detail-grid">
-        {}
         <div className="card" style={{ padding: "1.25rem" }}>
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1rem", marginBottom: "0.75rem" }}>Customer</h2>
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
@@ -129,7 +128,6 @@ export default function AdminOrderDetailPage() {
           )}
         </div>
 
-        {}
         <div className="card" style={{ padding: "1.25rem" }}>
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1rem", marginBottom: "0.75rem" }}>Order Status</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
@@ -155,7 +153,6 @@ export default function AdminOrderDetailPage() {
         </div>
       </div>
 
-      {}
       <div className="card" style={{ padding: "1.25rem", marginTop: "1.25rem" }}>
         <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1rem", marginBottom: "0.75rem" }}>Items</h2>
         {(order.order_items as any[]).map((item: any) => (
@@ -170,7 +167,6 @@ export default function AdminOrderDetailPage() {
         </div>
       </div>
 
-      {}
       {proofUrl && (
         <div className="card" style={{ padding: "1.25rem", marginTop: "1.25rem" }}>
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1rem", marginBottom: "0.75rem" }}>Payment Proof</h2>
@@ -181,7 +177,6 @@ export default function AdminOrderDetailPage() {
         </div>
       )}
 
-      {}
       {activity.length > 0 && (
         <div className="card" style={{ padding: "1.25rem", marginTop: "1.25rem" }}>
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1rem", marginBottom: "0.75rem" }}>Activity Log</h2>
