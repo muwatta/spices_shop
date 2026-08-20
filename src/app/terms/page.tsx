@@ -1,98 +1,21 @@
 import type { Metadata } from "next";
-import Navbar from "@/components/layout/Navbar";
+import InfoPage, { InfoSection } from "@/components/layout/InfoPage";
 
 export const metadata: Metadata = {
   title: "Terms of Service — KMA Spices & Herbs",
   description: "Terms of service for KMA Spices & Herbs online store.",
 };
 
+const sections: InfoSection[] = [
+  { title: "Acceptance of terms", body: "By accessing or using the KMA Spices & Herbs website, you agree to these terms. If you do not agree, please do not use the store." },
+  { title: "Products and information", body: "We work to keep product names, descriptions, images, prices, and stock information accurate. Images are illustrative and packaging or appearance may vary slightly. Products are subject to availability." },
+  { title: "Orders and payment", body: "An order is confirmed after we receive and review it. We accept cash on delivery and bank transfer. Bank transfer orders require valid payment proof. We may cancel an order where an item is unavailable, information is incorrect, or fraud is suspected." },
+  { title: "Delivery", body: "We deliver across Nigeria. Delivery fees and eligibility are shown at checkout. Delivery times are estimates and may vary by location, courier availability, weather, or other circumstances outside our control." },
+  { title: "Returns and refunds", body: "Because our products are food items, returns are generally not accepted after delivery. If an item is damaged or incorrect, contact us within 24 hours with your order number and clear photos so we can review a replacement or refund." },
+  { title: "Responsible use", body: "Product information is provided for shopping guidance and is not medical advice. Follow the instructions on product packaging and consider allergies or dietary requirements before use." },
+  { title: "Contact", body: "Questions about these terms can be sent to kmafoods22@gmail.com or raised through our available customer support channels." },
+];
+
 export default function TermsPage() {
-  return (
-    <>
-      <Navbar />
-      <main className="container" style={{ padding: "4rem 1.5rem", maxWidth: 800, margin: "0 auto" }}>
-        <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2rem", marginBottom: "1.5rem" }}>
-          Terms of Service
-        </h1>
-
-        <p style={{ fontSize: "0.95rem", lineHeight: 1.7, color: "var(--clr-bark-muted)", marginBottom: "1.25rem" }}>
-          Last updated: August 2026
-        </p>
-
-        <section style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "0.75rem" }}>
-            1. Acceptance of Terms
-          </h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: 1.7, color: "var(--clr-bark-muted)" }}>
-            By accessing and using the KMA Spices &amp; Herbs website, you agree to be bound by these Terms of Service.
-            If you do not agree with any part of these terms, please do not use our website.
-          </p>
-        </section>
-
-        <section style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "0.75rem" }}>
-            2. Products
-          </h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: 1.7, color: "var(--clr-bark-muted)" }}>
-            We make every effort to display product descriptions, images, and prices accurately. However, we cannot
-            guarantee that all information is error-free. Product images are for illustration purposes and may differ
-            slightly from the actual product.
-          </p>
-        </section>
-
-        <section style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "0.75rem" }}>
-            3. Orders &amp; Payment
-          </h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: 1.7, color: "var(--clr-bark-muted)" }}>
-            Orders can be placed through our website. We accept bank transfer and cash on delivery as payment methods.
-            Orders are subject to availability and confirmation of the order price. We reserve the right to cancel
-            any order if the product is out of stock or if we suspect fraudulent activity.
-          </p>
-        </section>
-
-        <section style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "0.75rem" }}>
-            4. Delivery
-          </h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: 1.7, color: "var(--clr-bark-muted)" }}>
-            We deliver nationwide across Nigeria. A flat delivery fee of ₦1,500 applies to orders under ₦15,000.
-            Delivery times are estimates and may vary depending on your location. We are not responsible for
-            delays caused by courier services or unforeseen circumstances.
-          </p>
-        </section>
-
-        <section style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "0.75rem" }}>
-            5. Returns &amp; Refunds
-          </h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: 1.7, color: "var(--clr-bark-muted)" }}>
-            Due to the nature of our products (food items), we generally do not accept returns once delivered.
-            If you receive a damaged or incorrect item, please contact us within 24 hours of delivery with
-            photographic evidence, and we will arrange a replacement or refund.
-          </p>
-        </section>
-
-        <section style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "0.75rem" }}>
-            6. Limitation of Liability
-          </h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: 1.7, color: "var(--clr-bark-muted)" }}>
-            KMA Spices &amp; Herbs shall not be liable for any indirect, incidental, or consequential damages
-            arising from the use of our products or website. Our liability is limited to the amount paid for
-            the specific product in question.
-          </p>
-        </section>
-
-        <section style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "0.75rem" }}>
-            7. Contact
-          </h2>
-          <p style={{ fontSize: "0.95rem", lineHeight: 1.7, color: "var(--clr-bark-muted)" }}>
-            For questions about these terms, please reach out via WhatsApp or email us at kmafoods22@gmail.com.
-          </p>
-        </section>
-      </main>
-    </>
-  );
+  return <InfoPage eyebrow="Store policy" title="Terms of Service" intro="The practical terms for using the KMA online store and placing an order." updated="August 2026" sections={sections} contactLabel="Need clarification on a term?" />;
 }

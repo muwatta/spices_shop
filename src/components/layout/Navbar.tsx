@@ -99,14 +99,12 @@ export default function Navbar(): JSX.Element {
 
   useEffect(() => setMounted(true), []);
 
-  // Sticky shrink on scroll
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lock body scroll when drawer/modal open
   useEffect(() => {
     if (menuOpen || showLogoutModal) {
       document.body.style.overflow = "hidden";
@@ -125,7 +123,6 @@ export default function Navbar(): JSX.Element {
     document.body.style.overflow = "";
   }, [menuOpen, showLogoutModal]);
 
-  // Close search dropdown on outside click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
@@ -220,6 +217,8 @@ export default function Navbar(): JSX.Element {
     setMenuOpen(false);
     setShowLogoutModal(true);
   }
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   return (
     <>
@@ -342,14 +341,14 @@ export default function Navbar(): JSX.Element {
           {menuOpen && (
             <>
               <motion.div className="nav__overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMenuOpen(false)} />
-              <motion.div className="nav__drawer" initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "tween", duration: 0.28 }}>
+              <motion.div className="nav__drawer" role="dialog" aria-modal="true" aria-label="Site navigation" initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "tween", duration: 0.28 }}>
                 {/* Header */}
                 <div className="nav__drawer-header">
-                  <Link href="/" className="nav__drawer-brand" onClick={() => setMenuOpen(false)}>
+                  <Link href="/" className="nav__drawer-brand" onClick={closeMenu}>
                     <Image src="/images/logo.jpg" alt="KMA" width={32} height={32} className="nav__drawer-logo" />
                     <span>KMA Spices</span>
                   </Link>
-                  <button onClick={() => setMenuOpen(false)} className="nav__drawer-close" aria-label="Close menu"><Icon.close /></button>
+                  <button onClick={closeMenu} className="nav__drawer-close" aria-label="Close menu"><Icon.close /></button>
                 </div>
 
                 {/* Search */}
@@ -364,7 +363,7 @@ export default function Navbar(): JSX.Element {
                   <div className="nav__drawer-section-label">Categories</div>
                   <div className="nav__drawer-cats">
                     {CATEGORIES.map((cat) => (
-                      <Link key={cat.slug} href={`/shop?category=${cat.slug}`} className="nav__drawer-cat" onClick={() => setMenuOpen(false)}>
+                      <Link key={cat.slug} href={`/shop?category=${cat.slug}`} className={`nav__drawer-cat ${pathname === "/shop" && typeof window !== "undefined" && window.location.search.includes(`category=${cat.slug}`) ? "nav__drawer-cat--active" : ""}`} onClick={closeMenu} aria-current={pathname === "/shop" && typeof window !== "undefined" && window.location.search.includes(`category=${cat.slug}`) ? "page" : undefined}>
                         {cat.label}
                       </Link>
                     ))}
@@ -373,27 +372,35 @@ export default function Navbar(): JSX.Element {
                   {/* Quick links */}
                   <div className="nav__drawer-section-label">Quick Links</div>
                   <nav className="nav__drawer-links">
-                    <Link href="/shop" onClick={() => setMenuOpen(false)}>
+                    <Link href="/shop" className={pathname === "/shop" && !(typeof window !== "undefined" && window.location.search.includes("category=")) ? "nav__drawer-link--active" : ""} onClick={closeMenu} aria-current={pathname === "/shop" && !(typeof window !== "undefined" && window.location.search.includes("category=")) ? "page" : undefined}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                       All Products
                     </Link>
                     {user ? (
                       <>
-                        <Link href="/account/orders" onClick={() => setMenuOpen(false)}>
+                        <Link href="/account/orders" className={pathname.startsWith("/account/orders") ? "nav__drawer-link--active" : ""} onClick={closeMenu} aria-current={pathname.startsWith("/account/orders") ? "page" : undefined}>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                           My Orders
                         </Link>
-                        <Link href="/account/profile" onClick={() => setMenuOpen(false)}>
+                        <Link href="/account/profile" className={pathname.startsWith("/account/profile") ? "nav__drawer-link--active" : ""} onClick={closeMenu} aria-current={pathname.startsWith("/account/profile") ? "page" : undefined}>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                           My Account
                         </Link>
                       </>
                     ) : (
-                      <Link href="/login" onClick={() => setMenuOpen(false)}>
+                      <Link href="/login" onClick={closeMenu}>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                         Login / Sign Up
                       </Link>
                     )}
+                  </nav>
+
+                  <div className="nav__drawer-section-label">Information</div>
+                  <nav className="nav__drawer-links">
+                    <Link href="/faq" className={pathname === "/faq" ? "nav__drawer-link--active" : ""} onClick={closeMenu} aria-current={pathname === "/faq" ? "page" : undefined}>FAQs</Link>
+                    <Link href="/about" className={pathname === "/about" ? "nav__drawer-link--active" : ""} onClick={closeMenu} aria-current={pathname === "/about" ? "page" : undefined}>About KMA</Link>
+                    <Link href="/terms" onClick={closeMenu}>Terms of Service</Link>
+                    <Link href="/privacy" onClick={closeMenu}>Privacy Policy</Link>
                   </nav>
                 </div>
 

@@ -1,11 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { checkRateLimit, getRateLimitIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
 function normalizeText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
 export async function POST(request: Request) {
+  const limited = rateLimitResponse(
+    await checkRateLimit("checkout", getRateLimitIdentifier(request)),
+  );
+  if (limited) return limited;
+
   const supabase = createClient();
 
   const {
@@ -83,9 +89,35 @@ export async function POST(request: Request) {
     );
   }
 
-  // Fetch all products to validate stock and prices (service role bypasses RLS)
+  // Prefer the database transaction when the checkout migration is installed.
   const { createAdminClient } = await import("@/lib/supabase/server");
   const admin = createAdminClient();
+
+  const { data: atomicOrder, error: atomicError } = await admin.rpc("process_checkout", {
+    p_user_id: user.id,
+    p_full_name: full_name,
+    p_phone: phone,
+    p_address_line1: address_line1,
+    p_address_line2: address_line2,
+    p_city: city,
+    p_state: state,
+    p_postal_code: postal_code,
+    p_account_number: account_number,
+    p_payment_method: payment_method,
+    p_payment_proof_url: payment_proof_url,
+    p_items: Object.entries(orderQuantities).map(([product_id, quantity]) => ({ product_id, quantity })),
+  });
+
+  if (!atomicError && atomicOrder) {
+    return NextResponse.json({ order: atomicOrder });
+  }
+
+  if (atomicError) {
+    const message = atomicError.message.toLowerCase();
+    if (message.includes("insufficient stock") || message.includes("product") || message.includes("invalid quantity")) {
+      return NextResponse.json({ error: atomicError.message }, { status: 400 });
+    }
+  }
 
   const { data: products, error: productError } = await admin
     .from("products")

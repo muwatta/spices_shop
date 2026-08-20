@@ -60,12 +60,15 @@ async function getProducts(
   const { data, count, error } = await query;
 
   if (error) {
-    const fallback = supabase
+    let fallback = supabase
       .from("products")
-      .select("id, name, price, image_url, images, stock, description, created_at, low_stock_threshold", { count: "exact" })
+      .select("id, name, price, image_url, stock, description, created_at", { count: "exact" });
+    if (search) {
+      fallback = fallback.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+    }
+    const { data: fbData, count: fbCount } = await fallback
       .order("created_at", { ascending: false })
       .range(from, to);
-    const { data: fbData, count: fbCount } = await fallback;
     return { products: (fbData ?? []) as Product[], total: fbCount ?? 0 };
   }
 

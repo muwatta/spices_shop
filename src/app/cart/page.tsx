@@ -205,6 +205,16 @@ export default function CartPage() {
             </span>
           </h1>
 
+          <div className="cart-progress" role="status">
+            <div className="cart-progress__copy">
+              <strong>{delivery.free ? "Free delivery unlocked" : `Add ${formatNaira(delivery.remaining)} for free delivery`}</strong>
+              <span>{delivery.free ? "Your order qualifies for free delivery." : "Keep shopping to reach the free delivery threshold."}</span>
+            </div>
+            <div className="cart-progress__track" aria-hidden="true">
+              <span style={{ width: `${Math.min(100, (totalPrice / 15000) * 100)}%` }} />
+            </div>
+          </div>
+
           <div className="cart-layout">
             {/* Cart items */}
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>

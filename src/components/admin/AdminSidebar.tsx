@@ -73,6 +73,7 @@ export default function AdminSidebar() {
             onClick={() => setOpen(true)}
             aria-label="Open menu"
             aria-expanded={open}
+            aria-controls="admin-navigation"
           >
             <Menu size={20} />
           </button>
@@ -89,7 +90,7 @@ export default function AdminSidebar() {
         aria-hidden="true"
       />
 
-      <aside className={`admin-sidebar ${open ? "admin-sidebar--open" : ""}`} aria-label="Admin navigation">
+      <aside id="admin-navigation" className={`admin-sidebar ${open ? "admin-sidebar--open" : ""}`} aria-label="Admin navigation">
         <div className="admin-sidebar__header">
           <Link href="/admin" className="admin-sidebar__brand" onClick={close}>
             <Image src="/images/logo.jpg" alt="KMA" width={32} height={32} style={{ borderRadius: "var(--radius-md)" }} />
@@ -115,6 +116,7 @@ export default function AdminSidebar() {
                     href={item.href}
                     onClick={close}
                     className={`admin-sidebar__link ${isActive ? "admin-sidebar__link--active" : ""}`}
+                    aria-current={isActive ? "page" : undefined}
                   >
                     <span className="admin-sidebar__icon">
                       <item.icon size={18} />

@@ -14,6 +14,13 @@ interface Stats {
   pendingOrders: number;
 }
 
+interface RecentOrder {
+  id: string;
+  status: string;
+  total_amount: number;
+  created_at: string;
+}
+
 export default function AccountOverviewPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -22,6 +29,8 @@ export default function AccountOverviewPage() {
     totalSpent: 0,
     pendingOrders: 0,
   });
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     const supabase = createClient();
@@ -36,6 +45,8 @@ export default function AccountOverviewPage() {
         return;
       }
 
+      setEmail(user.email ?? "");
+
       const { data: ordersData } = await supabase
         .from("orders")
         .select("status, total_amount")
@@ -48,6 +59,13 @@ export default function AccountOverviewPage() {
         ordersData?.filter((order) => order.status === "pending").length || 0;
 
       setStats({ totalOrders, totalSpent, pendingOrders });
+      const { data: latestOrders } = await supabase
+        .from("orders")
+        .select("id, status, total_amount, created_at")
+        .eq("customer_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(3);
+      setRecentOrders((latestOrders ?? []) as RecentOrder[]);
       setLoading(false);
     }
 
@@ -86,6 +104,7 @@ export default function AccountOverviewPage() {
           <p style={{ color: "var(--clr-muted)", marginTop: "0.5rem" }}>
             Your account summary and quick actions.
           </p>
+          {email && <p className="account-overview__email">Signed in as {email}</p>}
         </div>
 
         <div
@@ -151,6 +170,34 @@ export default function AccountOverviewPage() {
             Update Profile
           </Link>
         </div>
+
+        <section className="account-overview__recent" aria-labelledby="recent-orders-heading">
+          <div className="account-overview__section-heading">
+            <div>
+              <p className="section-eyebrow">Your activity</p>
+              <h2 id="recent-orders-heading">Recent orders</h2>
+            </div>
+            <Link href="/account/orders">See all</Link>
+          </div>
+          {recentOrders.length === 0 ? (
+            <p className="account-overview__empty">Your recent orders will appear here after checkout.</p>
+          ) : (
+            <div className="account-overview__orders">
+              {recentOrders.map((order) => (
+                <Link href={`/account/orders/${order.id}`} key={order.id} className="account-overview__order">
+                  <span>
+                    <strong>#{order.id.slice(0, 8).toUpperCase()}</strong>
+                    <small>{new Date(order.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</small>
+                  </span>
+                  <span>
+                    <strong>{formatNaira(order.total_amount)}</strong>
+                    <small className={`account-overview__status account-overview__status--${order.status}`}>{order.status.replaceAll("_", " ")}</small>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </PageTransition>
   );

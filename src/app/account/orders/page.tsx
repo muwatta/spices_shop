@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatNaira } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ReorderButton from "@/components/account/ReorderButton";
 
 function OrdersContent() {
   const router = useRouter();
@@ -180,12 +181,10 @@ function OrdersContent() {
                       </span>
                     </td>
                     <td style={{ padding: "0.875rem 1rem" }}>
-                      <Link
-                        href={`/account/orders/${order.id}`}
-                        className="btn btn-ghost btn-sm"
-                      >
-                        View
-                      </Link>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                        <Link href={`/account/orders/${order.id}`} className="btn btn-ghost btn-sm">View</Link>
+                        <ReorderButton orderId={order.id} />
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -253,6 +252,7 @@ function OrdersContent() {
                   >
                     View order
                   </Link>
+                  <ReorderButton orderId={order.id} />
                 </div>
               </article>
             ))}

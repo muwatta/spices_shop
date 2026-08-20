@@ -21,15 +21,39 @@ function ResetPasswordContent() {
   const accessToken = searchParams.get("access_token");
 
   useEffect(() => {
-    if (type === "recovery" && accessToken) {
-      setReady(true);
-    } else {
-      setMessage({
-        text: "The password reset link is invalid or has expired.",
-        type: "error",
-      });
+    const supabase = createClient();
+    let active = true;
+
+    async function prepareRecovery() {
+      if (type === "recovery" && accessToken) {
+        const refreshToken = searchParams.get("refresh_token");
+        if (refreshToken) {
+          const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+          if (!error && active) setReady(true);
+          return;
+        }
+        if (active) setReady(true);
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (active && session) {
+        setReady(true);
+        return;
+      }
+
+      if (active) setMessage({ text: "The password reset link is invalid or has expired.", type: "error" });
     }
-  }, [type, accessToken]);
+
+    prepareRecovery();
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+      if (active && event === "PASSWORD_RECOVERY") setReady(true);
+    });
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, [type, accessToken, searchParams]);
 
   async function handleUpdatePassword(e: React.FormEvent) {
     e.preventDefault();
