@@ -8,30 +8,30 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: {
-    default: "KMA Spices & Herbs - Premium Nigerian Spices",
+    default: "KMA Spices & Herbs — Premium Nigerian Spices",
     template: "%s | KMA Spices & Herbs",
   },
   description:
-    "Premium Nigerian spices and seasonings for everyday cooking. 100% natural, freshly packed. Curry, thyme, ginger, pepper, and more. Order with bank transfer or cash on delivery.",
+    "Shop 100% natural Nigerian spices, herbs, and seasonings. Curry, thyme, ginger, pepper, and more. Bank transfer or cash on delivery across Nigeria.",
   keywords: [
     "Nigerian spices",
-    "curry powder",
+    "buy spices online Nigeria",
+    "curry powder Nigeria",
     "thyme",
     "ginger powder",
     "garlic powder",
     "black pepper",
-    "paprika",
     "turmeric",
-    "seasoning",
     "suya spice",
     "pepper soup spice",
     "jollof seasoning",
     "chicken seasoning",
+    "natural spices Lagos",
   ],
   openGraph: {
-    title: "KMA Spices & Herbs",
+    title: "KMA Spices & Herbs — Premium Nigerian Spices",
     description:
-      "Premium Nigerian spices and seasonings for everyday cooking. 100% natural, freshly packed.",
+      "100% natural Nigerian spices, herbs, and seasonings. Curry, thyme, ginger, pepper & more. Bank transfer or cash on delivery.",
     type: "website",
     locale: "en_NG",
     siteName: "KMA Spices & Herbs",
