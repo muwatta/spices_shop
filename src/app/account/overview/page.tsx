@@ -59,12 +59,14 @@ export default function AccountOverviewPage() {
         ordersData?.filter((order) => order.status === "pending").length || 0;
 
       setStats({ totalOrders, totalSpent, pendingOrders });
+
       const { data: latestOrders } = await supabase
         .from("orders")
         .select("id, status, total_amount, created_at")
         .eq("customer_id", user.id)
         .order("created_at", { ascending: false })
         .limit(3);
+
       setRecentOrders((latestOrders ?? []) as RecentOrder[]);
       setLoading(false);
     }
@@ -75,17 +77,15 @@ export default function AccountOverviewPage() {
   if (loading) {
     return (
       <PageTransition>
-        <div className="card" style={{ padding: "2rem" }}>
-          <div style={{ marginBottom: "1.5rem" }}>
-            <Skeleton
-              style={{ width: "220px", height: "28px", marginBottom: "1rem" }}
-            />
-            <Skeleton style={{ width: "160px", height: "16px" }} />
+        <div className="ov">
+          <div className="ov__head">
+            <Skeleton style={{ width: "180px", height: "28px", marginBottom: "0.75rem" }} />
+            <Skeleton style={{ width: "140px", height: "16px" }} />
           </div>
-          <div className="skeleton-grid" style={{ gap: "1rem" }}>
-            <Skeleton className="skeleton-panel" />
-            <Skeleton className="skeleton-panel" />
-            <Skeleton className="skeleton-panel" />
+          <div className="ov__stats">
+            <Skeleton className="ov__stat-skel" />
+            <Skeleton className="ov__stat-skel" />
+            <Skeleton className="ov__stat-skel" />
           </div>
         </div>
       </PageTransition>
@@ -94,105 +94,56 @@ export default function AccountOverviewPage() {
 
   return (
     <PageTransition>
-      <div className="card" style={{ padding: "2rem" }}>
-        <div style={{ marginBottom: "1.5rem" }}>
-          <h1
-            style={{ fontFamily: "var(--font-display)", fontSize: "1.75rem" }}
-          >
-            Overview
-          </h1>
-          <p style={{ color: "var(--clr-muted)", marginTop: "0.5rem" }}>
-            Your account summary and quick actions.
-          </p>
-          {email && <p className="account-overview__email">Signed in as {email}</p>}
+      <div className="ov">
+        {/* Header */}
+        <div className="ov__head">
+          <h1 className="ov__title">Overview</h1>
+          <p className="ov__sub">Your account summary and quick actions.</p>
+          {email && <span className="ov__email">{email}</span>}
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gap: "1rem",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            marginBottom: "1.5rem",
-          }}
-        >
-          <div
-            className="card"
-            style={{ padding: "1.25rem", textAlign: "center" }}
-          >
-            <div
-              style={{
-                fontSize: "2rem",
-                fontWeight: 700,
-                color: "var(--clr-terracotta)",
-              }}
-            >
-              {stats.totalOrders}
-            </div>
-            <div style={{ color: "var(--clr-muted)" }}>Total Orders</div>
+        {/* Stats grid */}
+        <div className="ov__stats">
+          <div className="ov__stat ov__stat--orders">
+            <span className="ov__stat-num">{stats.totalOrders}</span>
+            <span className="ov__stat-label">Total Orders</span>
           </div>
-          <div
-            className="card"
-            style={{ padding: "1.25rem", textAlign: "center" }}
-          >
-            <div
-              style={{
-                fontSize: "2rem",
-                fontWeight: 700,
-                color: "var(--clr-bark)",
-              }}
-            >
-              {formatNaira(stats.totalSpent)}
-            </div>
-            <div style={{ color: "var(--clr-muted)" }}>Total Spent</div>
+          <div className="ov__stat ov__stat--spent">
+            <span className="ov__stat-num">{formatNaira(stats.totalSpent)}</span>
+            <span className="ov__stat-label">Total Spent</span>
           </div>
-          <div
-            className="card"
-            style={{ padding: "1.25rem", textAlign: "center" }}
-          >
-            <div
-              style={{
-                fontSize: "2rem",
-                fontWeight: 700,
-                color: "var(--clr-chili)",
-              }}
-            >
-              {stats.pendingOrders}
-            </div>
-            <div style={{ color: "var(--clr-muted)" }}>Pending Orders</div>
+          <div className="ov__stat ov__stat--pending">
+            <span className="ov__stat-num">{stats.pendingOrders}</span>
+            <span className="ov__stat-label">Pending</span>
           </div>
         </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
-          <Link href="/account/orders" className="btn btn-primary">
-            View Orders
-          </Link>
-          <Link href="/account/profile" className="btn btn-outline">
-            Update Profile
-          </Link>
+        {/* Quick actions */}
+        <div className="ov__actions">
+          <Link href="/account/orders" className="btn btn-primary btn-sm">View Orders</Link>
+          <Link href="/account/profile" className="btn btn-outline btn-sm">Update Profile</Link>
         </div>
 
-        <section className="account-overview__recent" aria-labelledby="recent-orders-heading">
-          <div className="account-overview__section-heading">
-            <div>
-              <p className="section-eyebrow">Your activity</p>
-              <h2 id="recent-orders-heading">Recent orders</h2>
-            </div>
-            <Link href="/account/orders">See all</Link>
+        {/* Recent orders */}
+        <section className="ov__recent" aria-labelledby="recent-heading">
+          <div className="ov__recent-head">
+            <h2 id="recent-heading">Recent orders</h2>
+            <Link href="/account/orders" className="ov__see-all">See all</Link>
           </div>
           {recentOrders.length === 0 ? (
-            <p className="account-overview__empty">Your recent orders will appear here after checkout.</p>
+            <p className="ov__empty">Your recent orders will appear here after checkout.</p>
           ) : (
-            <div className="account-overview__orders">
+            <div className="ov__orders">
               {recentOrders.map((order) => (
-                <Link href={`/account/orders/${order.id}`} key={order.id} className="account-overview__order">
-                  <span>
+                <Link href={`/account/orders/${order.id}`} key={order.id} className="ov__order">
+                  <div className="ov__order-left">
                     <strong>#{order.id.slice(0, 8).toUpperCase()}</strong>
-                    <small>{new Date(order.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</small>
-                  </span>
-                  <span>
+                    <span>{new Date(order.created_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}</span>
+                  </div>
+                  <div className="ov__order-right">
                     <strong>{formatNaira(order.total_amount)}</strong>
-                    <small className={`account-overview__status account-overview__status--${order.status}`}>{order.status.replaceAll("_", " ")}</small>
-                  </span>
+                    <span className={`ov__status ov__status--${order.status}`}>{order.status.replaceAll("_", " ")}</span>
+                  </div>
                 </Link>
               ))}
             </div>
