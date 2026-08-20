@@ -48,7 +48,6 @@ export async function proxy(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  // Skip auth routes — never redirect these
   const isAuthRoute =
     path.startsWith("/admin-login") ||
     path.startsWith("/login") ||
@@ -59,7 +58,6 @@ export async function proxy(request: NextRequest) {
 
   if (isAuthRoute) return supabaseResponse;
 
-  // Protect admin routes
   if (path.startsWith("/admin")) {
     const email = user?.email?.toLowerCase() ?? "";
     if (!user || !adminEmails.includes(email)) {
@@ -70,7 +68,6 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Protect account routes
   if (path.startsWith("/account")) {
     if (!user) {
       const url = request.nextUrl.clone();

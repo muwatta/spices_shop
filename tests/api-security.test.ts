@@ -1,9 +1,4 @@
-/**
- * API Security Tests
- *
- * Tests that sensitive endpoints properly enforce authentication and authorization.
- * Uses mocked Supabase client to avoid database dependencies.
- */
+
 
 jest.mock("@/lib/supabase/server", () => ({
   createClient: jest.fn(),

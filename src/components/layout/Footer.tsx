@@ -41,7 +41,7 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer__top">
-        {/* Brand */}
+        {}
         <div className="footer__col footer__col--brand">
           <div className="footer__logo-row">
             <Image src="/images/logo.jpg" alt="KMA Spices" width={36} height={36} loading="lazy" className="footer__logo" />
@@ -71,7 +71,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Shop */}
+        {}
         <div className="footer__col">
           <button className="footer__accordion-toggle" onClick={() => toggle("shop")} aria-expanded={openAccordion === "shop"}>
             <h4 className="footer__heading">Shop</h4>
@@ -85,7 +85,7 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Help */}
+        {}
         <div className="footer__col">
           <button className="footer__accordion-toggle" onClick={() => toggle("help")} aria-expanded={openAccordion === "help"}>
             <h4 className="footer__heading">Help</h4>
@@ -103,7 +103,7 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Company */}
+        {}
         <div className="footer__col">
           <button className="footer__accordion-toggle" onClick={() => toggle("company")} aria-expanded={openAccordion === "company"}>
             <h4 className="footer__heading">Company</h4>

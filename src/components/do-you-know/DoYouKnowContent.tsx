@@ -7,7 +7,6 @@ import Link from "next/link";
 const now = new Date().toISOString();
 
 const defaultSpiceItems: DoYouKnowItem[] = [
-  // ... your full defaultSpiceItems array (9 items) ...
 ];
 
 async function getDoYouKnowItems(): Promise<DoYouKnowItem[]> {

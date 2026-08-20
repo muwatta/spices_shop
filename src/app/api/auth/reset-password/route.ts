@@ -43,7 +43,6 @@ export async function POST(request: Request) {
     options: { redirectTo: `${origin}/auth/callback?next=/reset-password` },
   });
 
-  // Keep unknown addresses indistinguishable from valid ones.
   if (error || !data?.properties?.action_link) return genericResponse;
 
   const { Resend } = await import("resend");

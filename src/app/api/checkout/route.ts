@@ -79,7 +79,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Aggregate duplicate product IDs
   const orderQuantities: Record<string, number> = {};
   for (const item of items) {
     const productId = normalizeText(item.product_id);
@@ -96,7 +95,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Prefer the database transaction when the checkout migration is installed.
   const { createAdminClient } = await import("@/lib/supabase/server");
   const admin = createAdminClient();
 

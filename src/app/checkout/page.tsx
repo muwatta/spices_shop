@@ -319,7 +319,7 @@ function CheckoutContent() {
               className="checkout-layout"
             >
               <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                {/* Delivery Details */}
+                {}
                 <motion.div variants={fadeInUp} className="card" style={{ padding: "1.75rem", borderRadius: "1.25rem", boxShadow: "var(--shadow-md)" }}>
                   <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "1.5rem" }}>
                     Delivery Details
@@ -374,7 +374,7 @@ function CheckoutContent() {
                   </div>
                 </motion.div>
 
-                {/* Payment Method */}
+                {}
                 <motion.div variants={fadeInUp} className="card" style={{ padding: "1.75rem", borderRadius: "1.25rem", boxShadow: "var(--shadow-md)" }}>
                   <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", marginBottom: "1.5rem" }}>
                     Payment Method
@@ -453,27 +453,7 @@ function CheckoutContent() {
                           <input
                             id="proof-upload"
                             type="file"
-                            accept="image/*,.pdf"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0] || null;
-                              setProofFile(file);
-                              if (file && (file.size > 5 * 1024 * 1024 || (!file.type.startsWith("image/") && file.type !== "application/pdf"))) {
-                                setError("Payment proof must be a JPG, PNG, WEBP, or PDF file under 5 MB.");
-                              } else {
-                                setError("");
-                              }
-                            }}
-                            className="form-input"
-                            style={{ padding: "0.5rem" }}
-                          />
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              </div>
-
-              {/* Right: Order Summary */}
+                            accept="image}
               <motion.div
                 variants={fadeInUp}
                 className="card order-summary"

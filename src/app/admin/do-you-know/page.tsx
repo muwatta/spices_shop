@@ -87,7 +87,6 @@ export default function AdminDoYouKnowPage() {
       return;
     }
 
-    // Refresh the list
     const { data, error } = await supabase
       .from("do_you_know_items")
       .select("*")

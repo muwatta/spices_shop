@@ -80,7 +80,6 @@ export async function PUT(
 
   const adminClient = createAdminClient();
 
-  // Get current order for activity log
   const { data: current } = await adminClient
     .from("orders")
     .select("status, payment_status")
@@ -101,7 +100,6 @@ export async function PUT(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Log activity
     const activities: Array<{
       order_id: string;
       action: string;

@@ -160,7 +160,6 @@ export default function Navbar(): JSX.Element {
     fetchUser();
   }, [supabase]);
 
-  // Live search with debounce
   const handleSearchInput = useCallback((value: string) => {
     setSearchTerm(value);
     if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
@@ -222,7 +221,7 @@ export default function Navbar(): JSX.Element {
     <>
       <AnnouncementBar />
 
-      {/* Main nav row */}
+      {}
       <MotionNav
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -276,7 +275,7 @@ export default function Navbar(): JSX.Element {
                 </button>
               </form>
 
-              {/* Search suggestions dropdown */}
+              {}
               {searchFocused && (searchResults.length > 0 || searchLoading) && (
                 <div className="nav__search-dropdown" role="listbox" aria-label="Search suggestions">
                   {searchLoading && <div className="nav__search-loading">Searching...</div>}
@@ -323,13 +322,13 @@ export default function Navbar(): JSX.Element {
           </div>
         </div>
 
-        {/* Mobile Drawer */}
+        {}
         <AnimatePresence>
           {menuOpen && (
             <>
               <motion.div className="nav__overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMenuOpen(false)} />
               <motion.div className="nav__drawer" role="dialog" aria-modal="true" aria-label="Site navigation" initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }} transition={{ type: "tween", duration: 0.28 }}>
-                {/* Header */}
+                {}
                 <div className="nav__drawer-header">
                   <Link href="/" className="nav__drawer-brand" onClick={closeMenu}>
                     <Image src="/images/logo.jpg" alt="KMA" width={32} height={32} className="nav__drawer-logo" />
@@ -338,15 +337,15 @@ export default function Navbar(): JSX.Element {
                   <button onClick={closeMenu} className="nav__drawer-close" aria-label="Close menu"><Icon.close /></button>
                 </div>
 
-                {/* Search */}
+                {}
                 <form onSubmit={handleSearchSubmit} className="nav__drawer-search">
                   <Icon.search />
                   <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search products..." />
                 </form>
 
-                {/* Scrollable content */}
+                {}
                 <div className="nav__drawer-body">
-                  {/* Category tiles */}
+                  {}
                   <div className="nav__drawer-section-label">Categories</div>
                   <div className="nav__drawer-cats">
                     {CATEGORIES.map((cat) => (
@@ -356,7 +355,7 @@ export default function Navbar(): JSX.Element {
                     ))}
                   </div>
 
-                  {/* Quick links */}
+                  {}
                   <div className="nav__drawer-section-label">Quick Links</div>
                   <nav className="nav__drawer-links">
                     <Link href="/shop" className={pathname === "/shop" && !(typeof window !== "undefined" && window.location.search.includes("category=")) ? "nav__drawer-link--active" : ""} onClick={closeMenu} aria-current={pathname === "/shop" && !(typeof window !== "undefined" && window.location.search.includes("category=")) ? "page" : undefined}>
@@ -391,7 +390,7 @@ export default function Navbar(): JSX.Element {
                   </nav>
                 </div>
 
-                {/* Footer */}
+                {}
                 {user && (
                   <div className="nav__drawer-footer">
                     <button onClick={requestLogout} className="nav__drawer-logout-btn">

@@ -5,7 +5,6 @@ import { checkRateLimit, getRateLimitIdentifier, rateLimitResponse } from "@/lib
 const VALID_STATUSES = ["pending", "confirmed", "delivered", "cancelled"] as const;
 
 export async function POST(request: Request) {
-  // Rate limit
   const rlId = getRateLimitIdentifier(request);
   const rl = await checkRateLimit("send-order-email", rlId);
   const rlResp = rateLimitResponse(rl);
@@ -47,7 +46,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Fetch the order and verify ownership using the user's own session (RLS applies)
   const { data: order, error: orderError } = await supabase
     .from("orders")
     .select("id, customer_id, status, customers(full_name, email)")
@@ -61,7 +59,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Verify the authenticated user owns this order
   if (order.customer_id !== user.id) {
     return NextResponse.json(
       { error: "Forbidden" },

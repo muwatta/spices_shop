@@ -17,7 +17,6 @@ export async function POST(request: Request) {
 
   const adminClient = createAdminClient();
 
-  // Calculate total and fetch product prices
   let total_amount = 0;
   for (const item of items) {
     const { data: product, error: productError } = await adminClient
@@ -35,7 +34,6 @@ export async function POST(request: Request) {
     total_amount += product.price * item.quantity;
   }
 
-  // Create order
   const { data: order, error: orderError } = await adminClient
     .from("orders")
     .insert({
@@ -53,9 +51,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: orderError.message }, { status: 500 });
   }
 
-  // Insert order items
   for (const item of items) {
-    // Fetch product price again (or reuse from earlier loop – but we can re‑fetch for simplicity)
     const { data: product, error: productError } = await adminClient
       .from("products")
       .select("price")
@@ -63,7 +59,6 @@ export async function POST(request: Request) {
       .single();
 
     if (productError || !product) {
-      // Rollback? For simplicity, return error
       return NextResponse.json(
         { error: `Product ${item.product_id} not found during item insertion` },
         { status: 404 },

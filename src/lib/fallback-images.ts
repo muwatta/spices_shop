@@ -1,7 +1,4 @@
-/**
- * Maps product names to available local images in public/images/.
- * Used as a fallback when a product has no image_url in the database.
- */
+
 
 const IMAGE_FALLBACKS: { pattern: RegExp; image: string }[] = [
   { pattern: /cardamom/i,          image: "/images/cardamom.jpg" },

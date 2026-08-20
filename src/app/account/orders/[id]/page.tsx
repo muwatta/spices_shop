@@ -69,7 +69,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
             </div>
           ) : (
             <div style={{ maxWidth: "780px", margin: "0 auto" }}>
-              {/* ── Success confirmation banner ── */}
+              {}
               {isSuccess && (
                 <div
                   style={{
@@ -131,9 +131,9 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                 </div>
               )}
 
-              {/* ── Printable receipt area ── */}
+              {}
               <div id="print-receipt">
-                {/* Print-only header */}
+                {}
                 <div
                   className="print-only"
                   style={{
@@ -172,7 +172,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                   <hr style={{ margin: "1rem 0" }} />
                 </div>
 
-                {/* Header with status */}
+                {}
                 <div
                   style={{
                     display: "flex",
@@ -231,7 +231,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                   </div>
                 </div>
 
-                {/* Progress tracker */}
+                {}
                 {order.status !== "cancelled" && (
                   <div
                     className="card no-print"
@@ -332,7 +332,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                   </div>
                 )}
 
-                {/* Order items */}
+                {}
                 <div
                   className="card"
                   style={{
@@ -494,7 +494,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                   </div>
                 </div>
 
-                {/* Order meta */}
+                {}
                 <div
                   className="card"
                   style={{ padding: "1.5rem", borderRadius: "1.25rem" }}
@@ -565,7 +565,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                       ))}
                   </div>
 
-                  {/* Print-only footer */}
+                  {}
                   <div
                     className="print-only"
                     style={{
@@ -585,7 +585,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
                 </div>
               </div>
 
-              {/* Bottom actions */}
+              {}
               <div
                 className="no-print"
                 style={{

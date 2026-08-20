@@ -1,16 +1,9 @@
--- Migration 005: Add product status + low_stock_threshold + order payment_status
--- Run this in Supabase SQL Editor
 
--- Product status model: active, out_of_stock, draft, archived
 ALTER TABLE products ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'active';
 ALTER TABLE products ADD COLUMN IF NOT EXISTS low_stock_threshold integer NOT NULL DEFAULT 5;
 
--- Order payment_status (separate from order status)
--- For COD: pending -> confirmed -> delivered -> paid
--- For bank_transfer: pending -> verified -> processing -> delivered
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status text NOT NULL DEFAULT 'pending';
 
--- Order activity log
 CREATE TABLE IF NOT EXISTS order_activity (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   order_id uuid NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
@@ -24,7 +17,6 @@ CREATE TABLE IF NOT EXISTS order_activity (
 
 ALTER TABLE order_activity ENABLE ROW LEVEL SECURITY;
 
--- Admins can manage order activity
 CREATE POLICY "Admins can manage order activity"
   ON order_activity
   FOR ALL
@@ -41,7 +33,6 @@ CREATE POLICY "Admins can manage order activity"
     )
   );
 
--- Index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
 CREATE INDEX IF NOT EXISTS idx_orders_payment_status ON orders(payment_status);
 CREATE INDEX IF NOT EXISTS idx_order_activity_order_id ON order_activity(order_id);

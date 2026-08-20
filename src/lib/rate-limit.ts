@@ -1,8 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-// Rate limit configurations per endpoint.
-// These are intentionally conservative for a small e-commerce site.
 const RATE_LIMITS: Record<string, { maxRequests: number; windowSeconds: number }> = {
   "send-order-email":        { maxRequests: 5,   windowSeconds: 60 },      // 5 per minute
   "send-password-change-email": { maxRequests: 3, windowSeconds: 300 },   // 3 per 5 min
@@ -15,13 +13,7 @@ const RATE_LIMITS: Record<string, { maxRequests: number; windowSeconds: number }
 
 type RateLimitResult = { allowed: true } | { allowed: false; retryAfter: number };
 
-/**
- * Check rate limit for a given endpoint and identifier.
- * Returns { allowed: true } or { allowed: false, retryAfter }.
- *
- * @param endpoint - must match a key in RATE_LIMITS
- * @param identifier - typically IP address or user ID
- */
+
 export async function checkRateLimit(
   endpoint: string,
   identifier: string,
@@ -39,8 +31,6 @@ export async function checkRateLimit(
     });
 
     if (error) {
-      // If the rate limit table/function doesn't exist yet (migration pending),
-      // fail open — allow the request rather than blocking legitimate users.
       console.warn("Rate limit check failed (failing open):", error.message);
       return { allowed: true };
     }
@@ -51,15 +41,11 @@ export async function checkRateLimit(
 
     return { allowed: true };
   } catch {
-    // Fail open on unexpected errors
     return { allowed: true };
   }
 }
 
-/**
- * Extract a rate-limit identifier from a Request.
- * Uses X-Forwarded-For IP (Vercel sets this) or falls back to a generic string.
- */
+
 export function getRateLimitIdentifier(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
@@ -68,10 +54,7 @@ export function getRateLimitIdentifier(request: Request): string {
   return "unknown";
 }
 
-/**
- * If rate limited, return a NextResponse with 429 status.
- * Otherwise return null.
- */
+
 export function rateLimitResponse(result: RateLimitResult): NextResponse | null {
   if (result.allowed) return null;
   return NextResponse.json(

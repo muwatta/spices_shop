@@ -124,7 +124,6 @@ async function getDoYouKnowItems(): Promise<DoYouKnowItem[]> {
   return data as DoYouKnowItem[];
 }
 
-// This component does the actual data fetching and rendering
 async function DoYouKnowContent() {
   const items = await getDoYouKnowItems();
 
@@ -207,7 +206,6 @@ async function DoYouKnowContent() {
   );
 }
 
-// The main page component – uses Suspense to show a skeleton while loading
 export default function DoYouKnowPage() {
   return (
     <>

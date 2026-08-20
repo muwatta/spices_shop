@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
-  // Require authenticated user
   const supabase = createClient();
   const {
     data: { user },
@@ -27,7 +26,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Users can only check their own admin status
   if (user.email?.toLowerCase() !== requestedEmail) {
     return NextResponse.json(
       { error: "Forbidden" },

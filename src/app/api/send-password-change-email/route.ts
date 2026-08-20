@@ -8,7 +8,6 @@ export async function POST(request: Request) {
   const rlResp = rateLimitResponse(rl);
   if (rlResp) return rlResp;
 
-  // Require authenticated user (check before API key to avoid leaking config state)
   const supabase = createClient();
   const {
     data: { user },

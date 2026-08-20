@@ -84,7 +84,6 @@ async function getCurrentUser() {
   }
 }
 
-// ============ UNAUTHORIZED RECORDING ============
 export async function recordUnauthorizedAttempt({
   email,
   action,
@@ -177,7 +176,6 @@ async function sendDeveloperAlert(details: {
   }
 }
 
-// ============ ADMIN CHECKS ============
 export async function requireAdmin(
   request: Request,
 ): Promise<NextResponse | null> {

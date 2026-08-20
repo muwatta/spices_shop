@@ -196,7 +196,7 @@ export default function ManualOrderPage() {
         )}
       </div>
 
-      {/* Customer selection card */}
+      {}
       <div className={`card ${styles.customerCard}`}>
         <h2 className={styles.cardTitle}> Customer</h2>
         <div className={styles.searchContainer}>
@@ -244,7 +244,7 @@ export default function ManualOrderPage() {
         </div>
       </div>
 
-      {/* New customer modal inline */}
+      {}
       {showNewCustomerForm && (
         <div className={`card ${styles.newCustomerCard}`}>
           <h3 className={styles.newCustomerTitle}>Create New Customer</h3>
@@ -309,10 +309,10 @@ export default function ManualOrderPage() {
         </div>
       )}
 
-      {/* Products & cart grid (if customer selected) */}
+      {}
       {selectedCustomer && (
         <div className={styles.productsCartGrid}>
-          {/* Product selection */}
+          {}
           <div className={`card ${styles.productsCard}`}>
             <h2 className={styles.productsTitle}> Add Products</h2>
             <div className={styles.productGrid}>
@@ -333,7 +333,7 @@ export default function ManualOrderPage() {
             </div>
           </div>
 
-          {/* Cart */}
+          {}
           <div className={`card ${styles.cartCard}`}>
             <h2 className={styles.cartHeader}>
                Cart

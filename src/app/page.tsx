@@ -34,7 +34,7 @@ export default function HomePage() {
       <main>
         <HeroSection />
 
-        {/* Category tiles */}
+        {}
         <section className="section-padding">
           <div className="container">
             <div className="section-header">
@@ -60,7 +60,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Products */}
+        {}
         <section className="section-padding section-padding--alt">
           <div className="container">
             <div className="section-header">
@@ -73,7 +73,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Trust strip */}
+        {}
         <div className="trust-strip">
           <div className="container trust-strip__inner">
             <div className="trust-strip__item">

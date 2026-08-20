@@ -31,7 +31,6 @@ export default function ProductGallery({
   productName,
   category,
 }: ProductGalleryProps) {
-  // Build full image list: primary image first, then additional images, with fallback
   const fallback = getFallbackImage(productName);
   const allImages = [
     ...(imageUrl ? [imageUrl] : [fallback]),
@@ -70,7 +69,6 @@ export default function ProductGallery({
     setLoaded((prev) => new Set(prev).add(idx));
   }, []);
 
-  // Touch swipe on main image
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientX);
   }, []);
@@ -92,7 +90,6 @@ export default function ProductGallery({
     setTouchDelta(0);
   }, [touchDelta, goNext, goPrev]);
 
-  // Keyboard nav
   useEffect(() => {
     if (zoomOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -106,7 +103,6 @@ export default function ProductGallery({
     }
   }, [zoomOpen, goPrev, goNext]);
 
-  // Close zoom on ESC
   useEffect(() => {
     if (!zoomOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -123,7 +119,7 @@ export default function ProductGallery({
   return (
     <>
       <div className="pd-gallery" ref={containerRef} tabIndex={0}>
-        {/* Main image */}
+        {}
         <div
           className="pd-gallery__main"
           onTouchStart={handleTouchStart}
@@ -176,7 +172,7 @@ export default function ProductGallery({
             </div>
           )}
 
-          {/* Navigation arrows */}
+          {}
           {hasMultiple && (
             <>
               <button
@@ -197,7 +193,7 @@ export default function ProductGallery({
           )}
         </div>
 
-        {/* Thumbnail strip (desktop) */}
+        {}
         {hasMultiple && (
           <div className="pd-gallery__thumbs">
             {allImages.map((img, idx) => (
@@ -223,7 +219,7 @@ export default function ProductGallery({
           </div>
         )}
 
-        {/* Dot indicator (mobile) */}
+        {}
         {hasMultiple && (
           <div className="pd-gallery__dots" aria-hidden="true">
             {allImages.map((_, idx) => (
@@ -238,7 +234,7 @@ export default function ProductGallery({
         )}
       </div>
 
-      {/* Zoom modal */}
+      {}
       {zoomOpen && showImage && (
         <div
           className="pd-zoom-overlay"
@@ -353,7 +349,7 @@ export default function ProductGallery({
           opacity: 1;
         }
 
-        /* Nav arrows on image */
+        
         .pd-gallery__arrow {
           position: absolute;
           top: 50%;
@@ -382,7 +378,7 @@ export default function ProductGallery({
           opacity: 1;
         }
 
-        /* Thumbnails — desktop only */
+        
         .pd-gallery__thumbs {
           display: none;
           gap: 0.5rem;
@@ -407,7 +403,7 @@ export default function ProductGallery({
           border-color: var(--clr-terracotta-light);
         }
 
-        /* Dots — mobile only */
+        
         .pd-gallery__dots {
           display: flex;
           align-items: center;
@@ -425,7 +421,7 @@ export default function ProductGallery({
           background: var(--clr-terracotta);
         }
 
-        /* Zoom overlay */
+        
         .pd-zoom-overlay {
           position: fixed;
           inset: 0;

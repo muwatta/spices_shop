@@ -1,4 +1,4 @@
-/* Reports Admin Page - Mobile-first responsive */
+
 .container {
   padding: 1rem;
   max-width: 1400px;
@@ -41,7 +41,7 @@
   flex-wrap: wrap;
 }
 
-/* Filters */
+
 .filtersSection {
   display: flex;
   flex-direction: column;
@@ -120,7 +120,7 @@
   color: var(--clr-muted);
 }
 
-/* Data Grid/Table */
+
 .dataSection {
   margin-bottom: 1.5rem;
 }
@@ -171,7 +171,7 @@
   border: none;
 }
 
-/* Empty/No Data State */
+
 .emptyState {
   text-align: center;
   padding: 4rem 2rem;
@@ -191,7 +191,7 @@
   font-size: 0.95rem;
 }
 
-/* Card View for Small Screens (optional) */
+
 .cardsGrid {
   display: none;
   grid-template-columns: 1fr;
@@ -237,7 +237,7 @@
   flex: 1;
 }
 
-/* Pagination */
+
 .pagination {
   display: flex;
   justify-content: center;

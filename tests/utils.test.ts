@@ -70,7 +70,6 @@ describe("generateTransactionId", () => {
   });
   it("has sufficient length", () => {
     const id = generateTransactionId();
-    // KMA + timestamp (13 digits) + 6 random chars = 22 chars
     expect(id.length).toBeGreaterThanOrEqual(20);
   });
 });

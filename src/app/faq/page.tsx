@@ -167,14 +167,14 @@ export default function FAQPage() {
     <>
       <Navbar />
       <main className="faq-page">
-        {/* Hero */}
+        {}
         <div className="faq-hero">
           <div className="container">
             <span className="faq-hero__eyebrow">Help Center</span>
             <h1 className="faq-hero__title">How can we help?</h1>
             <p className="faq-hero__sub">Find answers about ordering, delivery, payments, and our products.</p>
 
-            {/* Search */}
+            {}
             <div className="faq-search">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" />
@@ -201,10 +201,10 @@ export default function FAQPage() {
           </div>
         </div>
 
-        {/* Content */}
+        {}
         <div className="faq-content">
           <div className="container faq-content__inner">
-            {/* Category tabs */}
+            {}
             <div className="faq-tabs" role="tablist">
               {CATEGORIES.map((cat) => (
                 <button
@@ -223,12 +223,12 @@ export default function FAQPage() {
               ))}
             </div>
 
-            {/* Results count */}
+            {}
             <div className="faq-results">
               <span>{filteredFaqs.length} {filteredFaqs.length === 1 ? "question" : "questions"}</span>
             </div>
 
-            {/* FAQ list */}
+            {}
             {filteredFaqs.length > 0 ? (
               <section className="faq-list" aria-label="Frequently asked questions">
                 {filteredFaqs.map((faq, index) => (
@@ -253,7 +253,7 @@ export default function FAQPage() {
               </div>
             )}
 
-            {/* Contact CTA */}
+            {}
             <div className="faq-contact">
               <div className="faq-contact__icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

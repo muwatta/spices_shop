@@ -92,7 +92,6 @@ export async function POST(request: Request) {
     <ReceiptPDF order={order} customer={order.customers} items={items} />,
   );
 
-  // Convert Buffer to Uint8Array (type‑safe for NextResponse)
   const pdfData = new Uint8Array(pdfBuffer);
 
   return new NextResponse(pdfData, {

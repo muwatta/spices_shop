@@ -1,4 +1,4 @@
-/* Do You Know Admin Page - Mobile-first responsive */
+
 .container {
   padding: 1rem;
   max-width: 1200px;
@@ -81,7 +81,7 @@
   padding: 4rem 2rem;
 }
 
-/* Form Section */
+
 .formCard {
   border: 1px solid var(--clr-cream-dark);
   border-radius: var(--radius-lg);
@@ -164,7 +164,7 @@
   .formActions { grid-template-columns: auto auto; justify-content: flex-start; }
 }
 
-/* Items Grid */
+
 .itemsGrid {
   display: grid;
   grid-template-columns: 1fr;

@@ -40,9 +40,6 @@ export function sanitizeSearchQuery(query: string): string {
   return query.replace(/[^a-zA-Z0-9\s%\-_.@]/g, "").trim();
 }
 
-// Transaction IDs are now generated atomically inside the process_checkout
-// PostgreSQL function using clock_timestamp() + random() for collision resistance.
-// This function is retained for any future non-checkout use.
 export function generateTransactionId(): string {
   const timestamp = Date.now().toString();
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

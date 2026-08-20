@@ -27,10 +27,8 @@ export default function AdminLoginForm() {
     try {
       const normalizedEmail = email.trim().toLowerCase();
 
-      // 1. Sign out any existing session cleanly
       await supabase.auth.signOut();
 
-      // 2. Sign in with provided credentials
       const { data, error: signInError } =
         await supabase.auth.signInWithPassword({
           email: normalizedEmail,
@@ -42,7 +40,6 @@ export default function AdminLoginForm() {
         return;
       }
 
-      // 3. Verify this user is allowed to access admin routes
       const response = await fetch("/api/admin/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,14 +56,12 @@ export default function AdminLoginForm() {
         return;
       }
 
-      // 4. Refresh session so middleware picks up the cookie correctly
       const { error: refreshError } = await supabase.auth.refreshSession();
       if (refreshError) {
         setError("Session error. Please try again.");
         return;
       }
 
-      // 5. Navigate to admin dashboard
       router.push("/admin");
       router.refresh();
     } catch (err) {

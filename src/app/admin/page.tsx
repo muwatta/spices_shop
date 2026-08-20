@@ -106,7 +106,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="dash">
-      {/* Welcome banner */}
+      {}
       <div className="dash-welcome">
         <div className="dash-welcome__text">
           <h1 className="dash__title">Dashboard</h1>

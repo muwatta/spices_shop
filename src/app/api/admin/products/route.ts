@@ -135,7 +135,6 @@ export async function POST(request: Request) {
     image_url = await uploadImage(adminClient, body.image);
   }
 
-  // Handle additional gallery images (images_0, images_1, ...)
   const additionalImages: string[] = [];
   for (let i = 0; i < 10; i++) {
     const file = body[`images_${i}`];
@@ -202,7 +201,6 @@ export async function PUT(request: Request) {
     image_url = await uploadImage(adminClient, body.image);
   }
 
-  // Handle additional gallery images
   const additionalImages: string[] = [];
   for (let i = 0; i < 10; i++) {
     const file = body[`images_${i}`];
@@ -233,14 +231,12 @@ export async function PUT(request: Request) {
   }
   if (image_url !== undefined) payload.image_url = image_url;
 
-  // Handle images replacement (sent as JSON string of URLs to keep)
   if (body.images_json) {
     try {
       payload.images = JSON.parse(String(body.images_json));
     } catch {}
   }
   if (additionalImages.length > 0) {
-    // Merge new uploads with existing kept images
     const existing = payload.images ?? [];
     payload.images = [...existing, ...additionalImages];
   }

@@ -273,7 +273,7 @@ export default function AdminCustomersPage() {
         </>
       )}
 
-      {/* Edit Modal */}
+      {}
       {editingCustomer && (
         <div
           className={styles.modalBackdrop}

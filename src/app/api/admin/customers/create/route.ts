@@ -24,7 +24,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Insert the new customer
   const { data, error } = await adminClient
     .from("customers")
     .insert({
@@ -37,7 +36,6 @@ export async function POST(request: Request) {
 
   if (error) {
     console.error("Customer creation error:", error);
-    // Handle unique constraint violation (email already exists)
     if (error.code === "23505") {
       return NextResponse.json(
         { error: "A customer with this email already exists" },

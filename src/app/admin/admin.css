@@ -1,8 +1,6 @@
-/* ============================================
-   Admin Panel — Consolidated Styles
-   ============================================ */
 
-/* === Layout Shell === */
+
+
 .admin-shell {
   display: flex;
   flex-direction: column;
@@ -21,7 +19,7 @@
   .admin-main { padding: 2rem 2rem 3.5rem; }
 }
 
-/* === Unified Grid Patterns === */
+
 .admin-page-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -49,7 +47,7 @@
   flex-wrap: wrap;
 }
 
-/* Mobile-first stats grid (1 col on mobile, responsive on larger screens) */
+
 .admin-stats-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -97,7 +95,7 @@
   font-weight: 500;
 }
 
-/* Responsive content grid (cards, items) */
+
 .admin-content-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -105,7 +103,7 @@
   margin-bottom: 2rem;
 }
 
-/* Shared card grid for admin content and KPI blocks */
+
 .admin-card-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -241,7 +239,7 @@
   .admin-content-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
 }
 
-/* Two-column layout (collapses to 1 on mobile) */
+
 .admin-two-column {
   display: grid;
   grid-template-columns: 1fr;
@@ -258,7 +256,7 @@
   .admin-page-header__actions { width: 100%; }
 }
 
-/* === Topbar (mobile) === */
+
 .admin-topbar {
   display: flex;
   align-items: center;
@@ -321,7 +319,7 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-/* === Overlay === */
+
 .admin-overlay {
   position: fixed;
   inset: 0;
@@ -334,7 +332,7 @@
   display: none;
 }
 
-/* === Sidebar === */
+
 .admin-sidebar {
   position: fixed;
   top: 0;
@@ -509,7 +507,7 @@
   .admin-sidebar { width: 264px; }
 }
 
-/* === Dashboard === */
+
 .dash {
   display: flex;
   flex-direction: column;
@@ -698,7 +696,7 @@
   font-size: 0.9rem;
 }
 
-/* Dashboard order cards */
+
 .order-cards { display: flex; flex-direction: column; }
 .order-card {
   display: grid;
@@ -825,7 +823,7 @@
   .dash { padding: 2rem; }
 }
 
-/* === Admin Products === */
+
 .admin-products-table { display: none; }
 .admin-products-cards { display: flex; }
 @media (min-width: 768px) {
@@ -892,7 +890,7 @@
   margin-bottom: 1rem;
 }
 
-/* === Product Form (modal overlay) === */
+
 .admin-form-overlay {
   position: fixed;
   inset: 0;
@@ -947,7 +945,7 @@
 }
 .admin-form-actions .btn { flex: 1; }
 
-/* === Admin Reports === */
+
 .admin-reports {
   padding: 0;
 }
@@ -978,7 +976,7 @@
   margin-top: 0.25rem;
 }
 
-/* === Status Badges (shared) === */
+
 .status-badge {
   display: inline-block;
   padding: 0.2rem 0.625rem;
@@ -1011,7 +1009,7 @@
 .payment-badge--transfer { background: #DBEAFE; color: #1E40AF; }
 .payment-badge--paystack { background: #D1FAE5; color: #065F46; }
 
-/* === Loading / Empty States === */
+
 .admin-loading {
   display: flex;
   justify-content: center;
@@ -1032,7 +1030,7 @@
   color: var(--clr-bark);
 }
 
-/* === Filter Bar === */
+
 .admin-filters {
   display: flex;
   gap: 0.75rem;
@@ -1045,7 +1043,7 @@
   min-width: 140px;
 }
 
-/* === Pagination === */
+
 .admin-pagination {
   display: flex;
   justify-content: center;
@@ -1058,7 +1056,7 @@
   color: var(--clr-muted);
 }
 
-/* === Order Detail === */
+
 .admin-order-detail-grid {
   display: grid;
   grid-template-columns: 1fr;

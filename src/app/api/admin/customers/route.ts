@@ -15,7 +15,6 @@ export async function GET(request: Request) {
   const from = (safePage - 1) * safeLimit;
   const to = from + safeLimit - 1;
 
-  // First, fetch customers with pagination
   const {
     data: customers,
     error,
@@ -30,7 +29,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Then fetch orders for all these customers separately
   const customerIds = customers.map((c: any) => c.id);
   const { data: orders, error: ordersError } = await adminClient
     .from("orders")
@@ -41,7 +39,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: ordersError.message }, { status: 500 });
   }
 
-  // Group orders by customer_id
   const ordersByCustomer: Record<string, any[]> = {};
   orders?.forEach((order: any) => {
     if (!ordersByCustomer[order.customer_id]) {
@@ -50,7 +47,6 @@ export async function GET(request: Request) {
     ordersByCustomer[order.customer_id].push(order);
   });
 
-  // Calculate order count and total spent per customer
   const customersWithStats = customers.map((customer: any) => {
     const customerOrders = ordersByCustomer[customer.id] || [];
     const orderCount = customerOrders.length;
@@ -84,7 +80,6 @@ export async function DELETE(request: Request) {
 
   const adminClient = createAdminClient();
 
-  // Delete associated orders first (cascade should handle, but we ensure)
   const { error: ordersError } = await adminClient
     .from("orders")
     .delete()
@@ -100,7 +95,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Also delete the user from auth (optional)
   try {
     const { error: authError } = await adminClient.auth.admin.deleteUser(id);
     if (authError && authError.message !== "User not found") {

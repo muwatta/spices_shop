@@ -8,7 +8,6 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = createClient();
-    // Exchange the code for a session (this also confirms the email)
     await supabase.auth.exchangeCodeForSession(code);
   }
 

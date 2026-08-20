@@ -29,7 +29,6 @@ export async function updateSession(request: NextRequest) {
 
   const isAdminLoginPath = request.nextUrl.pathname === "/admin-login";
 
-  // Protect admin routes (except login page)
   if (request.nextUrl.pathname.startsWith("/admin") && !isAdminLoginPath) {
     const userEmail = user?.email ?? null;
     if (!userEmail || !(await isAdmin(userEmail))) {
@@ -39,7 +38,6 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Protect account routes
   if (request.nextUrl.pathname.startsWith("/account")) {
     if (!user) {
       const url = request.nextUrl.clone();

@@ -1,4 +1,4 @@
-/* Mobile-first responsive layout */
+
 .container {
   padding: 1rem;
 }
@@ -175,7 +175,7 @@
   color: var(--clr-muted);
 }
 
-/* Mobile card view for small screens (hidden, revealed with JS if needed) */
+
 .ordersGrid {
   display: grid;
   grid-template-columns: 1fr;

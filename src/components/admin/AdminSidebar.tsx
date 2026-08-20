@@ -59,7 +59,6 @@ export default function AdminSidebar() {
     };
   }, [open]);
 
-  // Close sidebar on route change
   useEffect(() => {
     close();
   }, [pathname, close]);
