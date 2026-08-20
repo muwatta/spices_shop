@@ -6,16 +6,14 @@ async function getProducts(): Promise<Product[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, price, image_url, images, stock, description, created_at, category, status, low_stock_threshold")
-    .eq("status", "active")
+    .select("id, name, price, image_url, images, stock, description, created_at, category, low_stock_threshold")
     .order("created_at", { ascending: false })
     .limit(12);
 
   if (error) {
     const { data: fallback } = await supabase
       .from("products")
-      .select("id, name, price, image_url, images, stock, description, created_at, status, low_stock_threshold")
-      .eq("status", "active")
+      .select("id, name, price, image_url, images, stock, description, created_at, low_stock_threshold")
       .order("created_at", { ascending: false })
       .limit(12);
     return (fallback ?? []) as Product[];

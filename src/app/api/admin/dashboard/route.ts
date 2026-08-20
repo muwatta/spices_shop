@@ -19,8 +19,8 @@ export async function GET(request: Request) {
     recentOrders,
   ] = await Promise.all([
     adminClient.from("products").select("id", { count: "exact", head: true }),
-    adminClient.from("products").select("id", { count: "exact", head: true }).eq("status", "active"),
-    adminClient.from("products").select("id", { count: "exact", head: true }).not("stock", "is", null).lte("stock", 5).eq("status", "active"),
+    adminClient.from("products").select("id", { count: "exact", head: true }),
+    adminClient.from("products").select("id", { count: "exact", head: true }).not("stock", "is", null).lte("stock", 5),
     adminClient.from("orders").select("id", { count: "exact", head: true }).eq("status", "pending"),
     adminClient.from("orders").select("id, total_amount", { count: "exact" }).gte("created_at", new Date().toISOString().split("T")[0]),
     adminClient.from("orders").select("id", { count: "exact", head: true }).eq("payment_method", "cash_on_delivery").eq("payment_status", "pending"),
