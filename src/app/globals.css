@@ -5098,7 +5098,7 @@ textarea:focus-visible {
   left: 0;
   bottom: 0;
   width: min(88vw, 340px);
-  max-width: 45%;
+  max-width: 50%;
   height: 100dvh;
   background: var(--clr-pitch);
   z-index: 1001;
