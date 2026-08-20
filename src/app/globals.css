@@ -2023,7 +2023,7 @@ a,
 
 .footer__socials {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.625rem;
 }
 @media (max-width: 768px) {
   .footer__socials {
@@ -2037,13 +2037,25 @@ a,
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.08);
-  transition: all var(--transition-fast);
+  color: rgba(255,255,255,0.7);
+  transition: all 200ms ease;
 }
 .footer__socials a:hover {
-  background: rgba(255, 255, 255, 0.15);
   transform: translateY(-2px);
+}
+.footer__socials a[aria-label="Instagram"]:hover {
+  background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  color: #fff;
+}
+.footer__socials a[aria-label="Facebook"]:hover {
+  background: #1877f2;
+  color: #fff;
+}
+.footer__socials a[aria-label="WhatsApp"]:hover {
+  background: #25d366;
+  color: #fff;
 }
 
 .footer__divider {

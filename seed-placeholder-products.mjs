@@ -59,6 +59,19 @@ async function searchCommons(query) {
   throw new Error("image search remained rate limited after retries");
 }
 
+async function uploadImage(supabase, bucket, storagePath, image) {
+  for (const wait of [0, 5000, 15000, 30000]) {
+    if (wait) await sleep(wait);
+    try {
+      const result = await supabase.storage.from(bucket).upload(storagePath, image, { contentType: "image/jpeg", upsert: true });
+      if (!result.error) return;
+    } catch (error) {
+      if (wait === 30000) throw error;
+    }
+  }
+  throw new Error("image upload remained unavailable after retries");
+}
+
 async function main() {
   await readEnv();
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -87,8 +100,7 @@ async function main() {
     }
 
     const storagePath = `placeholders/${slug}.jpg`;
-    const upload = await supabase.storage.from(bucket).upload(storagePath, image, { contentType: "image/jpeg", upsert: true });
-    if (upload.error) throw upload.error;
+    await uploadImage(supabase, bucket, storagePath, image);
     const publicUrl = supabase.storage.from(bucket).getPublicUrl(storagePath).data.publicUrl;
 
     const existing = await supabase.from("products").select("id").eq("name", name).maybeSingle();
