@@ -19,12 +19,12 @@ function HomeSkeletonGrid() {
 }
 
 const CATEGORIES = [
-  { name: "Spices", image: "/images/cardamom.jpg", href: "/shop?category=spices" },
-  { name: "Herbs", image: "/images/kma_leaf.jpg", href: "/shop?category=herbs" },
-  { name: "Seasonings", image: "/images/curry_mix1.jpg", href: "/shop?category=seasonings" },
-  { name: "Peppers", image: "/images/dry_okra.jpg", href: "/shop?category=peppers" },
-  { name: "Blends", image: "/images/curry_mix.png", href: "/shop?category=blends" },
-  { name: "Flours", image: "/images/bacbab.jpg", href: "/shop?category=flours" },
+  { name: "Spices", slug: "spices", image: "/images/cardamom.jpg" },
+  { name: "Herbs", slug: "herbs", image: "/images/kma_leaf.jpg" },
+  { name: "Seasonings", slug: "seasonings", image: "/images/curry_mix1.jpg" },
+  { name: "Peppers", slug: "peppers", image: "/images/dry_okra.jpg" },
+  { name: "Blends", slug: "blends", image: "/images/curry_mix.png" },
+  { name: "Flours", slug: "flours", image: "/images/bacbab.jpg" },
 ];
 
 export default function HomePage() {
@@ -38,14 +38,21 @@ export default function HomePage() {
         <section className="section-padding">
           <div className="container">
             <div className="section-header">
+              <span className="section-eyebrow">Browse</span>
               <h2 className="section-title">Shop by Category</h2>
-              <Link href="/shop" className="section-link">View All</Link>
+              <p className="section-subtitle">From whole spices to cooking oils — find everything for your kitchen</p>
             </div>
             <div className="home-categories">
               {CATEGORIES.map((cat) => (
-                <Link key={cat.name} href={cat.href} className="home-cat-tile">
+                <Link key={cat.slug} href={`/shop?category=${cat.slug}`} className="home-cat-tile">
                   <div className="home-cat-tile__img">
                     <img src={cat.image} alt={cat.name} loading="lazy" />
+                    <div className="home-cat-tile__overlay">
+                      <span className="home-cat-tile__name">{cat.name}</span>
+                      <span className="home-cat-tile__arrow">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                      </span>
+                    </div>
                   </div>
                   <span className="home-cat-tile__label">{cat.name}</span>
                 </Link>
