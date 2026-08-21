@@ -41,6 +41,7 @@ export default function CartPage() {
   const [discountError, setDiscountError] = useState("");
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
   const [whatsappOrderRef, setWhatsappOrderRef] = useState("");
+  const [whatsappError, setWhatsappError] = useState("");
 
   useEffect(() => {
     async function fetchProducts() {
@@ -135,6 +136,7 @@ export default function CartPage() {
       return;
     }
     setWhatsappOrderRef(generateTransactionId().slice(-10));
+    setWhatsappError("");
     setWhatsappModalOpen(true);
   }
 
@@ -148,7 +150,11 @@ export default function CartPage() {
       })),
       grandTotal,
     ) + `\n\nOrder reference: KMA-${whatsappOrderRef}`;
-    window.open(buildWhatsAppUrl(phone, message), "_blank");
+    const whatsappWindow = window.open(buildWhatsAppUrl(phone, message), "_blank", "noopener,noreferrer");
+    if (!whatsappWindow) {
+      setWhatsappError("WhatsApp could not be opened. Please allow pop-ups and try again.");
+      return;
+    }
     setWhatsappModalOpen(false);
   }
 
@@ -412,6 +418,7 @@ export default function CartPage() {
             </div>
 
             <p className="whatsapp-order-modal__note">WhatsApp will open with these order details ready to send. Keep your reference for follow-up.</p>
+            {whatsappError && <p className="field-error" role="alert">{whatsappError}</p>}
             <div className="whatsapp-order-modal__actions">
               <button type="button" className="btn btn-ghost" onClick={() => setWhatsappModalOpen(false)}>Go back</button>
               <button type="button" className="btn whatsapp-btn" onClick={confirmWhatsAppOrder}>Continue to WhatsApp</button>

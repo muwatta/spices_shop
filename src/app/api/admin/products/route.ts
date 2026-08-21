@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/admin";
+import { getSafeExtension, validateImageUpload } from "@/lib/upload-validation";
 
 const PAGE_SIZE = 25;
 
@@ -36,8 +37,9 @@ async function uploadImage(
   adminClient: ReturnType<typeof createAdminClient>,
   file: File,
 ) {
-  const ext = String(file.name).split(".").pop() ?? "jpg";
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const validationError = validateImageUpload(file);
+  if (validationError) throw new Error(validationError);
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${getSafeExtension(file)}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 
   const { data: uploadData, error: uploadError } = await adminClient.storage
@@ -128,12 +130,23 @@ export async function POST(request: Request) {
   const body = await parseForm(request);
   const name = String(body.name || "").trim();
   const price = parseInt(String(body.price || "0"), 10);
+  const description = body.description ? String(body.description).trim() : "";
+  const benefits = body.benefits ? String(body.benefits).trim() : "";
+  const stock = body.stock != null && String(body.stock).trim() !== "" ? Number(body.stock) : null;
+  const lowStockThreshold = body.low_stock_threshold != null && String(body.low_stock_threshold).trim() !== ""
+    ? Number(body.low_stock_threshold)
+    : 5;
 
-  if (!name || !price) {
+  if (!name || name.length > 160 || !Number.isInteger(price) || price < 1 || price > 100000000) {
     return NextResponse.json(
-      { error: "Name and price are required." },
+      { error: "Name and a valid price are required." },
       { status: 400 },
     );
+  }
+  if (description.length > 5000 || benefits.length > 2000 ||
+      (stock !== null && (!Number.isInteger(stock) || stock < 0 || stock > 100000000)) ||
+      !Number.isInteger(lowStockThreshold) || lowStockThreshold < 0 || lowStockThreshold > 100000000) {
+    return NextResponse.json({ error: "Product fields are invalid or too long." }, { status: 400 });
   }
 
   let image_url: string | null = null;
@@ -142,7 +155,7 @@ export async function POST(request: Request) {
   }
 
   const additionalImages: string[] = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 5; i++) {
     const file = body[`images_${i}`];
     if (file && file instanceof File && file.size > 0) {
       const url = await uploadImage(adminClient, file);
@@ -152,22 +165,16 @@ export async function POST(request: Request) {
 
   const payload: Record<string, any> = {
     name,
-    description: body.description ? String(body.description).trim() : null,
-    benefits: body.benefits ? String(body.benefits).split("\n").map((benefit: string) => benefit.trim()).filter(Boolean).slice(0, 3).join("\n") : null,
+    description: description || null,
+    benefits: benefits ? benefits.split("\n").map((benefit: string) => benefit.trim()).filter(Boolean).slice(0, 3).join("\n") : null,
     price,
-    stock:
-      body.stock !== null && String(body.stock).trim() !== ""
-        ? parseInt(String(body.stock), 10)
-        : null,
+    stock,
     category:
       body.category !== null && String(body.category).trim() !== ""
         ? String(body.category).trim()
         : null,
     status: body.status || "active",
-    low_stock_threshold:
-      body.low_stock_threshold !== null && String(body.low_stock_threshold).trim() !== ""
-        ? parseInt(String(body.low_stock_threshold), 10)
-        : 5,
+    low_stock_threshold: lowStockThreshold,
   };
 
   if (image_url) payload.image_url = image_url;
@@ -194,12 +201,19 @@ export async function PUT(request: Request) {
   const id = String(body.id || "").trim();
   const name = String(body.name || "").trim();
   const price = parseInt(String(body.price || "0"), 10);
+  const description = body.description ? String(body.description).trim() : "";
+  const benefits = body.benefits ? String(body.benefits).trim() : "";
+  const stock = body.stock != null && String(body.stock).trim() !== "" ? Number(body.stock) : null;
 
-  if (!id || !name || !price) {
+  if (!id || !name || name.length > 160 || !Number.isInteger(price) || price < 1 || price > 100000000) {
     return NextResponse.json(
-      { error: "ID, name and price are required." },
+      { error: "ID, name and a valid price are required." },
       { status: 400 },
     );
+  }
+  if (description.length > 5000 || benefits.length > 2000 ||
+      (stock !== null && (!Number.isInteger(stock) || stock < 0 || stock > 100000000))) {
+    return NextResponse.json({ error: "Product fields are invalid or too long." }, { status: 400 });
   }
 
   let image_url: string | null | undefined = undefined;
@@ -208,7 +222,7 @@ export async function PUT(request: Request) {
   }
 
   const additionalImages: string[] = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 5; i++) {
     const file = body[`images_${i}`];
     if (file && file instanceof File && file.size > 0) {
       const url = await uploadImage(adminClient, file);
@@ -218,28 +232,39 @@ export async function PUT(request: Request) {
 
   const payload: Record<string, any> = {
     name,
-    description: body.description ? String(body.description).trim() : null,
-    benefits: body.benefits ? String(body.benefits).split("\n").map((benefit: string) => benefit.trim()).filter(Boolean).slice(0, 3).join("\n") : null,
+    description: description || null,
+    benefits: benefits ? benefits.split("\n").map((benefit: string) => benefit.trim()).filter(Boolean).slice(0, 3).join("\n") : null,
     price,
-    stock:
-      body.stock !== null && String(body.stock).trim() !== ""
-        ? parseInt(String(body.stock), 10)
-        : null,
+    stock,
     category:
       body.category !== null && String(body.category).trim() !== ""
         ? String(body.category).trim()
         : null,
   };
 
-  if (body.status) payload.status = String(body.status).trim();
-  if (body.low_stock_threshold !== null && String(body.low_stock_threshold).trim() !== "") {
-    payload.low_stock_threshold = parseInt(String(body.low_stock_threshold), 10);
+  if (body.status) {
+    const status = String(body.status).trim();
+    if (!["active", "out_of_stock", "draft", "archived"].includes(status)) {
+      return NextResponse.json({ error: "Invalid product status." }, { status: 400 });
+    }
+    payload.status = status;
+  }
+  if (body.low_stock_threshold != null && String(body.low_stock_threshold).trim() !== "") {
+    const lowStockThreshold = Number(body.low_stock_threshold);
+    if (!Number.isInteger(lowStockThreshold) || lowStockThreshold < 0 || lowStockThreshold > 100000000) {
+      return NextResponse.json({ error: "Invalid low stock threshold." }, { status: 400 });
+    }
+    payload.low_stock_threshold = lowStockThreshold;
   }
   if (image_url !== undefined) payload.image_url = image_url;
 
   if (body.images_json) {
     try {
-      payload.images = JSON.parse(String(body.images_json));
+      const images = JSON.parse(String(body.images_json));
+      if (!Array.isArray(images) || images.length > 5 || images.some((image) => typeof image !== "string" || image.length > 2000)) {
+        return NextResponse.json({ error: "Invalid product gallery." }, { status: 400 });
+      }
+      payload.images = images;
     } catch {}
   }
   if (additionalImages.length > 0) {
@@ -273,6 +298,9 @@ export async function DELETE(request: Request) {
     : [String(body.id || "").trim()].filter(Boolean);
   if (ids.length === 0) {
     return NextResponse.json({ error: "At least one ID is required." }, { status: 400 });
+  }
+  if (ids.length > 100) {
+    return NextResponse.json({ error: "Too many products selected." }, { status: 400 });
   }
 
   const { error } = await adminClient.from("products").delete().in("id", ids);

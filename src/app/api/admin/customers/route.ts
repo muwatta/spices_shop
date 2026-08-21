@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const page = Number(url.searchParams.get("page") || "1");
   const limit = Number(url.searchParams.get("limit") || "20");
   const safePage = Number.isNaN(page) || page < 1 ? 1 : page;
-  const safeLimit = Number.isNaN(limit) || limit < 1 ? 20 : limit;
+  const safeLimit = Number.isNaN(limit) || limit < 1 ? 20 : Math.min(limit, 100);
   const from = (safePage - 1) * safeLimit;
   const to = from + safeLimit - 1;
 

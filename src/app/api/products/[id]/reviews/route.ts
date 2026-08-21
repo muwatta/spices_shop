@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, getRateLimitIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -30,6 +31,8 @@ export async function POST(request: Request, { params }: RouteContext) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) return NextResponse.json({ error: "Sign in to leave a review." }, { status: 401 });
+  const limited = rateLimitResponse(await checkRateLimit("reviews", `${user.id}:${getRateLimitIdentifier(request)}`));
+  if (limited) return limited;
 
   const body = await request.json();
   const rating = Number(body.rating);

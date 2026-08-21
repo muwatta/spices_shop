@@ -44,7 +44,10 @@ export async function POST(request: Request) {
   const payment_proof_url = normalizeText(body.payment_proof_url) || null;
   const items = Array.isArray(body.items) ? body.items.slice(0, 50) : [];
 
-  if (!full_name || !phone || !address_line1 || !city || !state) {
+  if (!full_name || !phone || !address_line1 || !city || !state ||
+      full_name.length > 160 || phone.length > 40 || address_line1.length > 300 ||
+      address_line2.length > 300 || city.length > 100 || state.length > 100 ||
+      postal_code.length > 30 || account_number.length > 80) {
     return NextResponse.json(
       { error: "Please provide all required delivery details." },
       { status: 400 },
@@ -72,7 +75,8 @@ export async function POST(request: Request) {
     );
   }
 
-  if (payment_method === "bank_transfer" && payment_proof_url && !payment_proof_url.startsWith(`${user.id}/`)) {
+  if (payment_method === "bank_transfer" && payment_proof_url &&
+      !new RegExp(`^${user.id}/[^/]{1,200}\\.(pdf|jpe?g|png|webp)$`, "i").test(payment_proof_url)) {
     return NextResponse.json(
       { error: "Invalid payment proof. Please upload the receipt again." },
       { status: 400 },
@@ -83,7 +87,9 @@ export async function POST(request: Request) {
   for (const item of items) {
     const productId = normalizeText(item.product_id);
     const quantity = Number(item.quantity);
-    if (!productId || Number.isNaN(quantity) || quantity <= 0) continue;
+    if (!productId || !Number.isSafeInteger(quantity) || quantity <= 0 || quantity > 1000) {
+      return NextResponse.json({ error: "Order items are invalid or quantities are too large." }, { status: 400 });
+    }
     orderQuantities[productId] = (orderQuantities[productId] || 0) + quantity;
   }
 

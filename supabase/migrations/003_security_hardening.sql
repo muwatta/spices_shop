@@ -111,6 +111,7 @@ BEGIN
     SELECT id, price, stock INTO v_product
     FROM public.products
     WHERE id = v_product_id
+      AND status <> 'archived'
     FOR UPDATE;
 
     IF NOT FOUND THEN

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, getRateLimitIdentifier, rateLimitResponse } from "@/lib/rate-limit";
 
 const INTENT_TERMS: Record<string, string[]> = {
   jollof: ["curry", "pepper", "ginger", "garlic", "seasoning"],
@@ -45,6 +46,9 @@ export async function POST(request: Request) {
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in to use the Spice Guide." }, { status: 401 });
+
+  const limited = rateLimitResponse(await checkRateLimit("recommendations", `${user.id}:${getRateLimitIdentifier(request)}`));
+  if (limited) return limited;
 
   let body: { message?: unknown };
   try {

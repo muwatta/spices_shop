@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "dev:webpack": "next dev --webpack"
+    "dev:webpack": "next dev --webpack",
+    "test:checkout-load": "node scripts/load-checkout.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.5.1",

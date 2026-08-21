@@ -23,13 +23,13 @@ CREATE POLICY "Admins can manage order activity"
   USING (
     EXISTS (
       SELECT 1 FROM admin_users
-      WHERE user_id = auth.uid()
+      WHERE lower(email) = lower(auth.jwt() ->> 'email')
     )
   )
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM admin_users
-      WHERE user_id = auth.uid()
+      WHERE lower(email) = lower(auth.jwt() ->> 'email')
     )
   );
 

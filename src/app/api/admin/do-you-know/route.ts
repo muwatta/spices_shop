@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/admin";
+import { getSafeExtension, validateImageUpload } from "@/lib/upload-validation";
 
 async function parseForm(request: Request) {
   const contentType = request.headers.get("content-type") || "";
@@ -23,8 +24,9 @@ async function uploadImage(
   adminClient: ReturnType<typeof createAdminClient>,
   file: File,
 ) {
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const validationError = validateImageUpload(file);
+  if (validationError) throw new Error(validationError);
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${getSafeExtension(file)}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 
   const { data: uploadData, error: uploadError } = await adminClient.storage
@@ -49,11 +51,14 @@ export async function POST(request: Request) {
   const name = String(body.name || "").trim();
   const recommendation = String(body.recommendation || "").trim();
 
-  if (!name || !recommendation) {
+  if (!name || name.length > 160 || !recommendation || recommendation.length > 5000) {
     return NextResponse.json(
       { error: "Name and recommendation are required." },
       { status: 400 },
     );
+  }
+  if (String(body.subtitle || "").length > 500 || String(body.benefits || "").length > 2000) {
+    return NextResponse.json({ error: "Content fields are invalid or too long." }, { status: 400 });
   }
 
   let image_url: string | null = null;
@@ -91,11 +96,14 @@ export async function PUT(request: Request) {
   const name = String(body.name || "").trim();
   const recommendation = String(body.recommendation || "").trim();
 
-  if (!id || !name || !recommendation) {
+  if (!id || !name || name.length > 160 || !recommendation || recommendation.length > 5000) {
     return NextResponse.json(
       { error: "ID, name and recommendation are required." },
       { status: 400 },
     );
+  }
+  if (String(body.subtitle || "").length > 500 || String(body.benefits || "").length > 2000) {
+    return NextResponse.json({ error: "Content fields are invalid or too long." }, { status: 400 });
   }
 
   let image_url: string | null | undefined = undefined;

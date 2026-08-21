@@ -9,6 +9,8 @@ const RATE_LIMITS: Record<string, { maxRequests: number; windowSeconds: number }
   "checkout":                { maxRequests: 10,  windowSeconds: 600 },     // 10 per 10 min
   "update-password":         { maxRequests: 5,   windowSeconds: 300 },     // 5 per 5 min
   "newsletter":              { maxRequests: 3,   windowSeconds: 300 },     // 3 per 5 min
+  "recommendations":         { maxRequests: 20,  windowSeconds: 600 },     // 20 per 10 min
+  "reviews":                 { maxRequests: 5,   windowSeconds: 3600 },     // 5 per hour
 };
 
 type RateLimitResult = { allowed: true } | { allowed: false; retryAfter: number };
@@ -31,8 +33,8 @@ export async function checkRateLimit(
     });
 
     if (error) {
-      console.warn("Rate limit check failed (failing open):", error.message);
-      return { allowed: true };
+      console.error("Rate limit check failed:", error.message);
+      return { allowed: false, retryAfter: 60 };
     }
 
     if (data === false) {
@@ -41,7 +43,7 @@ export async function checkRateLimit(
 
     return { allowed: true };
   } catch {
-    return { allowed: true };
+    return { allowed: false, retryAfter: 60 };
   }
 }
 

@@ -1,8 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const adminEmails = ["kmafoods22@gmail.com", "abdullahmusliudeen@gmail.com"];
-
 function isRefreshTokenError(error: any): boolean {
   const code = error?.code?.toString?.() || "";
   const message = error?.message?.toString?.() || "";
@@ -59,8 +57,7 @@ export async function proxy(request: NextRequest) {
   if (isAuthRoute) return supabaseResponse;
 
   if (path.startsWith("/admin")) {
-    const email = user?.email?.toLowerCase() ?? "";
-    if (!user || !adminEmails.includes(email)) {
+    if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin-login";
       url.searchParams.set("unauthorized", "1");
