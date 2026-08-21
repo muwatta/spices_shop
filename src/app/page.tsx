@@ -7,6 +7,7 @@ import Link from "next/link";
 import ProductGrid from "@/components/product/ProductGrid";
 import ProductCardSkeleton from "@/components/product/ProductCardSkeleton";
 import HeroSection from "@/components/home/HeroSection";
+import { createClient } from "@/lib/supabase/server";
 
 function HomeSkeletonGrid() {
   return (
@@ -27,12 +28,18 @@ const CATEGORIES = [
   { name: "Flours", slug: "flours", image: "/images/bacbab.jpg" },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = createClient();
+  const { count } = await supabase
+    .from("products")
+    .select("id", { count: "exact", head: true })
+    .neq("status", "archived");
+
   return (
     <>
       <Navbar />
       <main>
-        <HeroSection />
+        <HeroSection productCount={count ?? 0} />
 
         <section className="section-padding">
           <div className="container">

@@ -36,8 +36,16 @@ const slideVariants = {
   exit: { opacity: 0, scale: 0.95, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const } },
 };
 
-export default function HeroSection() {
+export default function HeroSection({ productCount }: { productCount: number }) {
   const [current, setCurrent] = useState(0);
+  const [promoCurrent, setPromoCurrent] = useState(0);
+  const [statCurrent, setStatCurrent] = useState(0);
+
+  const stats = [
+    { num: String(productCount), label: "Products" },
+    { num: "100%", label: "Natural" },
+    { num: "24hr", label: "Delivery" },
+  ];
 
   const next = useCallback(() => {
     setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
@@ -48,6 +56,20 @@ export default function HeroSection() {
     return () => clearInterval(timer);
   }, [next]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPromoCurrent((prev) => (prev + 1) % promos.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setStatCurrent((prev) => (prev + 1) % stats.length);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, [stats.length]);
+
   return (
     <>
       <motion.div
@@ -57,9 +79,18 @@ export default function HeroSection() {
         transition={{ duration: 0.5 }}
       >
         <div className="container promo-strip__inner">
-          {promos.map((text) => (
-            <span key={text} className="promo-strip__item">{text}</span>
-          ))}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={promos[promoCurrent]}
+              className="promo-strip__item"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+            >
+              {promos[promoCurrent]}
+            </motion.span>
+          </AnimatePresence>
         </div>
       </motion.div>
 
@@ -122,16 +153,19 @@ export default function HeroSection() {
               animate="visible"
               variants={stagger}
             >
-              {[
-                { num: "46+", label: "Products" },
-                { num: "100%", label: "Natural" },
-                { num: "24hr", label: "Delivery" },
-              ].map((stat, i) => (
-                <motion.div key={stat.label} className="home-hero__stat" variants={fadeUp} custom={i}>
-                  <span className="home-hero__stat-num">{stat.num}</span>
-                  <span className="home-hero__stat-label">{stat.label}</span>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={stats[statCurrent].label}
+                  className="home-hero__stat"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                >
+                  <span className="home-hero__stat-num">{stats[statCurrent].num}</span>
+                  <span className="home-hero__stat-label">{stats[statCurrent].label}</span>
                 </motion.div>
-              ))}
+              </AnimatePresence>
             </motion.div>
           </div>
 

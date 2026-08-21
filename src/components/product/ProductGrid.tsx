@@ -2,11 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { Product } from "@/types";
 import ProductCard from "./ProductCard";
 
-async function getProducts(): Promise<{ products: Product[]; total: number }> {
+async function getProducts(): Promise<Product[]> {
   const supabase = createClient();
-  const { data, count, error } = await supabase
+  const { data, error } = await supabase
     .from("products")
-    .select("id, name, price, image_url, images, stock, description, category", { count: "exact" })
+    .select("id, name, price, image_url, images, stock, description, category")
     .neq("status", "archived")
     .order("created_at", { ascending: false })
     ;
@@ -14,17 +14,17 @@ async function getProducts(): Promise<{ products: Product[]; total: number }> {
   if (error) {
     const { data: fallback } = await supabase
       .from("products")
-      .select("id, name, price, image_url, stock, description", { count: "exact" })
+      .select("id, name, price, image_url, stock, description")
       .neq("status", "archived")
       .order("created_at", { ascending: false });
-    return { products: (fallback ?? []) as Product[], total: fallback?.length ?? 0 };
+    return (fallback ?? []) as Product[];
   }
 
-  return { products: (data ?? []) as Product[], total: count ?? data?.length ?? 0 };
+  return (data ?? []) as Product[];
 }
 
 export default async function ProductGrid() {
-  const { products, total } = await getProducts();
+  const products = await getProducts();
 
   if (products.length === 0) {
     return (
@@ -41,9 +41,6 @@ export default async function ProductGrid() {
 
   return (
     <>
-      <div className="product-grid__summary" aria-live="polite">
-        <span>{total} {total === 1 ? "product" : "products"} available</span>
-      </div>
       <div className="product-grid">
         {products.map((product, index) => (
           <ProductCard key={product.id} product={product} index={index} />
