@@ -498,6 +498,39 @@ body {
   font-size: var(--text-sm);
 }
 
+[data-theme="dark"] .product-detail-description p,
+[data-theme="dark"] .product-detail__suggestions-list li,
+[data-theme="dark"] .product-review p {
+  color: #E6D9CB;
+}
+
+[data-theme="dark"] .product-detail__suggestions,
+[data-theme="dark"] .product-detail__delivery-info,
+[data-theme="dark"] .product-reviews__form {
+  background: #211B15;
+  border-color: #4A3A2D;
+}
+
+[data-theme="dark"] .product-detail__benefits {
+  background: rgba(159, 197, 160, 0.12);
+  border-color: rgba(159, 197, 160, 0.35);
+}
+
+[data-theme="dark"] .product-detail__suggestions-title,
+[data-theme="dark"] .product-detail__delivery-info strong,
+[data-theme="dark"] .product-review__topline strong,
+[data-theme="dark"] .product-reviews__summary strong {
+  color: #FFF9F0;
+}
+
+[data-theme="dark"] .product-detail__delivery-info {
+  color: #C8B9A8;
+}
+
+[data-theme="dark"] .product-reviews {
+  border-top-color: #4A3A2D;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -1266,10 +1299,21 @@ a,
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--clr-bark);
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
 }
 .trust-strip__item svg { color: var(--clr-terracotta); flex-shrink: 0; width: 20px; height: 20px; }
 @media (min-width: 768px) {
   .trust-strip__inner { grid-template-columns: repeat(4, 1fr); padding: 1.5rem; }
+}
+
+[data-theme="dark"] .trust-strip {
+  background: #211B15;
+  border-top-color: #4A3A2D;
+}
+
+[data-theme="dark"] .trust-strip__item {
+  color: #FFF9F0;
 }
 
 .hero-section {
