@@ -53,6 +53,8 @@ export default function AdminProductsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [archiveTarget, setArchiveTarget] = useState<Product | null>(null);
   const [bulkArchiveOpen, setBulkArchiveOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
@@ -167,27 +169,27 @@ export default function AdminProductsPage() {
     }
   }
 
-  async function handleStatusToggle(product: Product) {
-    const newStatus: ProductStatus =
-      product.status === "active" ? "out_of_stock" : "active";
-    try {
-      const res = await fetch("/api/admin/products/status", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: product.id, status: newStatus }),
-      });
-      if (res.ok) {
-        setMessage({
-          type: "success",
-          text: `${product.name} → ${PRODUCT_STATUS_LABELS[newStatus]}`,
-        });
-        loadProducts();
-      }
-    } catch {}
-  }
-
   function handleArchive(product: Product) {
     setArchiveTarget(product);
+  }
+
+  function handleDelete(product: Product) {
+    setDeleteTarget(product);
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    const productName = deleteTarget.name;
+    const res = await fetch("/api/admin/products", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: deleteTarget.id }),
+    });
+    setDeleteTarget(null);
+    if (res.ok) {
+      setMessage({ type: "success", text: `"${productName}" deleted.` });
+      loadProducts();
+    }
   }
 
   function confirmArchive() {
@@ -240,6 +242,21 @@ export default function AdminProductsPage() {
     setSelected(new Set());
     setMessage({ type: "success", text: `${archived} product(s) archived.` });
     loadProducts();
+  }
+
+  async function confirmBulkDelete() {
+    setBulkDeleteOpen(false);
+    const ids = Array.from(selected);
+    const res = await fetch("/api/admin/products", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids }),
+    });
+    setSelected(new Set());
+    if (res.ok) {
+      setMessage({ type: "success", text: `${ids.length} product(s) deleted.` });
+      loadProducts();
+    }
   }
 
   async function bulkSetActive() {
@@ -330,6 +347,9 @@ export default function AdminProductsPage() {
           </button>
           <button className="btn btn-sm" style={{ background: "var(--clr-chili)", color: "#fff", border: "none" }} onClick={bulkArchive}>
             Archive
+          </button>
+          <button className="btn btn-sm btn-danger" onClick={() => setBulkDeleteOpen(true)}>
+            Delete
           </button>
           <button className="btn btn-sm btn-outline" style={{ color: "#fff", borderColor: "rgba(255,255,255,0.3)" }} onClick={() => setSelected(new Set())}>
             Clear Selection
@@ -556,13 +576,6 @@ export default function AdminProductsPage() {
                       </td>
                       <td style={{ padding: "0.625rem 0.5rem" }}>
                         <div style={{ display: "flex", gap: "0.375rem", flexWrap: "wrap" }}>
-                          <button
-                            className="btn btn-sm btn-outline"
-                            onClick={() => handleStatusToggle(product)}
-                            title={product.status === "active" ? "Mark out of stock" : "Mark active"}
-                          >
-                            {product.status === "active" ? "Disable" : "Enable"}
-                          </button>
                           <button className="btn btn-sm btn-outline" onClick={() => openEdit(product)}>
                             Edit
                           </button>
@@ -571,6 +584,9 @@ export default function AdminProductsPage() {
                               Archive
                             </button>
                           )}
+                          <button className="btn btn-sm btn-danger" onClick={() => handleDelete(product)}>
+                            Delete
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -647,27 +663,18 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem" }}>
-                    <button
-                      className="btn btn-sm"
-                      onClick={() => handleStatusToggle(product)}
-                      style={{
-                        flex: 1,
-                        background: product.status === "active" ? "var(--clr-chili)" : "var(--clr-success)",
-                        color: "#fff",
-                        border: "none",
-                      }}
-                    >
-                      {product.status === "active" ? "Disable" : "Enable"}
-                    </button>
-                    <button className="btn btn-sm btn-outline" onClick={() => openEdit(product)} style={{ flex: 1 }}>
+                  <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem", flexWrap: "wrap" }}>
+                    <button className="btn btn-sm btn-outline" onClick={() => openEdit(product)} style={{ flex: "1 1 110px" }}>
                       Edit
                     </button>
                     {product.status !== "archived" && (
-                      <button className="btn btn-sm btn-outline" onClick={() => handleArchive(product)} style={{ color: "var(--clr-chili)" }}>
+                      <button className="btn btn-sm btn-outline" onClick={() => handleArchive(product)} style={{ color: "var(--clr-chili)", flex: "1 1 110px" }}>
                         Archive
                       </button>
                     )}
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(product)} style={{ flex: "1 1 110px" }}>
+                      Delete
+                    </button>
                   </div>
                 </div>
               );
@@ -716,6 +723,26 @@ export default function AdminProductsPage() {
         variant="danger"
         onConfirm={confirmBulkArchive}
         onCancel={() => setBulkArchiveOpen(false)}
+      />
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Delete Product"
+        message={`Delete "${deleteTarget?.name}" permanently? This cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+
+      <ConfirmModal
+        open={bulkDeleteOpen}
+        title="Delete Multiple Products"
+        message={`Delete ${selected.size} product(s) permanently? This cannot be undone.`}
+        confirmLabel={`Delete ${selected.size} product(s)`}
+        variant="danger"
+        onConfirm={confirmBulkDelete}
+        onCancel={() => setBulkDeleteOpen(false)}
       />
 
     </div>

@@ -26,9 +26,13 @@ export async function PATCH(request: Request) {
     );
   }
 
+  const updates = status === "archived"
+    ? { status, archived_at: new Date().toISOString() }
+    : { status, archived_at: null };
+
   const { error } = await adminClient
     .from("products")
-    .update({ status })
+    .update(updates)
     .eq("id", id);
 
   if (error) {

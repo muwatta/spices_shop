@@ -53,6 +53,7 @@ export default function CartPage() {
       const { data, error } = await supabase
         .from("products")
         .select("id, name, price, image_url, stock")
+        .neq("status", "archived")
         .in("id", productIds);
       if (!error && data) {
         const productMap: Record<string, Product> = {};

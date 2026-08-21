@@ -889,6 +889,23 @@
   font-size: 0.85rem;
   margin-bottom: 1rem;
 }
+@media (max-width: 520px) {
+  .admin-products-bulk {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .admin-products-bulk .btn { width: 100%; }
+}
+
+.confirm-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.confirm-modal-actions .btn {
+  flex: 1 1 120px;
+}
 
 
 .admin-form-overlay {

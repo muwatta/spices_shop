@@ -29,7 +29,8 @@ async function getProducts(
 
   let query = supabase
     .from("products")
-    .select("id, name, price, image_url, images, stock, description, created_at, category, low_stock_threshold", { count: "exact" });
+    .select("id, name, price, image_url, images, stock, description, created_at, category, low_stock_threshold", { count: "exact" })
+    .neq("status", "archived");
 
   if (search) {
     query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
@@ -67,6 +68,7 @@ async function getProducts(
       fallback = fallback.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
     const { data: fbData, count: fbCount } = await fallback
+      .neq("status", "archived")
       .order("created_at", { ascending: false })
       .range(from, to);
     return { products: (fbData ?? []) as Product[], total: fbCount ?? 0 };
@@ -77,7 +79,7 @@ async function getProducts(
 
 async function getCategories(): Promise<{ category: string; count: number }[]> {
   const supabase = createClient();
-  const { data, error } = await supabase.from("products").select("category");
+  const { data, error } = await supabase.from("products").select("category").neq("status", "archived");
 
   if (error || !data) return [];
 

@@ -49,6 +49,7 @@ export interface Product {
   images: string[];
   stock: number | null;
   created_at: string;
+  archived_at: string | null;
   category: ProductCategory | null;
   status: ProductStatus;
   low_stock_threshold: number;

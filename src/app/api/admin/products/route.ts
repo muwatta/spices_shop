@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { requireAdmin, requireSuperAdmin } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 const PAGE_SIZE = 25;
 
 const BASE_PRODUCT_COLUMNS = "id, name, price, image_url, stock, created_at, description";
+const ARCHIVE_EXPIRY_DAYS = 60;
 
 function normalizeProducts(products: any[] | null) {
   return (products ?? []).map((product) => ({
@@ -63,12 +64,17 @@ export async function GET(request: Request) {
   const status = searchParams.get("status") || "";
 
   const adminClient = createAdminClient();
+  await adminClient
+    .from("products")
+    .delete()
+    .eq("status", "archived")
+    .lte("archived_at", new Date(Date.now() - ARCHIVE_EXPIRY_DAYS * 24 * 60 * 60 * 1000).toISOString());
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
   let query = adminClient
     .from("products")
-    .select("id, name, price, image_url, images, stock, category, status, low_stock_threshold, created_at, description, benefits", { count: "exact" });
+    .select("id, name, price, image_url, images, stock, category, status, archived_at, low_stock_threshold, created_at, description, benefits", { count: "exact" });
 
   if (search) {
     query = query.ilike("name", `%${search}%`);
@@ -257,20 +263,22 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const authError = await requireSuperAdmin(request);
+  const authError = await requireAdmin(request);
   if (authError) return authError;
 
   const adminClient = createAdminClient();
   const body = await request.json();
-  const id = String(body.id || "").trim();
-  if (!id) {
-    return NextResponse.json({ error: "ID is required." }, { status: 400 });
+  const ids = Array.isArray(body.ids)
+    ? body.ids.map((id: unknown) => String(id).trim()).filter(Boolean)
+    : [String(body.id || "").trim()].filter(Boolean);
+  if (ids.length === 0) {
+    return NextResponse.json({ error: "At least one ID is required." }, { status: 400 });
   }
 
-  const { error } = await adminClient.from("products").delete().eq("id", id);
+  const { error } = await adminClient.from("products").delete().in("id", ids);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, deleted: ids.length });
 }

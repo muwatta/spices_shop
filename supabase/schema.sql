@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS products (
   price INTEGER NOT NULL, 
   image_url TEXT,
   stock INTEGER DEFAULT NULL,
+  archived_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

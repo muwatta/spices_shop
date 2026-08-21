@@ -40,6 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .from("products")
     .select("name, description, price, image_url, images")
     .eq("id", id)
+    .neq("status", "archived")
     .single();
 
   if (!product) return { title: "Product Not Found" };
@@ -64,6 +65,7 @@ export default async function ProductPage({ params }: Props) {
     .from("products")
     .select("*")
     .eq("id", id)
+    .neq("status", "archived")
     .single();
 
   if (!product) {
@@ -71,6 +73,7 @@ export default async function ProductPage({ params }: Props) {
       .from("products")
       .select("id, name, description, price, image_url, images, stock, created_at")
       .eq("id", id)
+      .neq("status", "archived")
       .single();
     product = fallback as any;
   }
@@ -108,6 +111,7 @@ export default async function ProductPage({ params }: Props) {
       .select("id, name, price, image_url, stock, description, created_at, category")
       .eq("category", product.category)
       .neq("id", product.id)
+      .neq("status", "archived")
       .limit(4);
     relatedProducts = data ?? [];
   }
@@ -117,6 +121,7 @@ export default async function ProductPage({ params }: Props) {
       .from("products")
       .select("id, name, price, image_url, stock, description, created_at, category")
       .not("id", "in", `(${existingIds.join(",")})`)
+      .neq("status", "archived")
       .limit(4 - relatedProducts.length);
     relatedProducts = [...relatedProducts, ...(data ?? [])];
   }

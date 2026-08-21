@@ -7,6 +7,7 @@ async function getProducts(): Promise<{ products: Product[]; total: number }> {
   const { data, count, error } = await supabase
     .from("products")
     .select("id, name, price, image_url, images, stock, description, category", { count: "exact" })
+    .neq("status", "archived")
     .order("created_at", { ascending: false })
     ;
 
@@ -14,6 +15,7 @@ async function getProducts(): Promise<{ products: Product[]; total: number }> {
     const { data: fallback } = await supabase
       .from("products")
       .select("id, name, price, image_url, stock, description", { count: "exact" })
+      .neq("status", "archived")
       .order("created_at", { ascending: false });
     return { products: (fallback ?? []) as Product[], total: fallback?.length ?? 0 };
   }

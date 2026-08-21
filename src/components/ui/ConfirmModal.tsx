@@ -107,7 +107,7 @@ export default function ConfirmModal({
         >
           {message}
         </p>
-        <div style={{ display: "flex", gap: "0.75rem", justifyContent: "flex-end" }}>
+        <div className="confirm-modal-actions">
           <button
             onClick={onCancel}
             className="btn btn-outline btn-sm"
