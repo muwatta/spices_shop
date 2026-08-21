@@ -1,6 +1,4 @@
 
-
-
 .admin-shell {
   display: flex;
   flex-direction: column;
@@ -487,6 +485,20 @@
 .admin-sidebar__back:hover {
   background: rgba(255, 255, 255, 0.06);
   color: rgba(253, 246, 236, 0.9);
+}
+
+@media (max-width: 1023px) {
+  .admin-sidebar {
+    top: 0.75rem;
+    bottom: auto;
+    width: min(200px, 42vw);
+    max-height: calc(100dvh - 1.5rem);
+    border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+  }
+
+  .admin-sidebar__nav {
+    flex: 0 1 auto;
+  }
 }
 
 @media (min-width: 1024px) {

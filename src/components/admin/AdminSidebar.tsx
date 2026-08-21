@@ -95,9 +95,6 @@ export default function AdminSidebar() {
             <Image src="/images/logo.jpg" alt="KMA" width={32} height={32} style={{ borderRadius: "var(--radius-md)" }} />
             <span>KMA Admin</span>
           </Link>
-          <button className="admin-sidebar__close" onClick={close} aria-label="Close menu">
-            <X size={18} />
-          </button>
         </div>
 
         <nav className="admin-sidebar__nav">
