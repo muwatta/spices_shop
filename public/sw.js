@@ -1,4 +1,4 @@
-const CACHE_NAME = "kma-spices-v2";
+const CACHE_NAME = "kma-spices-v3";
 const OFFLINE_URL = "/offline.html";
 const PRECACHE_URLS = ["/", OFFLINE_URL, "/images/logo.jpg"];
 
@@ -35,8 +35,7 @@ self.addEventListener("fetch", (event) => {
       return fetch(event.request).then((response) => {
         if (
           response.ok &&
-          (requestUrl.pathname.startsWith("/_next/static/") ||
-            requestUrl.pathname.startsWith("/images/"))
+          requestUrl.pathname.startsWith("/images/")
         ) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));

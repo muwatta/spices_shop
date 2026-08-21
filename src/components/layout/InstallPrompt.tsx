@@ -8,6 +8,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 const DISMISS_KEY = "kma-install-prompt-dismissed";
+const INSTALLED_KEY = "kma-install-completed";
 
 export default function InstallPrompt() {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
@@ -17,7 +18,10 @@ export default function InstallPrompt() {
     const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
       ("standalone" in window.navigator && Boolean((window.navigator as Navigator & { standalone?: boolean }).standalone));
 
-    if (isStandalone || localStorage.getItem(DISMISS_KEY) === "true") return;
+    if (
+      isStandalone ||
+      localStorage.getItem(DISMISS_KEY) === "true"
+    ) return;
 
     const handleBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
@@ -26,7 +30,17 @@ export default function InstallPrompt() {
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    const handleAppInstalled = () => {
+      localStorage.setItem(INSTALLED_KEY, "true");
+      setVisible(false);
+      setInstallEvent(null);
+    };
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
   }, []);
 
   if (!visible || !installEvent) return null;
@@ -34,7 +48,10 @@ export default function InstallPrompt() {
   async function install() {
     await installEvent?.prompt();
     const choice = await installEvent?.userChoice;
-    if (choice?.outcome === "accepted") setVisible(false);
+    if (choice?.outcome === "accepted") {
+      localStorage.setItem(INSTALLED_KEY, "true");
+      setVisible(false);
+    }
     setInstallEvent(null);
   }
 
