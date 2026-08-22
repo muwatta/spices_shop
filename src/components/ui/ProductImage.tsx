@@ -17,6 +17,10 @@ const CATEGORY_STYLES: Record<string, { bg: string; fg: string; label: string }>
 
 const FALLBACK = { bg: "#F5F0EB", fg: "#8B7355", label: "KMA" };
 
+function isSupabaseImage(value: string) {
+  return value.includes(".supabase.co/storage/v1/");
+}
+
 interface ProductImageProps {
   src: string | null;
   alt: string;
@@ -99,6 +103,7 @@ export default function ProductImage({
         fill={fill}
         sizes={sizes}
         priority={priority}
+        unoptimized={isSupabaseImage(src)}
         className={className}
         style={{ objectFit: "cover", opacity: loaded ? 1 : 0, transition: "opacity 0.3s ease" }}
         onError={handleError}

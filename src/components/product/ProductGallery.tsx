@@ -18,6 +18,10 @@ const CATEGORY_STYLES: Record<string, { bg: string; fg: string }> = {
 };
 const FALLBACK = { bg: "#F5F0EB", fg: "#8B7355" };
 
+function isSupabaseImage(value: string) {
+  return value.includes(".supabase.co/storage/v1/");
+}
+
 interface ProductGalleryProps {
   imageUrl: string | null;
   images?: string[];
@@ -148,6 +152,7 @@ export default function ProductGallery({
                 fill
                 sizes="(max-width: 768px) 100vw, 55vw"
                 priority={activeIndex === 0}
+                unoptimized={isSupabaseImage(activeUrl!)}
                 className="pd-gallery__img"
                 style={{ objectFit: "cover", opacity: loaded.has(activeIndex) ? 1 : 0, transition: "opacity 0.3s ease" }}
                 onError={() => markError(activeIndex)}
@@ -208,6 +213,7 @@ export default function ProductGallery({
                     alt=""
                     fill
                     sizes="64px"
+                    unoptimized={isSupabaseImage(img)}
                     style={{ objectFit: "cover" }}
                   />
                 )}
@@ -271,6 +277,7 @@ export default function ProductGallery({
               alt={`${productName} - zoomed ${activeIndex + 1}/${allImages.length}`}
               fill
               sizes="100vw"
+              unoptimized={isSupabaseImage(activeUrl!)}
               style={{ objectFit: "contain" }}
               quality={90}
             />
