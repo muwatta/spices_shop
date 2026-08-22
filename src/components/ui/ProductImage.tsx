@@ -103,7 +103,7 @@ export default function ProductImage({
         style={{ objectFit: "cover", opacity: loaded ? 1 : 0, transition: "opacity 0.3s ease" }}
         onError={handleError}
         onLoad={() => setLoaded(true)}
-        quality={80}
+        quality={75}
       />
     </div>
   );

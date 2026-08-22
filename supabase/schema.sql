@@ -73,6 +73,12 @@ CREATE TABLE IF NOT EXISTS admin_security_events (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS user_carts (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  items JSONB NOT NULL DEFAULT '[]'::jsonb,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS do_you_know_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -109,6 +115,7 @@ ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_security_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_carts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE do_you_know_items ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "products_public_read" ON products
@@ -165,6 +172,10 @@ CREATE POLICY "admin_users_service_all" ON admin_users
 
 CREATE POLICY "admin_security_events_service_all" ON admin_security_events
   FOR ALL USING (auth.role() = 'service_role');
+
+CREATE POLICY "user_carts_own" ON user_carts
+  FOR ALL USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "do_you_know_items_public_read" ON do_you_know_items
   FOR SELECT USING (true);
