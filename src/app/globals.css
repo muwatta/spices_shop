@@ -5445,6 +5445,26 @@ textarea:focus-visible {
   font-family: var(--font-body);
 }
 
+[data-theme="dark"] .nav {
+  background: #211B15;
+  color: #F1D88E;
+}
+
+[data-theme="dark"] .nav__menu,
+[data-theme="dark"] .nav__cart,
+[data-theme="dark"] .nav__user-btn {
+  color: #F1D88E;
+}
+
+[data-theme="dark"] .nav__center a {
+  color: rgba(241, 216, 142, 0.78);
+}
+
+[data-theme="dark"] .nav__center a:hover,
+[data-theme="dark"] .nav__center a.active {
+  color: #F1D88E;
+}
+
 @media (max-width: 767px) {
   .nav__actions {
     gap: 0.375rem;
