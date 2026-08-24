@@ -36,26 +36,32 @@ export default function CartSync() {
   const supabase = useRef(createClient()).current;
   const syncing = useRef(false);
   const userId = useRef<string | null>(null);
+  const readyUserId = useRef<string | null>(null);
+  const loadVersion = useRef(0);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let active = true;
 
     async function save(items: CartItem[]) {
-      if (!userId.current || syncing.current) return;
-      await supabase.from("user_carts").upsert({ user_id: userId.current, items: normalizeItems(items) });
+      const currentUserId = userId.current;
+      if (!currentUserId || readyUserId.current !== currentUserId || syncing.current) return;
+      await supabase.from("user_carts").upsert({ user_id: currentUserId, items: normalizeItems(items) });
     }
 
     async function load(userIdValue: string) {
       userId.current = userIdValue;
+      readyUserId.current = null;
+      const requestedVersion = ++loadVersion.current;
       const { data } = await supabase.from("user_carts").select("items").eq("user_id", userIdValue).maybeSingle();
-      if (!active) return;
+      if (!active || requestedVersion !== loadVersion.current || userId.current !== userIdValue) return;
       const localItems = useCartStore.getState().items;
       const remoteItems = normalizeItems(data?.items);
       const merged = mergeItems(localItems, remoteItems);
       syncing.current = true;
       useCartStore.setState({ items: merged });
       syncing.current = false;
+      readyUserId.current = userIdValue;
       await save(merged);
     }
 
@@ -67,7 +73,12 @@ export default function CartSync() {
 
     const authSubscription = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) void load(session.user.id);
-      else userId.current = null;
+      else {
+        userId.current = null;
+        readyUserId.current = null;
+        loadVersion.current += 1;
+        useCartStore.setState({ items: [] });
+      }
     });
 
     void supabase.auth.getUser().then(({ data }) => {
@@ -77,10 +88,11 @@ export default function CartSync() {
     const channel = supabase
       .channel("user-cart-sync")
       .on("postgres_changes", { event: "*", schema: "public", table: "user_carts" }, (payload) => {
-        const nextCart = payload.new as { user_id?: string; items?: unknown };
-        if (nextCart.user_id !== userId.current) return;
+        const nextCart = payload.new as { user_id?: string; items?: unknown } | null;
+        const previousCart = payload.old as { user_id?: string } | null;
+        if ((nextCart?.user_id ?? previousCart?.user_id) !== userId.current) return;
         syncing.current = true;
-        useCartStore.setState({ items: normalizeItems(nextCart.items) });
+        useCartStore.setState({ items: normalizeItems(nextCart?.items) });
         syncing.current = false;
       })
       .subscribe();
